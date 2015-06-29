@@ -1,38 +1,20 @@
-from trademe.api.tag import no_auth
 import asyncio
-import aiohttp
-__author__ = 'lee'
 
-@asyncio.coroutine
-def _req_json(session, *args, **kw):
-    resp = yield from session.request(*args, **kw)
-    if resp.status == 200:
-        return (yield from resp.json())
-    else:
-        raise Exception("Fu Bar")
+def get_localities(http_requester):
+    return http_requester.get_json("v1/Localities.json")
 
 
-
-@no_auth
-@asyncio.coroutine
-def get_localities(session):
-    return (yield from _req_json(session,
-                                 'get', session.root + "v1/Localities.json"))
+def get_districts(http_requester, region):
+    return (yield from http_requester.get_json("v1/Localities/Region/%{region}"
+                                               ".json", {'region': region}))
 
 
-@no_auth
-@asyncio.coroutine
-def get_districts(session, region):
-    url = session.root + "v1/Localities/Region/%{region}.json"
-    return (yield from _req_json(session,
-                                 'get', url.format({'region': region})))
+def get_suburbs(http_requester, region, district):
+    return (yield from http_requester.get_json("v1/Localities/Region/"
+                                               "%{region}/%{district}.json",
+                                               {'region': region,
+                                                'district': district}))
 
 
-@no_auth
-@asyncio.coroutine
-def get_suburbs(session, region, district):
-    url = session.root + "v1/Localities/Region/%{region}/%{district}.json"
-    return (yield from _req_json(session,
-                                 'get', url.format({'region': region,
-                                                    'district': district})))
 
+# https://api.trademe.co.nz/v1/Search/Property/Rental.
