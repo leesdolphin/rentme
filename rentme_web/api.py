@@ -15,8 +15,8 @@ def load_trademe_locality_information():
             for suburb in districts["Suburbs"]:
                 s_name = suburb["Name"]
                 s_id = suburb["SuburbId"]
-                for adj_suburb_id in districts["AdjacentSuburbs"]:
-
+                for adj_suburb_id in suburb.get("AdjacentSuburbs", []):
+                    pass
 
 
 
