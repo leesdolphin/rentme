@@ -26,7 +26,9 @@ class API(object):
 
     def get_rental_touch(self, params):
         return requests.get("https://touch.trademe.co.nz/api/"
-                            "v1/Search/Property/Rental.json", params=params)
+                            "v1/Search/Property/Rental.json",
+                            params=params).json()
+
 
 
 

@@ -5,7 +5,6 @@ import trademe.api as api
 def load_trademe_locality_information():
     session = api.API()
     adj_suburbs = {}
-    suburbs = {}
     ## Array
     localities = session.get_localities()
     for locality in localities:
@@ -32,6 +31,13 @@ def load_trademe_locality_information():
         suburb.adjacent_suburbs = models.TradeMeSuburb.objects\
                                         .filter(id__in=adj_list).all()
     return localities
+
+def load_rentals(**kwargs):
+    ## TODO create suburbs string
+    session = api.API()
+    rentals = session.get_rental_touch(kwargs)
+    return rentals
+
 
 
 
