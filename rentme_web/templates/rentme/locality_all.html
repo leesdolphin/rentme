@@ -1,0 +1,29 @@
+<html>
+<head>
+    <title>All locality</title>
+</head>
+<body>
+<ul>
+    {{c}}
+    {{ localities }}
+    {% for locality in localities.all %}
+    <li>
+        <b>{{locality.id}}</b> {{locality.name}}
+        <ul>
+            {% for district in locality.districts.all %}
+            <li>
+                <b>{{district.id}}</b> {{district.name}}
+                <ul>
+                    {% for suburb in district.suburbs.all %}
+                    <li><b>{{suburb.id}}</b> {{suburb.name}}</li>
+                    {% endfor %}
+                </ul>
+            </li>
+            {% endfor %}
+        </ul>
+    </li>
+    {% endfor %}
+</ul>
+</body>
+</html>
+

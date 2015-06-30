@@ -5,20 +5,20 @@ from django.db import models
 class TradeMeLocality(models.Model):
 
     id = models.IntegerField(primary_key=True)
-    name = models.TextField(unique=True)
+    name = models.TextField()
 
 
 class TradeMeDistrict(models.Model):
 
-    locality = models.ForeignKey(TradeMeLocality)
+    locality = models.ForeignKey(TradeMeLocality, related_name='districts')
     id = models.IntegerField(primary_key=True)
-    name = models.TextField(unique=True)
+    name = models.TextField()
 
 class TradeMeSuburb(models.Model):
 
-    district = models.ForeignKey(TradeMeDistrict)
+    district = models.ForeignKey(TradeMeDistrict, related_name='suburbs')
     id = models.IntegerField(primary_key=True)
-    name = models.TextField(unique=True)
+    name = models.TextField()
     adjacent_suburbs = models.ManyToManyField('self')
 
 class TradeMeMember(models.Model):
