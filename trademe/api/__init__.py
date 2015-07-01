@@ -30,8 +30,6 @@ class API(object):
                             params=params).json()
 
 
-
-
 class HttpRequester(object):
 
     def __init__(self, base_uri, **kwargs):

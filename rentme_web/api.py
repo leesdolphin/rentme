@@ -1,6 +1,6 @@
 import rentme_web.models as models
 import trademe.api as api
-
+from requests.structures import CaseInsensitiveDict
 
 def load_trademe_locality_information():
     session = api.API()
@@ -34,8 +34,34 @@ def load_trademe_locality_information():
 
 def load_rentals(**kwargs):
     ## TODO create suburbs string
+    params = CaseInsensitiveDict(kwargs)
+    params.setdefault('page', 1)
+    params.setdefault('rows', 200)
+    rows = params['rows'] = int(params['rows'])
+    print("Params:", params)
     session = api.API()
-    rentals = session.get_rental_touch(kwargs)
+    more_pages = True
+    while more_pages:
+        rentals = session.get_rental_touch(params)
+        for listing_data in rentals['List']:
+            ## This loads preliminary data. It is sufficient to display; but
+            ##  full data should be loaded before displaying individual listing.
+            try:
+                listing = models.TradeMeListing.objects.get(
+                    id=listing_data["ListingId"])
+            except models.TradeMeListing.DoesNotExist:
+                listing = models.TradeMeListing(id=listing_data["ListingId"])
+            listing.title = listing_data["Title"]
+            listing.category = listing_data["Category"]
+            listing.start_date = _d(listing_data["StartDate"])
+            listing.end_date = _d(listing_data["EndDate"])
+            listing.generated_at = _d(listing_data["AsAt"])
+            listing.agency =
+
+
+
+        params['page'] = rentals["Page"] + 1
+        more_pages = (rentals["PageSize"] >= rows)
     return rentals
 
 

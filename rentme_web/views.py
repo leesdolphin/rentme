@@ -16,7 +16,8 @@ def list_all_locality(request):
     return render(request, 'rentme/locality_all.html', context)
 
 def search_rentals(request):
-    x = api.load_rentals(**request.GET)
+    kwargs = {key: val for key, val in request.GET.items()}
+    x = api.load_rentals(**kwargs)
     return django.http.response.HttpResponse("<pre>" + json.dumps(x,
                                                                 sort_keys=True,
                                                         indent=4))

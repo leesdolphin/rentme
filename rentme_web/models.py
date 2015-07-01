@@ -40,19 +40,24 @@ class TradeMeListing(models.Model):
     generated_at = models.DateTimeField() ## AsAt
     stored_at = models.DateTimeField(auto_now=True)
     ## properties - From a FK relation on TradeMeListingProperty
+    agency = models.ManyToManyField('TradeMeAgency')
     location = models.ForeignKey('TradeMeListingLocation')
     price = models.ForeignKey('TradeMeListingPrice')
-    member = models.ForeignKey('TradeMeMember')
+    member = models.ForeignKey('TradeMeMember', null=True)
     description = models.TextField() ## Body
+    thumbnail_href = models.URLField(null=True) ## PictureHref
     photos = models.ManyToManyField('TradeMeListingPhoto')
 
 
 
 
 class TradeMeListingPrice(models.Model):
-
+    class Meta:
+        unique_together = ('value', 'period',)
     value = models.DecimalField(max_digits=10, decimal_places=2)
     period = models.ForeignKey('TradeMeListingPricePeriods')
+
+
 
 
 class TradeMeListingPricePeriods(models.Model):
@@ -61,16 +66,17 @@ class TradeMeListingPricePeriods(models.Model):
 
 
 class TradeMeListingLocation(models.Model):
-
-    latitude = models.DecimalField(max_digits=11, decimal_places=8)
-    longitude = models.DecimalField(max_digits=11, decimal_places=8)
+    class Meta:
+        unique_together = ('latitude', 'longitude', 'accuracy')
+    latitude = models.DecimalField(max_digits=11, decimal_places=8, unique=True)
+    longitude = models.DecimalField(max_digits=11, decimal_places=8, unique=True)
     accuracy = models.IntegerField(choices=(
         ## These are out of order in the docs.
         (0, "None"),
         (1, "Address"),
         (3, "Street"),
         (2, "Suburb"),
-    ))
+    ), unique=True)
 
 
 class TradeMeListingPhoto(models.Model):
@@ -106,7 +112,6 @@ class TraceMeAgencyAgent(models.Model):
     office_number = models.CharField(max_length=20)
     email = models.EmailField()
     fax_number = models.CharField(max_length=20)
-
 
 
 class TradeMeListingProperty(models.Model):
