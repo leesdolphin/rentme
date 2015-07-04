@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load staticfiles %}
+    <meta charset="UTF-8">
+    <title>{% block title %}{% endblock %}</title>
+    {% block bootstrap %}
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet"
+          href="{% static 'bootstrap/css/bootstrap-theme.min.css' %}" />
+    <link rel="stylesheet"
+          href="{% static 'bootstrap/css/bootstrap.min.css' %}" />
+    <script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
+    {% endblock %}
+    {% block head %}{% endblock %}
+</head>
+<body>
+    {% block body %}
+    <div class="container">
+        {% block content %}{% endblock %}
+    </div>
+    {% endblock %}
+</body>
+</html>

@@ -1,0 +1,15 @@
+{% extends 'rentme/_base.html' %}
+
+{% block title %}All imported listings{% endblock %}
+
+{% block content %}
+{% for listing in listing_list %}
+<div>
+    <a href="{% url 'rentals/rental' listing.id %}">
+        <img src="{{ listing.thumbnail }}" class="img-thumbnail img-responsive" />
+        <span>{{listing.title}}<small>{{listing.id}}</small></span>
+        <span>{{listing.rent_per_week}}</span>
+    </a>
+</div>
+{% endfor %}
+{% endblock %}

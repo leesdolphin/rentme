@@ -1,6 +1,6 @@
 import json
 import django.http
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from rentme_web import models, api
 
 # Create your views here.
@@ -15,9 +15,28 @@ def list_all_locality(request):
     context = {'localities': localities, 'c': count}
     return render(request, 'rentme/locality_all.html', context)
 
-def search_rentals(request):
+def load_search_rentals(request):
     kwargs = {key: val for key, val in request.GET.items()}
-    x = api.load_rentals(**kwargs)
-    return django.http.response.HttpResponse("<pre>" + json.dumps(x,
-                                                                sort_keys=True,
-                                                        indent=4))
+    x = api.search_rentals(**kwargs)
+    return django.http.response.HttpResponse("Loaded " + len(x) + " properties")
+
+def load_rental(request, id):
+    x = api.load_rental(id)
+    return django.http.response.HttpResponse("Loaded property")
+
+def all_rentals(request):
+    context = {}
+    models.TradeMeListing.objects.filter(
+        Q()
+    )
+    context['listing_list'] = []
+
+    return render(request, 'rentme/listings_all.html', context)
+
+def one_rental(request, id):
+    listing = get_object_or_404(models.TradeMeListing, id=id)
+    print(dir(listing))
+    context = {'listing': listing}
+    same_loc_listings = set(listing.location.trademelisting_set.all())
+    context['similar_location_listings'] = same_loc_listings
+    return render(request, 'rentme/listing_single.html', context)

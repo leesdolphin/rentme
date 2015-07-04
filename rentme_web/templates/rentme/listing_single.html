@@ -1,0 +1,24 @@
+{% extends 'rentme/_base.html' %}
+
+{% block title %}TradeMe Listing -- {{listing.title}}{% endblock %}
+
+{% block content %}
+<img src="{{ listing.thumbnail }}" class="img-thumbnail img-responsive" />
+<span>{{listing.title}}<small>{{listing.id}}</small></span>
+<span>{{listing.rent_per_week}}</span>
+<div><a
+        href="http://www.trademe.co.nz/property/residential-property-to-rent/auction-{{listing.id}}.htm">View on TradeMe</a></div>
+<h2>Other properties at the same location</h2>
+<ul>
+    {% for rel_listing in similar_location_listings %}
+    <li>
+        <a href="{% url 'rentals/rental' rel_listing.id %}">
+            <img src="{{ rel_listing.thumbnail }}" class="img-thumbnail img-responsive" />
+            <h3>{{rel_listing.title}} <small>{{rel_listing.id}}</small></h3>
+            <span>${{rel_listing.rent_per_week}} per week</span>
+        </a>
+    </li>
+    {% endfor %}
+</ul>
+
+{% endblock %}

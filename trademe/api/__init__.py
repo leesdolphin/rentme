@@ -1,7 +1,6 @@
 import requests
-
 TRADEME_API_BASE_URL = "https://api.trademe.co.nz/"
-
+TRADEME_TOUCH_API = "https://touch.trademe.co.nz/api/"
 
 
 class API(object):
@@ -24,9 +23,14 @@ class API(object):
                             .format({'region':region})
                             ).json()
 
-    def get_rental_touch(self, params):
-        return requests.get("https://touch.trademe.co.nz/api/"
+    def search_rental(self, params):
+        return requests.get(TRADEME_TOUCH_API +
                             "v1/Search/Property/Rental.json",
+                            params=params).json()
+
+    def get_rental(self, id, params):
+        return requests.get(TRADEME_TOUCH_API +
+                            "v1/Listings/" + id + ".json",
                             params=params).json()
 
 
