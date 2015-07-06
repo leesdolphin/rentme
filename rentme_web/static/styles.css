@@ -1,0 +1,16 @@
+.listing-thumbnail-media {
+    height: 100px;
+}
+
+.listing-thumbnail {
+    width: 120px;
+    text-align: center;
+}
+.listing-thumbnail img {
+    max-width: 120px;
+    max-height: 100px;
+}
+
+.listing-image {
+    margin-right: 10px;
+}

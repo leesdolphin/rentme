@@ -10,6 +10,6 @@ urlpatterns = [
     url(r'rentals/load/(?P<id>[0-9]+)', views.load_rental, name='rentals/load'),
     url(r'rentals/all', views.all_rentals,
         name='rentals/all'),
-    url(r'rentals/rental/(?P<id>[0-9]+)', views.one_rental,
-        name='rentals/rental')
+    url(r'rentals/(?P<id>[0-9]+)', views.one_rental,
+        name='rentals/view')
 ]

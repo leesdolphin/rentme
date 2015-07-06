@@ -30,7 +30,7 @@ class API(object):
 
     def get_rental(self, id, params):
         return requests.get(TRADEME_TOUCH_API +
-                            "v1/Listings/" + id + ".json",
+                            "v1/Listings/" + str(id) + ".json",
                             params=params).json()
 
 

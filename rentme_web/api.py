@@ -57,6 +57,8 @@ def search_rentals(**kwargs):
             try:
                 listing = models.TradeMeListing.objects.get(
                     id=get('ListingId'))
+                load_rental(get('ListingId'))
+                continue  ## In the DB; assume up to date.
             except models.TradeMeListing.DoesNotExist:
                 listing = models.TradeMeListing()
                 listing.id = get('ListingId')
@@ -78,14 +80,17 @@ def search_rentals(**kwargs):
             ## Reduce the save size to speed up updates.
             listing.generated_at = _d(get('AsAt'))
             listing.save()
+            load_rental(get('ListingId'))
             listings.append(listing)
         params['page'] = rentals["Page"] + 1
         more_pages = (rentals["PageSize"] >= rows)
     return listings
 
+
 def _d(trademe_date_string):
     time_str = TRADEME_DATE_REGEX.match(trademe_date_string).group(1)
     return datetime.fromtimestamp(int(time_str) / 1000, utc)
+
 
 def get_agency(agency_data):
     if not agency_data:
@@ -120,6 +125,7 @@ def get_agency(agency_data):
     agency.save()
     return [agency]
 
+
 def get_location(location_data):
     return models.TradeMeListingLocation.objects.get_or_create(
         latitude=location_data["Latitude"],
@@ -127,8 +133,18 @@ def get_location(location_data):
         accuracy=location_data["Accuracy"],
     )[0]
 
-def get_properties(attrs):
-    pass
+
+def get_attributes(listing, attrs):
+    for attr_data in attrs:
+        get = attr_data.get
+        try:
+            attr = listing.attributes.get(name=get('Name'))
+        except models.TradeMeListingAttribute.DoesNotExist:
+            attr = models.TradeMeListingAttribute()
+            attr.name = get('Name')
+        attr.display_name = get('DisplayName')
+        attr.value = get('Value')
+
 
 def get_photos(photos_data):
     photos = []
@@ -136,10 +152,10 @@ def get_photos(photos_data):
         get = photo_data.get('Value', {}).get
         try:
             photo = models.TradeMeListingPhoto.objects.get(
-                id=photo_data.get('PhotoId'))
+                id=photo_data.get('Key'))
         except models.TradeMeListingPhoto.DoesNotExist:
             photo = models.TradeMeListingPhoto()
-            photo.id = photo_data.get('PhotoId')
+            photo.id = photo_data.get('Key')
         photo.thumbnail = get('Thumbnail')
         photo.list = get('List')
         photo.medium = get('Medium')
@@ -147,45 +163,43 @@ def get_photos(photos_data):
         photo.large = get('Large')
         photo.full_size = get('FullSize')
         photo.plus_size = get('PlusSize')
-        photo.original_width = get('OriginalWidth')
-        photo.original_height = get('OriginalHeight')
+        photo.original_width = get('OriginalWidth', -1)
+        photo.original_height = get('OriginalHeight', -1)
+        print(photo_data.get('Key'), get('PhotoId'), photo)
         photo.save()
         photos.append(photo)
     return photos
 
 
 def get_member(member):
-    pass
+    return None
+
 
 def load_rental(id):
+    try:
+        listing = models.TradeMeListing.objects.get(
+            id=int(id))
+        if listing.description:
+            return listing  ## Has a body, don't need to update again.
+    except models.TradeMeListing.DoesNotExist:
+        listing = models.TradeMeListing()
+        listing.id = int(id)
     session = api.API()
     info = session.get_rental(id, {'return_member_profile': True})
     print(info)
     get = info.get
-    try:
-        listing = models.TradeMeListing.objects.get(
-            id=get('ListingId'))
-    except models.TradeMeListing.DoesNotExist:
-        listing = models.TradeMeListing()
-        listing.id = get('ListingId')
-        listing.generated_at = _d(get('AsAt'))
+    listing.generated_at = _d(get('AsAt'))
     listing.title = get('Title')
     listing.category = get('Category', None)
     listing.description = get('Body')
     listing.start_date = _d(get('StartDate'))
     listing.end_date = _d(get('EndDate'))
     listing.location = get_location(get('GeographicLocation'))
-    listing.properties = get_properties(get('Attributes'))
     listing.photos = get_photos(get('Photos'))
     listing.member = get_member(get('Member'))
     listing.save()
-    if get('PhotoId'):
-        try:
-            listing.thumbnail_href = models.TradeMeListingPhoto.object.get(
-                id=get('PhotoId')).largest_image
-        except models.TradeMeListingPhoto.DoesNotExist:
-            pass
     listing.agency = get_agency(get('Agency'))
+    get_attributes(listing, get('Attributes'))
     listing.save()
     ## Reduce the save size to speed up updates.
     listing.generated_at = _d(get('AsAt'))
