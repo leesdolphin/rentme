@@ -10,6 +10,8 @@ urlpatterns = [
     url(r'rentals/load/(?P<id>[0-9]+)', views.load_rental, name='rentals/load'),
     url(r'rentals/all', views.all_rentals,
         name='rentals/all'),
-    url(r'rentals/(?P<id>[0-9]+)', views.one_rental,
-        name='rentals/view')
+    url(r'^rentals/(?P<id>[0-9]+)$', views.one_rental,
+        name='rentals/view'),
+    url(r'^rentals/(?P<id>[0-9]+)/review/(?P<rating>[a-zA-Z0-9]+)$',
+        views.review_rental, name='rentals/review'),
 ]

@@ -12,10 +12,10 @@
     </div>
     <div class="col-sm-12 col-md-7">
         <div>
-            {{listing.description|default:"No description available"}}
+            {{listing.description|default:"No description available"|linebreaks}}
         </div>
         <div class="btn-toolbar text-center" role="toolbar">
-            {% include 'rentme/incl/listing_rating_pills.html' with review=listing.review only %}
+{% include 'rentme/incl/listing_rating_pills.html' with listing=listing only %}
             <div class="btn-group pull-right" role="group">
                 <a href="{{listing.trademe_url}}" class="btn btn-default">
                     <span class="glyphicon glyphicon-globe"></span>

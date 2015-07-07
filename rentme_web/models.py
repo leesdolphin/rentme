@@ -3,6 +3,7 @@ from django.core.urlresolvers import reverse
 from django.utils.functional import cached_property
 import re
 from collections import OrderedDict
+
 # Create your models here.
 
 def photos_cleanup(photos):
@@ -90,6 +91,24 @@ class TradeMeListing(models.Model):
             imgs.insert(0, self.thumbnail_href)
         return photos_cleanup(imgs)
 
+    def get_review_url(self, rating):
+        rating = rating.lower()
+        if rating in PropertyRating.MAPPING:
+            print(reverse('rentals/review', kwargs={'id': str(self.id),
+                                                     'rating': rating}))
+            return reverse('rentals/review', kwargs={'id': str(self.id),
+                                                     'rating': rating})
+        else:
+            raise ValueError("Invalid Rating")
+
+    def get_review_url_positive(self):
+        return self.get_review_url('positive')
+    def get_review_url_neutral(self):
+        return self.get_review_url('neutral')
+    def get_review_url_negative(self):
+        return self.get_review_url('negative')
+
+
 class TradeMeListingLocation(models.Model):
     class Meta:
         unique_together = ('latitude', 'longitude', 'accuracy')
@@ -167,7 +186,21 @@ class TradeMeListingAttribute(models.Model):
 
 class PropertyRating(models.Model):
 
-    property = models.OneToOneField(TradeMeListing)
+    MAPPING = {
+        'positive': 2,
+        'neutral': 1,
+        'negative': 0,
+    }
+
+    property = models.OneToOneField(TradeMeListing, related_name='rating')
     rating = models.PositiveSmallIntegerField()
+
+    def __getattr__(self, item):
+        if item.starts_with('is_') and item[3:] in self.MAPPING:
+            return self.rating == self.MAPPING[item[3:]]
+        else:
+            return super().__getattr__(item)
+
+
 
 

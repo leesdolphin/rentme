@@ -1,4 +1,3 @@
-import json
 import django.http
 from django.db.models import Q
 from django.shortcuts import render, redirect, get_object_or_404
@@ -28,9 +27,14 @@ def load_rental(request, id):
 
 def all_rentals(request):
     context = {}
-    ls_all = models.TradeMeListing.objects.filter(
-        Q(rent_per_week__lt=450)
-    )
+    filters = [
+        Q(rent_per_week__lt=475),
+        Q(rent_per_week__gt=300),
+        Q(bedrooms__gte=2),
+    ]
+    if not request.GET.get('all', None):
+        filters.append(Q(rating__isnull=True) | Q(rating__rating__gte=1))
+    ls_all = models.TradeMeListing.objects.filter(*filters)
     context['listing_list'] = ls_all
 
     return render(request, 'rentme/listings_all.html', context)
@@ -46,3 +50,16 @@ def one_rental(request, id):
             photo for ls in same_loc_listings for photo in ls.all_photos
         ])
     return render(request, 'rentme/listing_single.html', context)
+
+def review_rental(request, id, rating):
+    rating = rating.lower()
+    listing = get_object_or_404(models.TradeMeListing, id=id)
+    if rating in models.PropertyRating.MAPPING:
+        rating = models.PropertyRating.MAPPING[rating]
+        pr_rating, _ = models.PropertyRating.objects.get_or_create(
+            defaults={'rating': rating},
+            property=listing
+        )
+        pr_rating.rating = rating
+        pr_rating.save()
+    return redirect('rentals/all')

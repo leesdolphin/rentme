@@ -14,3 +14,7 @@
 .listing-image {
     margin-right: 10px;
 }
+
+a.list-group-item:visited {
+  border-left-color: #55f;
+}
