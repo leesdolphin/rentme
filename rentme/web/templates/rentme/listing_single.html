@@ -1,0 +1,104 @@
+{% extends 'rentme/_base.html' %}
+{% load static %}
+
+{% block head_files %}
+    {% with maps=1 %}
+        {{ block.super }}
+    {% endwith %}
+{% endblock %}
+
+{% block title %}TradeMe Listing -- {{listing.title}}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>{{listing.title}} <small>${{ listing.rent_per_week }}/week &mdash; {{listing.address|default:""}}</small></h1>
+</div>
+<div class="row">
+    <div class="col-sm-12 col-md-6">
+{% include 'rentme/incl/listing_gallery.html' with photos=listing.all_photos carousel=1 only %}
+    </div>
+    <div class="col-sm-12 col-md-6">
+        <div>
+            {{listing.description|default:"No description available"|linebreaks}}
+        </div>
+        <div class="btn-toolbar text-center" role="toolbar">
+{% include 'rentme/incl/listing_rating_pills.html' with listing=listing only %}
+            <div class="btn-group pull-right" role="group">
+                <a href="{{listing.trademe_url}}" class="btn btn-default">
+                    <span class="glyphicon glyphicon-globe"></span>
+                    View on TradeMe
+                </a>
+            </div>
+        </div>
+    </div>
+    {% if listing.attributes %}
+    <div class="col-sm-12 col-md-6">
+        <table class="table">
+        <caption>Property Attributes</caption>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Value</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Listed on</td>
+                <td>{{ listing.start_date }}</td>
+            </tr>
+            {% for attribute in listing.attributes.all %}
+            <tr>
+                <td>{{ attribute.display_name }}</td>
+                <td>{{ attribute.value }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        </table>
+    </div>
+    {% endif %}
+</div>
+<div class="clearfix"></div>
+
+    {% if listing.location %}
+    <div class="panel panel-default">
+    <div class="panel-heading">Location</div>
+    <div>
+        {% include 'rentme/incl/map_with_marker.html' with point=listing.location only %}
+    </div>
+    </div>
+    {% endif %}
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">Rate this property</h3>
+    </div>
+    <div>
+        {{listing.location.get_accuracy_display}}
+        TODO: Write this form.
+    </div>
+</div>
+
+{% if similar_location_photos %}
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">Photos for properties at this location</h3>
+    </div>
+    <div>
+        {% include 'rentme/incl/listing_gallery.html' with photos=similar_location_photos only %}
+    </div>
+</div>
+{% endif %}
+
+{% if similar_location_listings %}
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title">Other properties at the same location</h3>
+  </div>
+    <div class="list-group">
+    {% for rel_listing in similar_location_listings %}
+        {% include 'rentme/incl/listing_list_item.html' with listing=rel_listing only %}
+    {% endfor %}
+    </div>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,11 @@
+{% if listing.review %}
+<span class="badge">
+    {% if listing.review.is_positive %}
+    <span class="glyphicon glyphicon-thumbs-up"></span>
+    {% elif listing.review.is_neutral %}
+    <span class="glyphicon glyphicon-minus"></span>
+    {% elif listing.review.is_negative %}
+    <span class="glyphicon glyphicon-thumbs-down"></span>
+    {% endif %}
+</span>
+{% endif %}

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load staticfiles %}
+    <meta charset="UTF-8">
+    <title>{% block title %}{% endblock %}</title>
+    {% block bootstrap %}
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap-theme.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}" />
+    <script src="{% static 'jquery-2.1.4.min.js' %}"></script>
+    <script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
+    {% endblock %}
+    {% block head %}
+    <link rel="stylesheet" href="{% static 'styles.css' %}" />
+    {% endblock %}
+    {% block head_files %}
+    {% if maps %}
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ol3/3.7.0/ol.css" type="text/css" />
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/ol3/3.7.0/ol.js"></script>
+    {% endif %}
+    {% if lightbox %}
+        <link rel="stylesheet" href="{% static 'blueimp-gallery/css/blueimp-gallery.min.css' %}">
+    {% endif %}
+    {% endblock %}
+</head>
+<body>
+    {% block body %}
+    <div class="container">
+        {% block content %}{% endblock %}
+    </div>
+    {% if lightbox %}
+    <div style="display: none;" id="blueimp-gallery" class="blueimp-gallery blueimp-gallery-controls">
+        <!-- The container for the modal slides -->
+        <div style="width: 192000px;" class="slides"></div>
+        <!-- Controls for the borderless lightbox -->
+        <h3 class="title">Ghost from the past</h3>
+        <a class="prev">‹</a>
+        <a class="next">›</a>
+        <a class="close">×</a>
+        <a class="play-pause"></a>
+        <ol class="indicator"></ol>
+    </div>
+    <script src="{% static 'blueimp-gallery/js/blueimp-gallery.min.js' %}"></script>
+    <script>
+        $(function() {
+            $('.lightbox a').on('click', function() {
+                blueimp.Gallery(
+                        $(this).children('a'),
+                        {container: '#blueimp-gallery', carousel: true})
+            });
+        });
+    </script>
+    {% endif %}
+    {% endblock %}
+</body>
+</html>

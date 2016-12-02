@@ -1,0 +1,56 @@
+{% load static %}
+{% static 'map_icons/marker-24.svg' as map_marker %}
+{% with lat=point.latitude long=point.longitude %}
+<div id="map" class="map"></div>
+<script>
+    (function() {
+        var location = ol.proj.fromLonLat([{{ long }}, {{ lat }}]);
+{#        console.log();#}
+        var iconFeature = new ol.Feature({
+          geometry: new ol.geom.Point(location),
+          name: 'Marker'
+{#            ol.proj.fromLonLat(location)#}
+        });
+
+        var iconStyle = new ol.style.Style({
+          image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
+            anchor: [0.5, 1],
+            anchorXUnits: 'fraction',
+            anchorYUnits: 'fraction',
+            opacity: 0.75,
+            src: '{{ map_marker | escapejs }}',
+            scale: 2,
+          }))
+        });
+
+        iconFeature.setStyle(iconStyle);
+
+        var vectorSource = new ol.source.Vector({
+          features: [iconFeature]
+        });
+
+        var vectorLayer = new ol.layer.Vector({
+          source: vectorSource
+        });
+        var rasterLayer = new ol.layer.Tile({
+          source: new ol.source.OSM()
+        });
+        var map = new ol.Map({
+          layers: [
+              rasterLayer,
+              vectorLayer
+          ],
+          controls: ol.control.defaults({
+            attributionOptions: {
+              collapsible: false
+            }
+          }),
+          target: document.getElementById('map'),
+          view: new ol.View({
+            center: location,
+            zoom: 17
+          })
+        });
+    })();
+</script>
+{% endwith %}

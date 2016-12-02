@@ -1,0 +1,30 @@
+.listing-thumbnail-media {
+    height: 100px;
+}
+
+.listing-thumbnail {
+    width: 120px;
+    text-align: center;
+}
+.listing-thumbnail img {
+    max-width: 120px;
+    max-height: 100px;
+}
+
+.listing-image {
+    margin-right: 10px;
+}
+
+a.list-group-item:visited {
+  border-left-color: #55f;
+}
+
+.carousel-indicators li {
+    border-color: #265a88;
+}
+.carousel-indicators .active {
+    background-color: #265a88;
+}
+.carousel-inner img {
+    margin: auto;
+}

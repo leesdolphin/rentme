@@ -101,3 +101,6 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 
 STATIC_URL = '/static/'
+
+
+GOOGLE_MAPS_EMBED_API_KEY = "AIzaSyDPYVNDZaR1rzaiSYkWC1BrjwrKmWJ_jhk"
