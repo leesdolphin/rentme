@@ -1,9 +1,11 @@
 import asyncio
+import functools
 import time
 
 
-def asyncio_task(fn=None):
-    async def wrapper(*args, **kwargs):
+def asyncio_task(fn):
+    @functools.wraps(fn)
+    def wrapper(*args, **kwargs):
         # Kill the old event loop and any tasks currently running.
         old_loop = asyncio.get_event_loop()
         while old_loop.is_running():

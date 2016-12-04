@@ -2,6 +2,8 @@ import collections
 import functools
 import types
 
+from trademe.models.registry import model_registry as default_model_registry
+
 
 def simple_rename_parser(renaming_dict):
     def wrapper(fn):
@@ -23,7 +25,6 @@ ParserRegistryEntry = collections.namedtuple('ParserRegistryEntry',
 class ParserRegistry():
 
     def __init__(self):
-        from trademe.models import model_registry as default_model_registry
         self.parsers = {}
         self._model_registry = default_model_registry
 
@@ -36,7 +37,9 @@ class ParserRegistry():
         return wrapper
 
     def get_proxy(self, model_registry=None, parser_registry=None):
-        model_reg = model_registry or self._model_registry
+        if model_registry is None:
+            from trademe.models.registry import model_registry
+        model_reg = model_registry
         parser_reg = parser_registry or self
 
         return PreconfigiguredParserRegistryProxy(parser_reg, model_reg)
@@ -48,7 +51,7 @@ class ParserRegistry():
                     model_registry=None, parser_registry=None):
         parser_fn, parser_auto_model = self.parsers[parser_name]
         model_reg = model_registry or self._model_registry
-        parser_reg = parser_registry or self
+        parser_reg = self.get_proxy(model_reg, parser_registry)
 
         @functools.wraps(parser_fn)
         def wrapped(json_response, *args,
@@ -76,7 +79,7 @@ class PreconfigiguredParserRegistryProxy(ParserRegistry):
             parser_registry = parser_registry._parser_registry
         self.parsers = types.MappingProxyType(parser_registry.parsers)
         self._parser_registry = parser_registry
-        self._model_registry = model_registry
+        self._model_registry = model_registry or default_model_registry
 
     def register(self, *a, **k):
         raise ValueError("Cannot register a parser on a proxy object")

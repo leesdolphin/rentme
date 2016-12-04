@@ -1,13 +1,13 @@
-from trademe.api.base import TradeMeApiEndpoint
-from trademe.api.base_parsers import parser_registry, simple_rename_parser
+from trademe.api.base import TradeMeApiEndpoint, APIManagerBase
+from trademe.api.registry import parser_registry
 from trademe.models import enums
-from trademe.utils import title_to_snake_case_mapping, reduce_mapping
+from trademe.utils import reduce_mapping, title_to_snake_case_mapping
 
 
 class CategoriesEndpoint(TradeMeApiEndpoint):
 
     BASE_MODEL_NAME = 'catalogue.Category'
-    EXPECT_LIST = True
+    EXPECT_LIST = False
 
     def build_url(self):
         return super().build_url('v1/Categories')
@@ -93,14 +93,17 @@ class SuburbsEndpoint(TradeMeApiEndpoint):
                                   str(region), str(district)])
 
 
-@parser_registry.register('catalogue.Suburb')
+@parser_registry.register('catalogue.Suburb', auto_model=True)
 def parse_suburb(json_response, *, parser_registry):
     data = reduce_mapping(
         json_response,
         title_to_snake_case_mapping('SuburbId', 'Name', 'AdjacentSuburbs'))
     # data now has only the keys we want. And those keys are now snake case.
     if 'adjacent_suburbs' in data:
-        data['adjacent_suburbs'] = tuple(data['adjacent_suburbs'])
+        adjacent_suburbs = list(data['adjacent_suburbs'])
+        if data['suburb_id'] in adjacent_suburbs:
+            adjacent_suburbs.remove(data['suburb_id'])
+        data['adjacent_suburbs'] = tuple(adjacent_suburbs)
     # Return the data so it can be turned into a model in the registry wrapper.
     return data
 
@@ -110,7 +113,7 @@ class MembershipLocalitiesEndpoint(TradeMeApiEndpoint):
     BASE_MODEL_NAME = 'catalogue.MembershipLocality'
     EXPECT_LIST = True
 
-    def build_url(self, region, district):
+    def build_url(self):
         return super().build_url('v1/TmAreas')
 
 
@@ -134,6 +137,16 @@ def parse_membership_locality(json_response, *, parser_registry):
 def parse_membership_district(json_response, *, parser_registry):
     return reduce_mapping(
         json_response, title_to_snake_case_mapping('DistrictId', 'Name'))
+
+
+class Manager(APIManagerBase):
+
+    class Endpoints:
+        categories = CategoriesEndpoint
+        localities = LocalitiesEndpoint
+        districts = DistrictsEndpoint
+        suburbs = SuburbsEndpoint
+        membership_localities = MembershipLocalitiesEndpoint
 
 
 # https://api.trademe.co.nz/v1/Search/Property/Rental.

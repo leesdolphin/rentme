@@ -8,8 +8,8 @@ def get_enum_choices(cls):
         return cls.choices()
     labels = OrderedDict((member.value, name)
                          for name, member in cls.__members__.items())
-    default_labels = getattr(cls, 'labels', getattr(cls, '__labels__'), {})
-    for enum_value, updated_label in default_labels.itens():
+    default_labels = getattr(cls, 'labels', getattr(cls, '__labels__', {}))
+    for enum_value, updated_label in default_labels.items():
         labels[enum_value] = updated_label
     # In Enum order here; swap the order again so that name maps to enum.
     return tuple((name, enum_value)

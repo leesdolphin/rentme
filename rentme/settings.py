@@ -37,7 +37,10 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'rentme_web',
+    'django_celery_results',
+    'django_celery_beat',
+    'rentme.web',
+    'rentme.celery',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -103,4 +106,6 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 
-GOOGLE_MAPS_EMBED_API_KEY = "AIzaSyDPYVNDZaR1rzaiSYkWC1BrjwrKmWJ_jhk"
+CELERY_TIMEZONE = 'UTC'
+CELERY_RESULT_BACKEND = 'django-db'
+CELERY_BROKER_URL = 'amqp://'

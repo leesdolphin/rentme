@@ -1,52 +1,57 @@
-import enum
-
 from django.db import models
+from trademe.models.enums import AreaOfBusiness
 
 from ._utils import EnumIntegerField
+from .registry import model_registry
 
 
+@model_registry.register_django_model
 class Category(models.Model):
 
-    name = models.TextField()
     number = models.TextField(primary_key=True)
+    name = models.TextField()
     path = models.TextField()
-    is_restricted = models.BooleanField()
-    has_legal_notice = models.BooleanField()
-    has_classifieds = models.BooleanField()
-    area_of_business = EnumIntegerField(enum=AreaOfBusiness)
+    is_restricted = models.BooleanField(default=False)
+    has_legal_notice = models.BooleanField(default=False)
+    has_classifieds = models.BooleanField(default=False)
+    area_of_business = EnumIntegerField(enum=AreaOfBusiness, null=True)
+    parent = models.ForeignKey('self', related_name='subcategories', null=True)
 
-    subcatagories = models.ForeignKey('self', related_name='parent')
 
-
+@model_registry.register_django_model
 class Locality(models.Model):
 
-    id = models.IntegerField(primary_key=True)
+    locality_id = models.IntegerField(primary_key=True)
     name = models.TextField()
 
 
+@model_registry.register_django_model
 class District(models.Model):
 
     locality = models.ForeignKey(Locality, related_name='districts')
-    id = models.IntegerField(primary_key=True)
+    district_id = models.IntegerField(primary_key=True)
     name = models.TextField()
 
 
+@model_registry.register_django_model
 class Suburb(models.Model):
 
     district = models.ForeignKey(District, related_name='suburbs')
-    id = models.IntegerField(primary_key=True)
+    suburb_id = models.IntegerField(primary_key=True)
     name = models.TextField()
     adjacent_suburbs = models.ManyToManyField('self')
 
 
+@model_registry.register_django_model
 class MembershipLocality(models.Model):
 
-    id = models.IntegerField(primary_key=True)
+    locality_id = models.IntegerField(primary_key=True)
     name = models.TextField()
 
 
+@model_registry.register_django_model
 class MembershipDistrict(models.Model):
 
-    locality = models.ForeignKey(Locality, related_name='districts')
-    id = models.IntegerField(primary_key=True)
+    locality = models.ForeignKey(MembershipLocality, related_name='districts')
+    district_id = models.IntegerField(primary_key=True)
     name = models.TextField()
