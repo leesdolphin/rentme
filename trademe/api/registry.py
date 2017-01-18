@@ -1,5 +1,6 @@
 import collections
 import functools
+import re
 import types
 
 from trademe.models.registry import model_registry as default_model_registry
@@ -22,11 +23,23 @@ ParserRegistryEntry = collections.namedtuple('ParserRegistryEntry',
                                              'fn, auto_model')
 
 
-class ParserRegistry():
+class ParserRegistryBase():
 
     def __init__(self):
         self.parsers = {}
         self._model_registry = default_model_registry
+
+    def get_proxy(self, model_registry=None, parser_registry=None):
+        model_reg = model_registry or self._model_registry
+        parser_reg = parser_registry or self
+
+        return PreconfigiguredParserRegistryProxy(parser_reg, model_reg)
+
+    def get_wrapped_registry(self, wrapper_fn, parser_registry=None):
+        return WrappingParserRegistryProxy(parser_registry or self, wrapper_fn)
+
+
+class ParserRegistry(ParserRegistryBase):
 
     def register(self, name, overwrite=False, auto_model=False):
         def wrapper(fn):
@@ -35,14 +48,6 @@ class ParserRegistry():
             self.parsers[name] = ParserRegistryEntry(fn, auto_model)
             return fn
         return wrapper
-
-    def get_proxy(self, model_registry=None, parser_registry=None):
-        if model_registry is None:
-            from trademe.models.registry import model_registry
-        model_reg = model_registry
-        parser_reg = parser_registry or self
-
-        return PreconfigiguredParserRegistryProxy(parser_reg, model_reg)
 
     def get_parser(self, name, **kwargs):
         return self.wrap_parser(name, **kwargs)
@@ -64,6 +69,17 @@ class ParserRegistry():
                 return parser_fn(json_response, *args, **kwargs)
             else:
                 model_init_kwargs = parser_fn(json_response, *args, **kwargs)
+                dates = []
+                caps_keys = []
+                for k, v in model_init_kwargs.items():
+                    if str(v).startswith('/Date('):
+                        dates.append(k)
+                    if re.search('[A-Z]', k):
+                        caps_keys.append(k)
+                if dates:
+                    print(parser_name, 'Dates', dates)
+                if caps_keys:
+                    print(parser_name, 'CAP KEYS', caps_keys)
                 return model_registry.get_model(parser_name)(model_init_kwargs)
         return wrapped
 
@@ -71,15 +87,24 @@ class ParserRegistry():
 parser_registry = ParserRegistry()
 
 
+class WrappingParserRegistryProxy(ParserRegistry):
+
+    def __init__(self, parser_registry, wrapper_fn):
+        super().__init__()
+        self.parsers = types.MappingProxyType(parser_registry.parsers)
+        self._wrapper_fn = wrapper_fn
+
+    def wrap_parser(self, *args, **kwargs):
+        return self._wrapper_fn(self._parser_registry.wrap_parser(*args, **kwargs))
+
+
 class PreconfigiguredParserRegistryProxy(ParserRegistry):
 
     def __init__(self, parser_registry, model_registry):
-        while hasattr(parser_registry, '_parser_registry'):
-            # Recurse up any proxy tree we have to get to the 'root' registry.
-            parser_registry = parser_registry._parser_registry
+        super().__init__()
         self.parsers = types.MappingProxyType(parser_registry.parsers)
         self._parser_registry = parser_registry
         self._model_registry = model_registry or default_model_registry
 
     def register(self, *a, **k):
-        raise ValueError("Cannot register a parser on a proxy object")
+        raise ValueError('Cannot register a parser on a proxy object')

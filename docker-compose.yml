@@ -1,0 +1,54 @@
+version: '2'
+services:
+  db:
+    image: postgres
+    environment:
+      PGDATA: "/var/lib/postgresql/data/rentme"
+    volumes:
+      - "database:/var/lib/postgresql/data/rentme"
+  taskqueue:
+    image: rabbitmq:management
+  django:
+    build:
+      context: .
+      dockerfile: django.Dockerfile
+    volumes:
+      - .:/code
+    ports:
+      - "8000:8000"
+    links:
+      - db
+  django-init:
+    build:
+      context: .
+      dockerfile: django.Dockerfile
+    environment:
+      DJANGO_SETTINGS_MODULE: 'rentme.settings'
+    command: django-admin migrate
+    volumes:
+      - .:/code
+    links:
+      - db
+  celery:
+    build:
+      context: .
+      dockerfile: celery.Dockerfile
+    volumes:
+      - .:/code
+    links:
+      - db
+      - taskqueue
+  flower:
+    build:
+      context: .
+      dockerfile: flower.Dockerfile
+    volumes:
+      - .:/code
+      - /flower-db
+    ports:
+      - "5555:5555"
+    links:
+      - db
+      - taskqueue
+volumes:
+  database:

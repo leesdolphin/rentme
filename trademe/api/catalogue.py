@@ -1,4 +1,4 @@
-from trademe.api.base import TradeMeApiEndpoint, APIManagerBase
+from trademe.api.base import APIManagerBase, TradeMeApiEndpoint
 from trademe.api.registry import parser_registry
 from trademe.models import enums
 from trademe.utils import reduce_mapping, title_to_snake_case_mapping
@@ -147,6 +147,3 @@ class Manager(APIManagerBase):
         districts = DistrictsEndpoint
         suburbs = SuburbsEndpoint
         membership_localities = MembershipLocalitiesEndpoint
-
-
-# https://api.trademe.co.nz/v1/Search/Property/Rental.

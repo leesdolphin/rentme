@@ -33,13 +33,19 @@ class District(models.Model):
     name = models.TextField()
 
 
-@model_registry.register_django_model
+@model_registry.register_django_model(delayed_fks=['adjacent_suburbs'])
 class Suburb(models.Model):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
     district = models.ForeignKey(District, related_name='suburbs')
     suburb_id = models.IntegerField(primary_key=True)
     name = models.TextField()
     adjacent_suburbs = models.ManyToManyField('self')
+
+    def __str__(self):
+        return "Suburb({!r}, {!r}, {!r})".format(self.district, self.suburb_id, self.name)
 
 
 @model_registry.register_django_model

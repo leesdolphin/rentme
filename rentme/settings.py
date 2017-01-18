@@ -80,8 +80,11 @@ WSGI_APPLICATION = 'rentme.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'postgres',
+        'USER': 'postgres',
+        'HOST': 'db',
+        'PORT': '5432',
     }
 }
 
@@ -104,8 +107,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = '/var/www/rentme/static/'
+STATICFILES_DIRS = []
 
 
 CELERY_TIMEZONE = 'UTC'
 CELERY_RESULT_BACKEND = 'django-db'
-CELERY_BROKER_URL = 'amqp://'
+CELERY_BROKER_URL = 'amqp://guest:guest@taskqueue:5672/'

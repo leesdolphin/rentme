@@ -1,10 +1,13 @@
 import asyncio
+import decimal
+import json
+import urllib.parse
 import warnings
 
 
 class TradeMeApiEndpoint:
 
-    BASE_URI = 'https://api.trademe.co.nz/'
+    BASE_URI = 'https://preview.trademe.co.nz/ngapi/v1/'
     BASE_MODEL_NAME = None
     EXPECT_LIST = None
 
@@ -26,7 +29,7 @@ class TradeMeApiEndpoint:
 
     call = __call__
 
-    def build_url(self, url_parts, base_url=None, extension='.json'):
+    def build_url(self, url_parts, base_url=None, extension='.json', params=None):
         if base_url is None:
             base_url = self.BASE_URI
         if base_url[-1] != '/':
@@ -37,6 +40,8 @@ class TradeMeApiEndpoint:
                 url += extension
         else:
             url = '/'.join(url_parts) + extension
+        if params:
+            url = url + '?' + urllib.parse.urlencode(params)
         # Remove any prefixed '/'es
         while url and url[0] == '/':
             url = url[1:]
@@ -48,21 +53,22 @@ class TradeMeApiEndpoint:
     @asyncio.coroutine
     def parse_response(self, response):
         try:
-            json = yield from response.json()
+            text = yield from response.text()
+            data = json.loads(text, parse_float=decimal.Decimal)
         except:
-            json = None
+            data = None
         # print(json)
-        if json is None:
+        if data is None:
             raise ValueError(('Response failed to be parsed.'
                               ' Status: {0.status} {0.reason}')
                              .format(response))
-        if response.status >= 400 or 'ErrorDescription' in json:
+        if response.status >= 400 or 'ErrorDescription' in data:
             raise ValueError(('Response indicated failure.'
                               ' Status: {0.status} {0.reason}.'
                               ' TradeMe Reason: {1}')
                              .format(response,
-                                     json.get('ErrorDescription', None)))
-        return self.parse_response_json(json)
+                                     data.get('ErrorDescription', None)))
+        return self.parse_response_json(data)
 
     @property
     def parser(self):

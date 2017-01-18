@@ -9,5 +9,7 @@ setup(
     author='lee',
     author_email='',
     description='',
-    install_requires=['django', 'celery', 'django_celery_results', 'django_celery_beat', 'aiohttp']
+    include_package_data=True,
+    install_requires=['django', 'celery', 'django_celery_results',
+                      'django_celery_beat', 'aiohttp', 'cchardet', 'aiodns']
 )
