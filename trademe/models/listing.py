@@ -4,44 +4,16 @@ from .enums import GeographicLocationAccuracy
 Listing = model_registry.register_namedtuple_model(
     'listing.Listing',
     required=[
-'allows_pickups',
-'as_at',
-'attributes',
-'bidder_and_watchers',
-'body',
-'can_add_to_cart',
-'category_name',
-'category_path',
-'category',
-'embedded_content',
-'end_date',
-'geographic_location',
-'has_gallery',
-'is_bold',
-'is_classified',
-'is_featured',
-'is_highlighted',
-'listing_id',
-'listing_length',
-'member',
-'note_date',
-'open_homes',
-'payment_options',
-'photo_id',
-'photos',
-'price_display',
-'region_id',
-'region',
-'reserve_state',
-'shipping_options',
-'start_date',
-'start_price',
-'suburb_id',
-'suburb',
-'title',
-'view_count',
-],
-    defaults=dict(broadband_technologies=(), contact_details=None),
+        'allows_pickups', 'as_at', 'attributes', 'body', 'can_add_to_cart',
+        'category', 'end_date', 'geographic_location', 'is_classified',
+        'is_featured', 'listing_id', 'member', 'note_date', 'photos',
+        'price_display', 'start_date', 'suburb', 'title',
+        'view_count',
+    ],
+    defaults=dict(broadband_technologies=(),
+                  bidder_and_watchers=0, viewing_tracker_supported=False,
+                  agency=None, is_super_featured=False, super_feature_end_date=None,
+                  is_highlighted=False, is_bold=False, has_gallery=False, photo_id=None),
     lists=['photos', 'attributes', 'broadband_technologies'],
 )
 
@@ -67,7 +39,7 @@ Member = model_registry.register_namedtuple_model(
     required=['unique_positive', 'date_joined', 'is_authenticated', 'member_id',
               'nickname', 'unique_negative', 'feedback_count', 'region',
               'suburb', 'is_address_verified', 'date_address_verified', 'photo'],
-    defaults=dict(original_width=-1, original_height=-1),
+              defaults=dict(original_width=-1, original_height=-1, is_in_trade=False, occupation=None, biography=None, quote=None),
 )
 
 Photo = model_registry.register_namedtuple_model(
@@ -76,6 +48,29 @@ Photo = model_registry.register_namedtuple_model(
     defaults=dict(original_width=-1, original_height=-1),
 )
 
+Agency = model_registry.register_namedtuple_model(
+    'listing.Agency',
+    required=[
+        'branding_large_banner_url', 'id',
+        'is_real_estate_agency', 'branding_background_color', 'name',
+        'branding_stroke_color', 'branding_office_location',
+        'branding_text_color'
+    ],
+    defaults=dict(logo=None, logo2=None, website=None, fax_number=None, is_licensed_property_agency=True, phone_number=None),
+    lists=['agents']
+)
+
+AgencyAgent = model_registry.register_namedtuple_model(
+    'listing.AgencyAgent',
+    required=['full_name'],
+    defaults=dict(mobile_phone_number=None, office_phone_number=None, photo=None)
+)
+
+
+ViewingTime = model_registry.register_namedtuple_model(
+    'listing.ViewingTime',
+    required=['viewing_id', 'viewing_time'],
+)
 
 def photo__str(self):
     return '%s(photo_id=%r, original_width=%r, original_height=%r)' \

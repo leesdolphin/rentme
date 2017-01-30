@@ -26,7 +26,9 @@ class ModelRegistry(ImmutableModelRegistry):
                  overwrite=False, use_kwargs=False):
         def wrapper(fn_or_class):
             if not overwrite:
-                assert name not in self.models, "Cannot overwrite model %r as it has already been registered" % (name, )
+                assert name not in self.models, ('Cannot overwrite model %r as '
+                                                 'it has already been '
+                                                 'registered' % (name, ))
             self.models[name] = ModelRegistryEntry(fn_or_class, use_kwargs)
             return fn_or_class
         if fn_or_class:
@@ -47,13 +49,15 @@ class ModelRegistry(ImmutableModelRegistry):
 
         cls_name = name.replace('.', '_')
         base = collections.namedtuple(cls_name + 'Base', sorted(attrs))
-
+        # print(name, '\n\t', '\n\t'.join(sorted(attrs)), '\n\n')
         def class__new(cls, __data, **data):
             if __data:
                 assert not data
                 data = __data
             assert required.issubset(data), \
-                'Missing some required arguments - %r' % (required.difference(data),)
+                'Missing some required arguments for %s - %r' % (name, required.difference(data))
+            assert attrs.issuperset(data), \
+                'Some arguments unsupported for %s - %r' % (name, set(data).difference(attrs))
             out_data = defaults.copy()
             out_data.update(data)
             for list_name in lists:
@@ -72,7 +76,10 @@ class ModelRegistry(ImmutableModelRegistry):
                         else:
                             val = enum_type(val)
                     out_data[enum_name] = val
-            return base.__new__(cls, **out_data)
+            try:
+                return base.__new__(cls, **out_data)
+            except TypeError as e:
+                raise TypeError('Cannot create model {}'.format(name)) from e
 
         cls = type(cls_name, (base, ModelBaseClass, object),
                    dict(__new__=class__new, __slots__=(),
@@ -83,7 +90,12 @@ class ModelRegistry(ImmutableModelRegistry):
     def get_model(self, name):
         model_fn, use_kwargs = self.models[name]
         if use_kwargs:
-            return lambda data: model_fn(**data)
+            def wrapper(data):
+                try:
+                    return model_fn(**data)
+                except Exception as e:
+                    raise Exception("Creating model for {} failed.".format(name)) from e
+            return wrapper
         return model_fn
 
 

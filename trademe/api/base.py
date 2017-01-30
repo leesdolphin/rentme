@@ -57,18 +57,22 @@ class TradeMeApiEndpoint:
             data = json.loads(text, parse_float=decimal.Decimal)
         except:
             data = None
-        # print(json)
-        if data is None:
-            raise ValueError(('Response failed to be parsed.'
-                              ' Status: {0.status} {0.reason}')
-                             .format(response))
+            if data is None:
+                raise ValueError(('Response failed to be parsed.'
+                                  ' Status: {0.status} {0.reason}')
+                                 .format(response))
         if response.status >= 400 or 'ErrorDescription' in data:
             raise ValueError(('Response indicated failure.'
                               ' Status: {0.status} {0.reason}.'
                               ' TradeMe Reason: {1}')
                              .format(response,
                                      data.get('ErrorDescription', None)))
-        return self.parse_response_json(data)
+        try:
+            return self.parse_response_json(data)
+        except Exception as e:
+            raise ValueError("Cannot parse response for data: \n" + self.__class__.__name__
+                # + json.dumps(data, indent=2, sort_keys=True, default=lambda decimal: str(decimal))
+            )
 
     @property
     def parser(self):

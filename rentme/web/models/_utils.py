@@ -41,9 +41,11 @@ class EnumIntegerField(models.IntegerField):
     def get_prep_value(self, value):
         if value is None:
             return value
-        else:
+        elif isinstance(value, self.enum_class):
             # Enum's value
             return value.value
+        else:
+            return value
 
     def deconstruct(self):
         name, path, args, kwargs = super().deconstruct()

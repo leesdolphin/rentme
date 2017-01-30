@@ -15,8 +15,8 @@ logger = get_task_logger(__name__)
 KNOWN_MISSING_M2M_FKS = {
     'catalogue.Suburb': {
         # These suburbs don't exist except in the adjecency lists. :'(
-        'adjacent_suburbs': collections.frozenset([977, 1242, 1303, 2175, 3045,
-                                                   3231, 3322, 3391, 3528])
+        'adjacent_suburbs': frozenset([977, 1242, 1303, 2175, 3045, 3231, 3322,
+                                       3391, 3528])
     }
 }
 
@@ -26,15 +26,16 @@ def asyncio_task(fn):
     def wrapper(*args, **kwargs):
         # Kill the old event loop and any tasks currently running.
         old_loop = asyncio.get_event_loop()
-        while old_loop.is_running():
-            old_loop.stop()
-            time.sleep(0.5)
-        old_loop.close()
+        # while old_loop.is_running():
+        #     old_loop.stop()
+        #     time.sleep(0.5)
+        # old_loop.close()
         new_loop = asyncio.new_event_loop()
         try:
             asyncio.set_event_loop(new_loop)
             return new_loop.run_until_complete(fn(*args, **kwargs))
         finally:
+            asyncio.set_event_loop(old_loop)
             ex = None
             if any(map(lambda task: not task.done(),
                        asyncio.Task.all_tasks(new_loop))):
@@ -45,6 +46,9 @@ def asyncio_task(fn):
                 raise ex
 
     return wrapper
+
+
+# class AsyncTask()
 
 
 class TradeMeStorer():
@@ -101,7 +105,7 @@ class TradeMeStorer():
         for field in one_to_many_fields:
             our_fk_name = field.related_name
             target_name = field.remote_field.name
-            old_fk_items = obj_dict.pop(our_fk_name)
+            old_fk_items = obj_dict.pop(our_fk_name, [])
             new_fk_items = []
             for item in old_fk_items:
                 if isinstance(item, ModelBaseClass):

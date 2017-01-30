@@ -22,12 +22,13 @@ async def reload_categories():
     return len(categories)
 
 
-@app.task
-@asyncio_task
+# @app.task
+# @asyncio_task
 async def reload_localities():
     async with aiohttp.ClientSession() as session:
         x = RootManager(session)
         localities = await x.catalogue.localities()
+    print("Loaded localities")
     with transaction.atomic(), TradeMeStorer() as storer:
         storer.store_all(localities)
     return len(localities)

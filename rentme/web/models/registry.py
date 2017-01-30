@@ -2,6 +2,7 @@ import functools
 
 from django.db.utils import IntegrityError
 import trademe.models.registry
+import trademe.models.search
 
 
 class DjangoModelRegistry(trademe.models.registry.ModelRegistry):
@@ -34,33 +35,36 @@ class DjangoModelRegistry(trademe.models.registry.ModelRegistry):
 
     def create_model(self, data, *, model, delayed_fks):
         pk_name = model._meta.pk.attname
-        pk = data.pop(pk_name)
-        print("{} . {} = {} => {}".format(model, pk_name, pk, data))
-        # for fk in delayed_fks:
-        #     fk_ids = data.pop(fk)
-        #     print("  {} => {}".format(fk, fk_ids))
-        #     fk_objs = []
-        #     for fk_id in fk_ids:
-        #         try:
-        #             fk_objs.append(model.objects.get(pk=fk_id))
-        #         except model.DoesNotExist:
-        #             print("  {} => {} Does not exist. Storing".format(fk, fk_id))
-        #             # When the non-existant FK is created; add it to this one.
-        #             self.delayed_foreign_keys.setdefault(, []).append(pk)
-        #     data[fk] = fk_objs
-        try:
-            obj = model.objects.update_or_create(defaults=data, **{pk_name: pk})
-        except IntegrityError:
-            obj = model(**data, **{pk_name: pk})
+        fields = model._meta.fields
+        for field in filter(lambda f: f.is_relation, fields):
+            if field.name in data:
+                item = data[field.name]
+            elif field.attname in data:
+                item = data.pop(field.attname)
+            else:
+                continue
+            if item is not None and not isinstance(item, field.related_model):
+                try:
+                    data[field.name] = field.related_model.objects.get(pk=item)
+                except field.related_model.DoesNotExist:
+                    continue
 
-        # obj = model(**data, **{pk_name: pk})
-        # for fk in delayed_fks:
-        #     for key in self.delayed_foreign_keys.pop((model, fk, pk), []):
-        #         getattr(model.objects.get(pk=key), fk).add(obj)
-        # print(self.delayed_foreign_keys)
+        if pk_name in data:
+            pk = data.pop(pk_name)
+            # print("{} . {} = {} => {}".format(model, pk_name, pk, data))
+            try:
+                obj, _ = model.objects.update_or_create(defaults=data, **{pk_name: pk})
+            except IntegrityError:
+                obj = model(**data, **{pk_name: pk})
+        else:
+            try:
+                obj, _ = model.objects.update_or_create(**data)
+            except IntegrityError:
+                obj = model(**data)
         return obj
 
     def create_recording_registry(self):
         return trademe.models.registry.RecordingRegistry(self)
 
 model_registry = DjangoModelRegistry()
+model_registry.register('search.SearchResults', trademe.models.search.SearchResults)

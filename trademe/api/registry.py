@@ -38,6 +38,10 @@ class ParserRegistryBase():
     def get_wrapped_registry(self, wrapper_fn, parser_registry=None):
         return WrappingParserRegistryProxy(parser_registry or self, wrapper_fn)
 
+    @property
+    def model_registry(self):
+        return self._model_registry
+
 
 class ParserRegistry(ParserRegistryBase):
 
@@ -80,7 +84,12 @@ class ParserRegistry(ParserRegistryBase):
                     print(parser_name, 'Dates', dates)
                 if caps_keys:
                     print(parser_name, 'CAP KEYS', caps_keys)
-                return model_registry.get_model(parser_name)(model_init_kwargs)
+                try:
+                    model_fn = model_registry.get_model(parser_name)
+                except KeyError as e:
+                    raise KeyError('Cannot find model function. '
+                                   'Given data: {}'.format(model_init_kwargs)) from e
+                return model_fn(model_init_kwargs)
         return wrapped
 
 
