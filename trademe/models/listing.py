@@ -1,5 +1,5 @@
-from .registry import model_registry
 from .enums import GeographicLocationAccuracy
+from .registry import model_registry
 
 Listing = model_registry.register_namedtuple_model(
     'listing.Listing',
@@ -7,7 +7,7 @@ Listing = model_registry.register_namedtuple_model(
         'allows_pickups', 'as_at', 'attributes', 'body', 'can_add_to_cart',
         'category', 'end_date', 'geographic_location', 'is_classified',
         'is_featured', 'listing_id', 'member', 'note_date', 'photos',
-        'price_display', 'start_date', 'suburb', 'title',
+        'price_display', 'start_date', 'suburb_id', 'suburb_name', 'title',
         'view_count',
     ],
     defaults=dict(broadband_technologies=(),
@@ -56,14 +56,17 @@ Agency = model_registry.register_namedtuple_model(
         'branding_stroke_color', 'branding_office_location',
         'branding_text_color'
     ],
-    defaults=dict(logo=None, logo2=None, website=None, fax_number=None, is_licensed_property_agency=True, phone_number=None),
+    defaults=dict(logo=None, logo2=None, website=None, fax_number=None,
+                  is_licensed_property_agency=True, phone_number=None,
+                  branding_disable_banner=False),
     lists=['agents']
 )
 
 AgencyAgent = model_registry.register_namedtuple_model(
     'listing.AgencyAgent',
     required=['full_name'],
-    defaults=dict(mobile_phone_number=None, office_phone_number=None, photo=None)
+    defaults=dict(mobile_phone_number=None, office_phone_number=None,
+                  photo=None, url_slug=None)
 )
 
 

@@ -1,7 +1,9 @@
 import collections
 from types import MappingProxyType
 
-from .base import ModelBaseClass
+from trademe.models.base import ModelBaseClass
+from trademe.utils import function_to_async_coro
+
 
 ModelRegistryEntry = collections.namedtuple('ModelRegistryEntry',
                                             'fn, use_kwargs')
@@ -26,10 +28,11 @@ class ModelRegistry(ImmutableModelRegistry):
                  overwrite=False, use_kwargs=False):
         def wrapper(fn_or_class):
             if not overwrite:
-                assert name not in self.models, ('Cannot overwrite model %r as '
-                                                 'it has already been '
+                assert name not in self.models, ('Cannot overwrite model %r '
+                                                 'as it has already been '
                                                  'registered' % (name, ))
-            self.models[name] = ModelRegistryEntry(fn_or_class, use_kwargs)
+            self.models[name] = ModelRegistryEntry(
+                function_to_async_coro(fn_or_class), use_kwargs)
             return fn_or_class
         if fn_or_class:
             return wrapper(fn_or_class)
@@ -49,7 +52,7 @@ class ModelRegistry(ImmutableModelRegistry):
 
         cls_name = name.replace('.', '_')
         base = collections.namedtuple(cls_name + 'Base', sorted(attrs))
-        # print(name, '\n\t', '\n\t'.join(sorted(attrs)), '\n\n')
+
         def class__new(cls, __data, **data):
             if __data:
                 assert not data
@@ -90,11 +93,11 @@ class ModelRegistry(ImmutableModelRegistry):
     def get_model(self, name):
         model_fn, use_kwargs = self.models[name]
         if use_kwargs:
-            def wrapper(data):
+            async def wrapper(data):
                 try:
-                    return model_fn(**data)
+                    return await model_fn(**data)
                 except Exception as e:
-                    raise Exception("Creating model for {} failed.".format(name)) from e
+                    raise Exception('Creating model for {} failed.'.format(name)) from e
             return wrapper
         return model_fn
 

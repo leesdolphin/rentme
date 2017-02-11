@@ -50,10 +50,9 @@ class TradeMeApiEndpoint:
         # Finally combine the base_url with the cleaned url.
         return base_url + url
 
-    @asyncio.coroutine
-    def parse_response(self, response):
+    async def parse_response(self, response):
         try:
-            text = yield from response.text()
+            text = await response.text()
             data = json.loads(text, parse_float=decimal.Decimal)
         except:
             data = None
@@ -68,11 +67,10 @@ class TradeMeApiEndpoint:
                              .format(response,
                                      data.get('ErrorDescription', None)))
         try:
-            return self.parse_response_json(data)
+            return await self.parse_response_json(data)
         except Exception as e:
-            raise ValueError("Cannot parse response for data: \n" + self.__class__.__name__
-                # + json.dumps(data, indent=2, sort_keys=True, default=lambda decimal: str(decimal))
-            )
+            raise ValueError('Cannot parse response for data: \n' +
+                             self.__class__.__name__)
 
     @property
     def parser(self):
@@ -89,7 +87,7 @@ class TradeMeApiEndpoint:
             model_registry=self.model_registry,
             parser_registry=self.parser_registry)
 
-    def parse_response_json(self, json_response):
+    async def parse_response_json(self, json_response):
         if self.BASE_MODEL_NAME is None:
             raise ValueError(('Cannot automatically parse response if'
                               ' BASE_MODEL_NAME is not defined on {}. Consider'
@@ -106,14 +104,14 @@ class TradeMeApiEndpoint:
             output_list = []
             for item in json_response:
                 output_list.append(self.parser(item))
-            return output_list
+            return await asyncio.gather(*output_list)
         else:
             if self.EXPECT_LIST:
                 # Explicity said expecting a list.
                 raise ValueError(('Response was not a list when EXPECT_LIST'
                                   ' indicates otherwise on {}')
                                  .format(self.__class__.__qualname__))
-            return self.parser(json_response)
+            return await self.parser(json_response)
 
 
 class APIManagerBase:

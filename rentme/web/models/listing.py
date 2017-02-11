@@ -1,6 +1,6 @@
 from django.db import models
 
-from trademe.models.enums import GeographicLocationAccuracy, AllowsPickups
+from trademe.models.enums import AllowsPickups, GeographicLocationAccuracy
 
 from . import catalogue
 from ._utils import EnumIntegerField
@@ -13,6 +13,9 @@ class Attributes(models.Model):
     name = models.TextField(blank=False)
     value = models.TextField(blank=False)
     display_name = models.TextField(blank=False)
+
+    def __str__(self):
+        return '{!r}: {!r}'.format(self.name, self.value)
 
 
 @model_registry.register_django_model
@@ -31,8 +34,8 @@ class BroadbandTechnology(models.Model):
 class GeographicLocation(models.Model):
 
     accuracy = EnumIntegerField(GeographicLocationAccuracy)
-    easting = models.IntegerField()
-    northing = models.IntegerField()
+    easting = models.IntegerField(default=-1)
+    northing = models.IntegerField(default=-1)
     latitude = models.DecimalField(decimal_places=7, max_digits=10)
     longitude = models.DecimalField(decimal_places=7, max_digits=10)
 
@@ -79,6 +82,7 @@ class AgencyAgent(models.Model):
     mobile_phone_number = models.TextField(blank=True)
     office_phone_number = models.TextField(blank=True)
     photo = models.URLField(blank=True)
+    url_slug = models.TextField(blank=True)
 
 
 @model_registry.register_django_model
@@ -91,6 +95,7 @@ class Agency(models.Model):
     branding_office_location = models.TextField()
     branding_stroke_color = models.TextField()
     branding_text_color = models.TextField()
+    branding_disable_banner = models.BooleanField(default=False)
     fax_number = models.TextField(blank=True)
     is_licensed_property_agency = models.BooleanField(default=False)
     is_real_estate_agency = models.BooleanField(default=False)
@@ -109,19 +114,19 @@ class Listing(models.Model):
     allows_pickups = EnumIntegerField(AllowsPickups)
     as_at = models.DateTimeField()
     attributes = models.ManyToManyField('Attributes', related_name='listings')
-    bidder_and_watchers = models.IntegerField(default=0 )
+    bidder_and_watchers = models.IntegerField(default=0)
     body = models.TextField(blank=True)
     broadband_technologies = models.ManyToManyField('BroadbandTechnology', related_name='listings')
     can_add_to_cart = models.BooleanField()
     category = models.ForeignKey(catalogue.Category, related_name='listings')
     end_date = models.DateTimeField()
     geographic_location = models.ForeignKey('GeographicLocation', related_name='listings')
-    has_gallery = models.BooleanField()
-    is_bold = models.BooleanField()
-    is_classified = models.BooleanField()
-    is_featured = models.BooleanField()
-    is_highlighted = models.BooleanField()
-    is_super_featured = models.BooleanField()
+    has_gallery = models.BooleanField(default=False)
+    is_bold = models.BooleanField(default=False)
+    is_classified = models.BooleanField(default=False)
+    is_featured = models.BooleanField(default=False)
+    is_highlighted = models.BooleanField(default=False)
+    is_super_featured = models.BooleanField(default=False)
     member = models.ForeignKey('Member', related_name='listings')
     note_date = models.DateTimeField()
     photo = models.ForeignKey('Photo', blank=True, null=True, related_name='+')
@@ -130,7 +135,7 @@ class Listing(models.Model):
     # region = models.ForeignKey(catalogue.Locality, related_name='listings')
     start_date = models.DateTimeField()
     suburb = models.ForeignKey(catalogue.Suburb, related_name='listings')
-    super_feature_end_date = models.DateTimeField()
+    super_feature_end_date = models.DateTimeField(null=True)
     title = models.TextField()
     view_count = models.IntegerField()
     viewing_tracker_supported = models.BooleanField(default=False)

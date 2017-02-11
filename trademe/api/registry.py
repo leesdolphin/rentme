@@ -4,6 +4,7 @@ import re
 import types
 
 from trademe.models.registry import model_registry as default_model_registry
+from trademe.utils import function_to_async_coro
 
 
 def simple_rename_parser(renaming_dict):
@@ -49,7 +50,8 @@ class ParserRegistry(ParserRegistryBase):
         def wrapper(fn):
             if not overwrite:
                 assert name not in self.parsers
-            self.parsers[name] = ParserRegistryEntry(fn, auto_model)
+            self.parsers[name] = ParserRegistryEntry(
+                function_to_async_coro(fn), auto_model)
             return fn
         return wrapper
 
@@ -63,16 +65,16 @@ class ParserRegistry(ParserRegistryBase):
         parser_reg = self.get_proxy(model_reg, parser_registry)
 
         @functools.wraps(parser_fn)
-        def wrapped(json_response, *args,
-                    model_registry=None, parser_registry=None, **kwargs):
+        async def wrapped(json_response, *args,
+                          model_registry=None, parser_registry=None, **kwargs):
             model_registry = model_registry or model_reg
             parser_registry = parser_registry or parser_reg
             kwargs['parser_registry'] = parser_registry
             if not parser_auto_model:
                 kwargs['model_registry'] = model_registry
-                return parser_fn(json_response, *args, **kwargs)
+                return await parser_fn(json_response, *args, **kwargs)
             else:
-                model_init_kwargs = parser_fn(json_response, *args, **kwargs)
+                model_init_kwargs = await parser_fn(json_response, *args, **kwargs)
                 dates = []
                 caps_keys = []
                 for k, v in model_init_kwargs.items():
@@ -89,7 +91,8 @@ class ParserRegistry(ParserRegistryBase):
                 except KeyError as e:
                     raise KeyError('Cannot find model function. '
                                    'Given data: {}'.format(model_init_kwargs)) from e
-                return model_fn(model_init_kwargs)
+                # print(model_fn)
+                return await model_fn(model_init_kwargs)
         return wrapped
 
 

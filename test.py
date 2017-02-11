@@ -1,25 +1,21 @@
 import asyncio
-import collections
-import hashlib
+import logging
 import os
-import pathlib
-import pickle
 import traceback
-import urllib.parse
 import uuid
+import warnings
 
-import aiohttp
-import multidict
 import django
 
-if __name__ == '__main__':
-    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "rentme.settings")
-    django.setup()
-
 import trademe.api as a
-from trademe.cache import OnDiskCachingClientSession, CachedResponse
-import rentme.web.models.registry as registry
-import rentme.web.models.catalogue as catalogue
+from trademe.cache import OnDiskCachingClientSession, RateLimitingSession
+
+# Temporary
+from trademe.cache import CachedResponse
+
+if __name__ == '__main__':
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'rentme.settings')
+    django.setup()
 
 loop = asyncio.get_event_loop()
 
@@ -32,17 +28,83 @@ headers = {
     'Referer': 'https://preview.trademe.co.nz/property/trade-me-property'
                '/residential-to-rent/1243057304',
     'Cache-Control': 'no-cache',
-    # 'Cache-Control': 'no-cache',
-    # 'Cache-Control': 'max-stale',
-    # 'Cache-Control': 'no-store',
-    # 'Cache-Control': 'min-fresh=1000',
-    # 'Cache-Control': 'no-transform',
-    # 'Cache-Control': 'only-if-cached',
-    # 'Cache-Control': 'must-revalidate',
-
-
 }
 headers.update(TM_CID)
+
+
+class TestSession(RateLimitingSession, OnDiskCachingClientSession):
+    pass
+
+
+class NoOpSemaphore():
+
+    def __aenter__(self):
+        pass
+
+    def __aexit__(self, *a, **k):
+        pass
+
+    async def acquire():
+        return True
+
+    def locked():
+        return False
+
+    def release():
+        pass
+
+
+class AsyncTaskTracker():
+
+    def __init__(self, max_tasks=None, raise_exceptions=True):
+        if max_tasks is None:
+            self._task_lock = NoOpSemaphore()
+        else:
+            assert max_tasks > 0
+            self._task_lock = asyncio.BoundedSemaphore(max_tasks)
+        self._raise_exceptions = raise_exceptions
+        self._task_list = []
+        self._exceptions_to_raise = []
+
+    @asyncio.coroutine
+    def __aenter__(self):
+        return self
+
+    @asyncio.coroutine
+    def __aexit__(self, exc_type, exc_value, traceback):
+        task_list = self._task_list
+        self._task_list = []
+        if exc_type is not None:
+            for task in task_list:
+                if not task.done():
+                    task.cancel()
+        if task_list:
+            yield from asyncio.wait(task_list)
+
+    async def add_task(self, coro_or_future):
+        if self._raise_exceptions:
+            self.check_exceptions()
+        success = False
+        try:
+            await self._task_lock.acquire()
+            fut = asyncio.ensure_future(coro_or_future)
+            self._task_list.append(fut)
+            fut.add_done_callback(self._fut_done_callback)
+            success = True
+        finally:
+            if not success:
+                self._task_lock.release()
+
+    def _fut_done_callback(self, fut):
+        self._task_lock.release()
+        if fut.cancelled():
+            if fut in self._task_list:
+                self._task_list.remove(fut)
+        else:
+            try:
+                fut.result()
+            except Exception as e:
+                self._exceptions_to_raise.append((fut, e))
 
 
 async def fetch(session, *args, **kwargs):
@@ -59,59 +121,61 @@ def write_out(filename, key_set):
         f.write('\n'.join(sorted(key_set)))
 
 
-async def main():
-    async with OnDiskCachingClientSession(cache_folder=SCRIPT_DIR + '/_cache/',
-                                          cookies=TM_CID, headers=headers) as session:
-        api = a.RootManager(session, model_registry=registry.model_registry)
-        print(sorted(map(lambda s: s.suburb_id, catalogue.Suburb.objects.all())))
+exit_now = False
 
-        search_res = await api.search.rental(return_metadata=True, return_ads=True,
+
+async def load_listing(api, listing_id):
+    try:
+        listing = await api.listing.listing(listing_id)
+        print(listing_id, ':', listing)
+        await asyncio.sleep(60)
+    except Exception as e:
+        print('\n', listing_id)
+        traceback.print_exc()
+        print('Failing listing ID:', listing_id)
+        try:
+            input('Press enter to continue:')
+        except KeyboardInterrupt:
+            global exit_now
+            exit_now = True
+            return
+
+
+async def main():
+    import rentme.web.models.registry as registry
+    import rentme.web.models.listing as listing_models
+
+    warnings.simplefilter('error')
+    asyncio.get_event_loop().set_debug(True)
+    logging.getLogger('asyncio').setLevel(logging.DEBUG)
+
+    async with AsyncTaskTracker(max_tasks=30, raise_exceptions=False) as tt, \
+            TestSession(cache_folder=SCRIPT_DIR + '/_cache/',
+                        max_inflight_requests=5, rate_limit_by_domain=True,
+                        cookies=TM_CID, headers=headers) as session:
+        api = a.RootManager(session, model_registry=registry.model_registry)
+
+        # print(await api.catalogue.localities())
+        # return
+
+        search_res = await api.search.rental(return_metadata=True,
+                                             return_ads=True,
                                              return_super_features=True, rows=25, page=1)
-        seen_errors = set()
+        print(search_res.total_count)
         for page_no in range(1, int(search_res.total_count / search_res.page_size)):
-            search_cache_info = session.cache_info
+            misses = session.cache_info.misses
             search_res = await api.search.rental(return_metadata=True, return_ads=True,
                                                  return_super_features=True, rows=25, page=page_no)
-            print("\nPage", page_no)
+            print('\nPage', page_no)
             for listing_id in sorted(search_res.list):
-                cache_misses = session.cache_info.misses
-                try:
-                    x = await api.listing.listing(listing_id)
-                    print('.', end='', flush=True)
-                except Exception as e:
-                    print('\n', listing_id)
-                    if e not in seen_errors:
-                        seen_errors.add(e)
-                        traceback.print_exc()
-                        input('Press enter to continue:')
-                if cache_misses != session.cache_info.misses:
-                    # return
-                    await asyncio.sleep(1)
-            if search_cache_info.misses != session.cache_info.misses:
-                print("\nBefore:", search_cache_info, "After:", session.cache_info, end='', flush=True)
-                # await asyncio.sleep(10)
+                if not listing_models.Listing.objects.filter(
+                        listing_id=int(listing_id)).exists():
+                    await tt.add_task(load_listing(api, listing_id))
+            if session.cache_info.misses > misses:
+                await asyncio.sleep(10)
+            if exit_now:
                 return
-    #     j = await fetch(session, 'https://preview.trademe.co.nz/ngapi/v1/search'
-    #                              '/property/rental.json?category=4233&'
-    #                              'return_super_features=true&rows=25&'
-    #                              'return_metadata=true&return_ads=true')
-    #     wait_arr = []
-    #     for item in j['List'] + j['SuperFeatures']:
-    #         wait_arr.append(fetch_listing(session, item))
-    #     results = await asyncio.gather(*wait_arr)
-    #     j = await fetch(session,'https://touch.trademe.co.nz/api/v1/Member/5369626/Profile.json')
-    #     write_out('profile_keys.txt', build_key_list(j))
-    #
-    # asks, alks, asknil, alknis = set(), set(), set(), set()
-    # for sks, lks, sknil, lknis in results:
-    #     asks |= sks
-    #     alks |= lks
-    #     asknil |= sknil
-    #     alknis |= lknis
-    # write_out('search_keys.txt', asks)
-    # write_out('listing_keys.txt', alks)
-    # write_out('search_unique.txt', asknil)
-    # write_out('listing_unique.txt', alknis)
+
 
 if __name__ == '__main__':
     loop.run_until_complete(main())

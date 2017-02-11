@@ -1,5 +1,21 @@
+import asyncio
 import datetime
+import functools
+import inspect
 import re
+
+from trademe.async_utils import KeyedMutliAsyncBlock
+
+
+def function_to_async_coro(fn):
+    print(fn, inspect.iscoroutinefunction(fn))
+    if not inspect.iscoroutinefunction(fn):
+        old_fn = fn
+
+        @functools.wraps(fn)
+        async def fn(*a, **k):
+            return old_fn(*a, **k)
+    return fn
 
 
 def reduce_mapping(to_convert, name_mapping=None, keep_list=None, ignore_keys=None):
@@ -22,7 +38,7 @@ def reduce_mapping(to_convert, name_mapping=None, keep_list=None, ignore_keys=No
         elif new_key is None:
             skipped_keys.append(key)
     if skipped_keys:
-        raise ValueError("Reduce Mapping skipped the following keys %r" % (skipped_keys,))
+        raise ValueError('Reduce Mapping skipped the following keys %r' % (skipped_keys,))
     return new_dictionary
 
 
@@ -43,7 +59,7 @@ def title_to_snake_case_mapping(*args, extra=None, extras=None, prefix=''):
     return name_mapping
 
 
-def date_convert(date_string):
+def convert_tm_date_to_datetime(date_string):
     if not date_string:
         return None
     match = re.fullmatch(r'/Date\(([1-9][0-9]*|0)\)/', date_string)
@@ -56,18 +72,43 @@ def date_convert(date_string):
                          ' format' % (date_string, ))
 
 
-def date_convert_many(object, *keys_to_convert):
+def date_convert(obj, *keys_to_convert):
     for key in keys_to_convert:
-        if key in object:
-            object[key] = date_convert(object[key])
-    return object
+        if key in obj:
+            obj[key] = convert_tm_date_to_datetime(obj[key])
+    return obj
 
 
-def enum_convert_many(object, keys_to_enum_mapping):
+def enum_convert(obj, keys_to_enum_mapping):
     for key, enum_cls in dict(keys_to_enum_mapping).items():
-        if key in object:
+        if key in obj:
             try:
-                object[key] = enum_cls(object[key])
+                obj[key] = enum_cls(obj[key])
             except:
-                object[key] = enum_cls.__members__[object[key]]
-    return object
+                obj[key] = enum_cls.__members__[obj[key]]
+    return obj
+
+
+async def parser_convert_singles(obj, parser_registry, conversion_dict):
+    ab = KeyedMutliAsyncBlock()
+    for key, parser_name in conversion_dict.items():
+        if key in obj:
+            parser = parser_registry.get_parser(parser_name)
+            ab.add(key, parser(obj[key]))
+    async for key, returned_obj in ab:
+        obj[key] = returned_obj
+    return obj
+
+
+async def parser_convert_lists(obj, parser_registry, conversion_dict):
+    ab = KeyedMutliAsyncBlock()
+    for key, parser_name in conversion_dict.items():
+        if key in obj:
+            parser = parser_registry.get_parser(parser_name)
+            items = []
+            for item in obj[key]:
+                items.append(parser(item))
+            ab.add(key, asyncio.gather(*items))
+    async for key, returned_obj in ab:
+        obj[key] = list(returned_obj)
+    return obj

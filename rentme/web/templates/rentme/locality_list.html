@@ -4,18 +4,16 @@
 </head>
 <body>
 <ul>
-    {{c}}
-    {{ localities }}
     {% for locality in localities.all %}
     <li>
-        <b>{{locality.id}}</b> {{locality.name}}
+        <b>L{{locality.pk}}L</b> {{locality.name}}
         <ul>
             {% for district in locality.districts.all %}
             <li>
-                <b>{{district.id}}</b> {{district.name}}
+                <b>D{{district.pk}}D</b> {{district.name}}
                 <ul>
                     {% for suburb in district.suburbs.all %}
-                    <li><b>{{suburb.id}}</b> {{suburb.name}}</li>
+                    <li><b>S{{suburb.pk}}S</b> {{suburb.name}}</li>
                     {% endfor %}
                 </ul>
             </li>
@@ -26,4 +24,3 @@
 </ul>
 </body>
 </html>
-

@@ -1,11 +1,16 @@
 import django.http
-from django.db.models import Q
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import redirect
+from django.views.generic import ListView
+
 
 from rentme.celery import catalogue
 from rentme.web import api, models
 
-# Create your views here.
+
+class LocalityView(ListView):
+    model = models.catalogue.Locality
+    template_name = 'rentme/locality_list.html'
+    context_object_name = 'localities'
 
 
 def load_all_base_data(request):
@@ -23,5 +28,5 @@ def load_search_rentals(request):
 
 
 def load_rental(request, id):
-    x = api.load_rental(id)
+    # x = api.load_rental(id)
     return django.http.response.HttpResponse('Loaded property')

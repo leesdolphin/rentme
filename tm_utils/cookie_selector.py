@@ -106,7 +106,7 @@ async def main():
         min_len = min(len(res) for res in results)
         if min_len < 2:
             break
-    asyncio.gather(futs).cancel()
+    asyncio.gather(*futs).cancel()
 
     if not all_results:
         print("No combinations found")

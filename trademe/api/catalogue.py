@@ -1,6 +1,7 @@
 from trademe.api.base import APIManagerBase, TradeMeApiEndpoint
 from trademe.api.registry import parser_registry
 from trademe.models import enums
+from trademe.utils import date_convert, enum_convert, parser_convert_lists
 from trademe.utils import reduce_mapping, title_to_snake_case_mapping
 
 
@@ -14,21 +15,20 @@ class CategoriesEndpoint(TradeMeApiEndpoint):
 
 
 @parser_registry.register('catalogue.Category', auto_model=True)
-def parse_category(json_response, *, parser_registry):
+async def parse_category(json_response, *, parser_registry):
     data = reduce_mapping(
         json_response,
         title_to_snake_case_mapping('Name', 'Number', 'Path', 'Subcategories',
                                     'IsRestricted', 'HasLegalNotice',
                                     'HasClassifieds', 'AreaOfBusiness'))
     # data now has only the keys we want. And those keys are now snake case.
-    if 'area_of_business' in data:
-        data['area_of_business'] = enums.AreaOfBusiness(data['area_of_business'])
-    if 'subcategories' in data:
-        subcats = []
-        parser = parser_registry.get_parser('catalogue.Category')
-        for subcat in data['subcategories']:
-            subcats.append(parser(subcat))
-        data['subcategories'] = subcats
+    data = date_convert(data, 'as_at', 'start_date', 'end_date',
+                        'note_date', 'super_feature_end_date')
+    data = enum_convert(data, {'area_of_business': enums.AreaOfBusiness})
+
+    data = await parser_convert_lists(data, parser_registry, {
+        'subcategories': 'catalogue.Category',
+    })
     # Return the data so it can be turned into a model in the registry wrapper.
     return data
 
@@ -43,17 +43,14 @@ class LocalitiesEndpoint(TradeMeApiEndpoint):
 
 
 @parser_registry.register('catalogue.Locality', auto_model=True)
-def parse_locality(json_response, *, parser_registry):
+async def parse_locality(json_response, *, parser_registry):
     data = reduce_mapping(
         json_response,
         title_to_snake_case_mapping('LocalityId', 'Name', 'Districts'))
     # data now has only the keys we want. And those keys are now snake case.
-    if 'districts' in data:
-        districts = []
-        parser = parser_registry.get_parser('catalogue.District')
-        for district in data['districts']:
-            districts.append(parser(district))
-        data['districts'] = districts
+    data = await parser_convert_lists(data, parser_registry, {
+        'districts': 'catalogue.District',
+    })
     # Return the data so it can be turned into a model in the registry wrapper.
     return data
 
@@ -68,17 +65,14 @@ class DistrictsEndpoint(TradeMeApiEndpoint):
 
 
 @parser_registry.register('catalogue.District', auto_model=True)
-def parse_district(json_response, *, parser_registry):
+async def parse_district(json_response, *, parser_registry):
     data = reduce_mapping(
         json_response,
         title_to_snake_case_mapping('DistrictId', 'Name', 'Suburbs'))
-    # data now has only the keys we want. And those keys are now snake case.
-    if 'suburbs' in data:
-        suburbs = []
-        parser = parser_registry.get_parser('catalogue.Suburb')
-        for suburb in data['suburbs']:
-            suburbs.append(parser(suburb))
-        data['suburbs'] = suburbs
+
+    data = await parser_convert_lists(data, parser_registry, {
+        'suburbs': 'catalogue.Suburb',
+    })
     # Return the data so it can be turned into a model in the registry wrapper.
     return data
 
@@ -118,17 +112,15 @@ class MembershipLocalitiesEndpoint(TradeMeApiEndpoint):
 
 
 @parser_registry.register('catalogue.MembershipLocality', auto_model=True)
-def parse_membership_locality(json_response, *, parser_registry):
+async def parse_membership_locality(json_response, *, parser_registry):
     data = reduce_mapping(
         json_response,
         title_to_snake_case_mapping('LocalityId', 'Name', 'Districts'))
     # data now has only the keys we want. And those keys are now snake case.
-    if 'districts' in data:
-        districts = []
-        parser = parser_registry.get_parser('catalogue.MembershipDistrict')
-        for district in data['districts']:
-            districts.append(parser(district))
-        data['districts'] = districts
+
+    data = await parser_convert_lists(data, parser_registry, {
+        'districts': 'catalogue.MembershipDistrict',
+    })
     # Return the data so it can be turned into a model in the registry wrapper.
     return data
 
