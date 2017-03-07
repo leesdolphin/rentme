@@ -142,29 +142,32 @@ async def load_listing(api, listing_id):
 
 
 async def main():
-    import rentme.web.models.registry as registry
-    import rentme.web.models.listing as listing_models
+    import rentme.data.models.registry as registry
+    import rentme.data.models.listing as listing_models
 
     warnings.simplefilter('error')
     asyncio.get_event_loop().set_debug(True)
     logging.getLogger('asyncio').setLevel(logging.DEBUG)
 
-    async with AsyncTaskTracker(max_tasks=30, raise_exceptions=False) as tt, \
-            TestSession(cache_folder=SCRIPT_DIR + '/_cache/',
-                        max_inflight_requests=5, rate_limit_by_domain=True,
-                        cookies=TM_CID, headers=headers) as session:
-        api = a.RootManager(session, model_registry=registry.model_registry)
+    from rentme.data.importer.cleanup import clean_related_tables
+    clean_related_tables()
 
-        # print(await api.catalogue.localities())
-        # return
+    async with TestSession(cache_folder=SCRIPT_DIR + '/_cache/',
+                           max_inflight_requests=5, rate_limit_by_domain=True,
+                           cookies=TM_CID, headers=headers) as session, \
+            AsyncTaskTracker(max_tasks=30, raise_exceptions=False) as tt:
+        api = a.RootManager(session, model_registry=registry.model_registry)
 
         search_res = await api.search.rental(return_metadata=True,
                                              return_ads=True,
-                                             return_super_features=True, rows=25, page=1)
+                                             sort_order='ExpiryDesc',
+                                             return_super_features=True,
+                                             rows=25, page=1)
         print(search_res.total_count)
         for page_no in range(1, int(search_res.total_count / search_res.page_size)):
             misses = session.cache_info.misses
             search_res = await api.search.rental(return_metadata=True, return_ads=True,
+                                                 sort_order='ExpiryDesc',
                                                  return_super_features=True, rows=25, page=page_no)
             print('\nPage', page_no)
             for listing_id in sorted(search_res.list):
@@ -175,6 +178,8 @@ async def main():
                 await asyncio.sleep(10)
             if exit_now:
                 return
+    clean_related_tables()
+
 
 
 if __name__ == '__main__':

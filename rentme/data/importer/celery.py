@@ -4,10 +4,11 @@ import os
 
 from celery import Celery
 
+
 # set the default Django settings module for the 'celery' program.
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'rentme.settings')
 
-app = Celery('rentme.celery')
+app = Celery('rentme.data.importer')
 
 # Using a string here means the worker don't have to serialize
 # the configuration object to child processes.
@@ -15,7 +16,7 @@ app = Celery('rentme.celery')
 #   should have a `CELERY_` prefix.
 app.config_from_object('django.conf:settings', namespace='CELERY')
 
-app.conf.update(imports=('rentme.celery.catalogue', ))
+app.conf.update(imports=('rentme.data.importer.catalogue', ))
 
 # Load task modules from all registered Django app configs.
 app.autodiscover_tasks()

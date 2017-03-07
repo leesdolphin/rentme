@@ -2,7 +2,7 @@ import datetime
 
 from trademe.api.base import APIManagerBase, TradeMeApiEndpoint
 from trademe.api.registry import parser_registry
-from trademe.models.enums import PhotoSize, PropertyType
+from trademe.models.enums import PhotoSize, PropertyType, SearchSortOrder
 from trademe.utils import reduce_mapping, title_to_snake_case_mapping
 
 
@@ -22,6 +22,8 @@ class RentalSearchEndpoint(TradeMeApiEndpoint):
         datetimes = ['date_from']
         strings = ['search_string']
 
+        if 'sort_order' in kwargs:
+            tm_params['sort_order'] = SearchSortOrder(kwargs.pop('sort_order')).name
         if ('latitude_max' in kwargs or
                 'latitude_min' in kwargs or
                 'longitude_max' in kwargs or

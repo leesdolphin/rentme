@@ -1,4 +1,4 @@
-# import rentme.web.models as models
+# import rentme.data.models as models
 # from django.utils.timezone import utc
 # import trademe.api as api
 # import re

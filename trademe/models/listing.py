@@ -8,11 +8,10 @@ Listing = model_registry.register_namedtuple_model(
         'category', 'end_date', 'geographic_location', 'is_classified',
         'is_featured', 'listing_id', 'member', 'note_date', 'photos',
         'price_display', 'start_date', 'suburb_id', 'suburb_name', 'title',
-        'view_count',
     ],
     defaults=dict(broadband_technologies=(),
                   bidder_and_watchers=0, viewing_tracker_supported=False,
-                  agency=None, is_super_featured=False, super_feature_end_date=None,
+                  agency=None, is_super_featured=False, super_feature_end_date=None, view_count=0,
                   is_highlighted=False, is_bold=False, has_gallery=False, photo_id=None),
     lists=['photos', 'attributes', 'broadband_technologies'],
 )

@@ -6,4 +6,4 @@ ADD docker-utils/flowerconfig.py /flowerconfig.py
 
 EXPOSE 5555
 
-CMD ["celery", "-E", "-A", "rentme.celery", "flower", "--conf=/flowerconfig.py"]
+CMD ["python3", "-m", "celery", "-E", "-A", "rentme.data.importer.celery", "flower", "--conf=/flowerconfig.py"]

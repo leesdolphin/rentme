@@ -3,8 +3,8 @@ from django.shortcuts import redirect
 from django.views.generic import ListView
 
 
-from rentme.celery import catalogue
-from rentme.web import api, models
+from rentme.data.importer import catalogue
+from rentme.data import api, models
 
 
 class LocalityView(ListView):

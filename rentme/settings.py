@@ -39,8 +39,8 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django_celery_results',
     'django_celery_beat',
-    'rentme.web',
-    'rentme.celery',
+    'rentme.data',
+    'rentme.data.importer',
 )
 
 MIDDLEWARE_CLASSES = (

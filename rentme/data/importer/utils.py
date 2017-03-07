@@ -5,7 +5,7 @@ import time
 
 from celery.utils.log import get_task_logger
 
-from rentme.web.models.registry import model_registry
+from rentme.data.models.registry import model_registry
 from trademe.models.base import ModelBaseClass
 
 

@@ -8,7 +8,6 @@ from trademe.async_utils import KeyedMutliAsyncBlock
 
 
 def function_to_async_coro(fn):
-    print(fn, inspect.iscoroutinefunction(fn))
     if not inspect.iscoroutinefunction(fn):
         old_fn = fn
 

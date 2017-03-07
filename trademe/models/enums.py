@@ -4,7 +4,7 @@ import enum
 def named_enum(name, item):
     if isinstance(item, str):
         item = item.split(' ')
-    item = map(str.strip, item)
+    item = list(map(str.strip, item))
     return enum.Enum(name, dict(zip(item, item)), module=__name__)
 
 

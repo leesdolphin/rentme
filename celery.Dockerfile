@@ -1,3 +1,3 @@
 FROM rentme-py-base
 
-CMD ["celery", "-E", "-A", "rentme.celery", "worker"]
+CMD ["python3", "-m", "celery", "-E", "-A", "rentme.data.importer.celery", "worker"]

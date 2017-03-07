@@ -15,6 +15,7 @@ services:
     volumes:
       - .:/code
       - ./_cache:/_cache:rw
+      - django-venv:/venv
     ports:
       - "8000:8000"
     links:
@@ -28,6 +29,7 @@ services:
     command: django-admin migrate
     volumes:
       - .:/code
+      - django-init-venv:/venv
     links:
       - db
   celery:
@@ -36,6 +38,7 @@ services:
       dockerfile: celery.Dockerfile
     volumes:
       - .:/code
+      - celery-venv:/venv
     links:
       - db
       - taskqueue
@@ -46,6 +49,7 @@ services:
     volumes:
       - .:/code
       - /flower-db
+      - flower-venv:/venv
     ports:
       - "5555:5555"
     links:
@@ -53,3 +57,7 @@ services:
       - taskqueue
 volumes:
   database:
+  django-venv:
+  django-init-venv:
+  flower-venv:
+  celery-venv:
