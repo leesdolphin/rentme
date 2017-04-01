@@ -11,5 +11,5 @@ setup(
     description='',
     include_package_data=True,
     install_requires=['django', 'celery', 'django_celery_results',
-                      'django_celery_beat', 'aiohttp', 'cchardet', 'aiodns']
+                      'django_celery_beat', 'aiohttp', 'cchardet', 'aiodns', 'psycopg2']
 )

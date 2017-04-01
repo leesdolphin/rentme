@@ -1,14 +1,13 @@
-from collections import OrderedDict
-import re
-
-from django.core.urlresolvers import reverse
 from django.db import models
+from django.core.urlresolvers import reverse
 from django.utils.functional import cached_property
+from rentme import settings
+import re
+from collections import OrderedDict
 
 
 # Create your models here.
 PHOTO_ID_REGEX = re.compile(r'[^0-9]*([0-9].*[0-9])[^0-9]*')
-
 
 def photos_cleanup(photos):
     ph_id = OrderedDict()
@@ -31,7 +30,7 @@ class TradeMeListing(models.Model):
 
     id = models.IntegerField(primary_key=True)
     title = models.TextField()
-    description = models.TextField(null=True)  # Body
+    description = models.TextField(null=True)  ## Body
     address = models.TextField(null=True)
     available_from = models.TextField(null=True)
     bedrooms = models.IntegerField()
@@ -40,17 +39,17 @@ class TradeMeListing(models.Model):
     category = models.TextField()
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
-    generated_at = models.DateTimeField()  # AsAt
+    generated_at = models.DateTimeField()  ## AsAt
     stored_at = models.DateTimeField(auto_now=True)
-    # attributes - From a FK relation on TradeMeListingProperty
+    ## attributes - From a FK relation on TradeMeListingProperty
     agency = models.ManyToManyField('TradeMeAgency')
     location = models.ForeignKey('TradeMeListingLocation')
     member = models.ForeignKey('TradeMeMember', null=True)
-    thumbnail_href = models.URLField(null=True)   # PictureHref
+    thumbnail_href = models.URLField(null=True)   ## PictureHref
     photos = models.ManyToManyField('TradeMeListingPhoto')
 
     def __str__(self):
-        return '[%d] %s' % (self.id, self.title)
+        return "[%d] %s" % (self.id, self.title)
 
     @cached_property
     def thumbnail(self):
@@ -60,8 +59,8 @@ class TradeMeListing(models.Model):
 
     @cached_property
     def trademe_url(self):
-        return 'http://www.trademe.co.nz/property/residential-property-to' \
-               '-rent/auction-' + str(self.id) + '.htm'
+        return "http://www.trademe.co.nz/property/residential-property-to" \
+               "-rent/auction-" + str(self.id) + ".htm"
 
     def get_absolute_url(self):
         return reverse('rentals.view', kwargs={'id': str(self.id)})
@@ -81,7 +80,7 @@ class TradeMeListing(models.Model):
             return reverse('rentals.review', kwargs={'id': str(self.id),
                                                      'rating': rating})
         else:
-            raise ValueError('Invalid Rating')
+            raise ValueError("Invalid Rating")
 
     def get_review_url_positive(self):
         return self.get_review_url('positive')
@@ -94,18 +93,16 @@ class TradeMeListing(models.Model):
 
 
 class TradeMeListingLocation(models.Model):
-
     class Meta:
         unique_together = ('latitude', 'longitude', 'accuracy')
-
     latitude = models.DecimalField(max_digits=11, decimal_places=8)
     longitude = models.DecimalField(max_digits=11, decimal_places=8)
     accuracy = models.IntegerField(choices=(
-        # These are out of order in the docs.
-        (0, 'None'),
-        (1, 'Address'),
-        (3, 'Street'),
-        (2, 'Suburb'),
+        ## These are out of order in the docs.
+        (0, "None"),
+        (1, "Address"),
+        (3, "Street"),
+        (2, "Suburb"),
     ))
 
 
@@ -131,8 +128,7 @@ class TradeMeListingPhoto(models.Model):
         return None
 
     def __str__(self):
-        return '[%d] <%r>' % (self.id, self.largest_image)
-
+        return "[%d] <%r>" % (self.id, self.largest_image)
 
 class TradeMeAgency(models.Model):
 
@@ -141,7 +137,7 @@ class TradeMeAgency(models.Model):
     phone_number = models.CharField(max_length=20, null=True)
     website = models.URLField(null=True)
     logo = models.URLField(null=True)
-    # agents
+    ## agents
     is_real_estate_agency = models.BooleanField()
     is_licensed_property_agency = models.BooleanField()
 

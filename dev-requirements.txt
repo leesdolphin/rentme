@@ -1,4 +1,14 @@
 flake8
+flake8-bugbear
+flake8-coding
 flake8-import-order
-pep8-naming
 flake8-quotes
+pep8-naming
+flake8-docstrings
+flake8-import-order
+flake8-future-import
+flake8-commas
+flake8-future
+flake8-pep3101
+flake8_tuple
+pep8-naming

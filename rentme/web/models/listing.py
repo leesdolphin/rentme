@@ -77,7 +77,6 @@ class Photo(models.Model):
 
 @model_registry.register_django_model
 class AgencyAgent(models.Model):
-
     agency = models.ForeignKey('Agency', related_name='agents', null=True)
     full_name = models.TextField()
     mobile_phone_number = models.TextField(blank=True)
@@ -130,7 +129,7 @@ class Listing(models.Model):
     is_super_featured = models.BooleanField(default=False)
     member = models.ForeignKey('Member', related_name='listings')
     note_date = models.DateTimeField()
-    photo = models.ForeignKey('Photo', blank=True, null=True, related_name='listing_photo_set')
+    photo = models.ForeignKey('Photo', blank=True, null=True, related_name='+')
     photos = models.ManyToManyField('Photo', related_name='listings')
     price_display = models.TextField()
     # region = models.ForeignKey(catalogue.Locality, related_name='listings')
@@ -138,5 +137,5 @@ class Listing(models.Model):
     suburb = models.ForeignKey(catalogue.Suburb, related_name='listings')
     super_feature_end_date = models.DateTimeField(null=True)
     title = models.TextField()
-    view_count = models.IntegerField(default=0)
+    view_count = models.IntegerField()
     viewing_tracker_supported = models.BooleanField(default=False)

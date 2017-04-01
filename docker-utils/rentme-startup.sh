@@ -3,7 +3,7 @@
 # Makes sure we exit if any command fails.
 set -ex
 
-if [ `id -u` -eq '0' ]; then
+if [ "`id -u`" -eq '0' ]; then
   virtualenv --system-site-packages /venv
 
   . /venv/bin/activate
@@ -18,5 +18,5 @@ if [ `id -u` -eq '0' ]; then
 else
   . /venv/bin/activate
 
-  $@
+  "$@"
 fi
