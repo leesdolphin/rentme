@@ -152,6 +152,8 @@ async def main():
     from rentme.data.importer.cleanup import clean_related_tables
     clean_related_tables()
 
+    clean_count = 0
+
     async with TestSession(cache_folder=SCRIPT_DIR + '/_cache/',
                            max_inflight_requests=5, rate_limit_by_domain=True,
                            cookies=TM_CID, headers=headers) as session, \
@@ -164,22 +166,29 @@ async def main():
                                              return_super_features=True,
                                              rows=25, page=1)
         print(search_res.total_count)
-        for page_no in range(1, int(search_res.total_count / search_res.page_size)):
+        pages = int(search_res.total_count / search_res.page_size) + 1
+        for page_no in range(1, pages):
             misses = session.cache_info.misses
+            print('\nPage', page_no, '/', pages)
             search_res = await api.search.rental(return_metadata=True, return_ads=True,
                                                  sort_order='ExpiryDesc',
                                                  return_super_features=True, rows=25, page=page_no)
-            print('\nPage', page_no)
             for listing_id in sorted(search_res.list):
                 if not listing_models.Listing.objects.filter(
                         listing_id=int(listing_id)).exists():
                     await tt.add_task(load_listing(api, listing_id))
+                    await tt.add_task(asyncio.sleep(1))
             if session.cache_info.misses > misses:
-                await asyncio.sleep(10)
+                clean_count = 0
+                print('Sleeping')
+                await tt.add_task(asyncio.sleep(5))
+            elif clean_count < 5:
+                clean_count += 1
+            else:
+                break
             if exit_now:
                 return
     clean_related_tables()
-
 
 
 if __name__ == '__main__':

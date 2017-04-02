@@ -10,6 +10,7 @@ class TradeMeApiEndpoint:
     BASE_URI = 'https://preview.trademe.co.nz/ngapi/v1/'
     BASE_MODEL_NAME = None
     EXPECT_LIST = None
+    CACHE_RESPONSE = True
 
     def __init__(self, http_requester,
                  parser_registry=None, model_registry=None):
@@ -24,7 +25,8 @@ class TradeMeApiEndpoint:
     @asyncio.coroutine
     def __call__(self, *args, **kwargs):
         url = self.build_url(*args, **kwargs)
-        response = yield from self.http_requester.request('GET', url)
+        response = yield from self.http_requester.request(
+            'GET', url, no_cache=not self.CACHE_RESPONSE)
         return (yield from self.parse_response(response))
 
     call = __call__

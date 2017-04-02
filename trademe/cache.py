@@ -53,6 +53,8 @@ class CachingClientSession(aiohttp.client.ClientSession):
         return self._cache_info
 
     async def _request(self, method, url, **kwargs):
+        if kwargs.pop('no_cache', False):
+            return await super()._request(method, url, **kwargs)
         self._cache_info = self._cache_info._replace(attempts=self._cache_info.attempts + 1)
         try:
             cached_response = await self.get_cached_response(method, url, **kwargs)
@@ -66,7 +68,7 @@ class CachingClientSession(aiohttp.client.ClientSession):
             return cached_response
         self._cache_info = self._cache_info._replace(
             misses=self._cache_info.misses + 1)
-        print("Cache miss for", method, url)
+        print('Cache miss for', method, url)
         real_response = await super()._request(method, url, **kwargs)
         try:
             await self.do_cache_response(real_response, method, url, **kwargs)
@@ -88,7 +90,7 @@ class CachedResponse(aiohttp.client.ClientResponse):
     @classmethod
     async def from_response(cls, response):
         content = await response.read()
-        return cls(response.method, response.url_obj, content, response.cookies,
+        return cls(response.method, response.url, content, response.cookies,
                    response.headers, response.raw_headers, response.version,
                    response.status, response.reason)
 
@@ -109,7 +111,7 @@ class CachedResponse(aiohttp.client.ClientResponse):
     def __getstate__(self):
         return {
             'content': self._content,
-            'url': self._url_obj,
+            'url': self._url,
             'cookies': self.cookies,
             'headers': tuple(self.headers.items()),
             'method': self.method,
@@ -129,7 +131,7 @@ class CachedResponse(aiohttp.client.ClientResponse):
         self._reader = None
         self._should_close = True
         self._timeout = 0
-        self._url_obj = state['url']
+        self._url = state['url']
         self._writer = None
         self.content = None
         self.cookies = state['cookies']
@@ -170,7 +172,7 @@ class OnDiskCachingClientSession(CachingClientSession):
             except:
                 filename.unlink()
                 raise
-        except (IOError, EOFError):
+        except (IOError, EOFError, ImportError):
             return None
 
     async def do_cache_response(self, response, method, url, **kwargs):

@@ -11,6 +11,7 @@ class RentalSearchEndpoint(TradeMeApiEndpoint):
     BASE_URL = 'https://touch.trademe.co.nz/api/'
     BASE_MODEL_NAME = 'search.SearchResults'
     EXPECT_LIST = False
+    CACHE_RESPONSE = False
 
     def build_url(self, rows=25, **kwargs):
         tm_params = {'rows': rows}

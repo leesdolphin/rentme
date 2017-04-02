@@ -135,7 +135,7 @@ class Listing(models.Model):
     price_display = models.TextField()
     # region = models.ForeignKey(catalogue.Locality, related_name='listings')
     start_date = models.DateTimeField()
-    suburb = models.ForeignKey(catalogue.Suburb, related_name='listings')
+    suburb = models.ForeignKey(catalogue.Suburb, related_name='listings', null=True)
     super_feature_end_date = models.DateTimeField(null=True)
     title = models.TextField()
     view_count = models.IntegerField(default=0)

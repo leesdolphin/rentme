@@ -16,7 +16,10 @@ class ListingEndpoint(TradeMeApiEndpoint):
 
     def build_url(self, listing_id):
         return super().build_url(['v1/Listings', str(listing_id)],
-                                 params=dict(return_member_profile=True))
+                                 params=dict(
+                                     return_member_profile=True,
+                                     increment_view_count=False,
+        ))
 
 
 @parser_registry.register('listing.Listing', auto_model=True)
@@ -37,7 +40,7 @@ async def parse_listing(json_response, *, parser_registry):
             extra={'Suburb': 'suburb_name'}),
         ignore_keys=['ContactDetails', 'CategoryName', 'CategoryPath',
                      'EmbeddedContent', 'SponsorLinks', 'ListingLength',
-                     'ReserveState', 'ShippingOptions', 'Region',
+                     'ReserveState', 'Store', 'ShippingOptions', 'Region',
                      'OpenHomes', 'PaymentOptions', 'StartPrice', 'RegionId'])
     data = date_convert(data, 'as_at', 'start_date', 'end_date',
                         'note_date', 'super_feature_end_date')
