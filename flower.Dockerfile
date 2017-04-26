@@ -1,6 +1,8 @@
 FROM rentme-py-base
 
-RUN pip3 install flower
+RUN pip3 install flower && \
+    mkdir -p /flower-db && \
+    chmod a+rw /flower-db
 
 ADD docker-utils/flowerconfig.py /flowerconfig.py
 

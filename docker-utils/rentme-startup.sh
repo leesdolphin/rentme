@@ -4,13 +4,12 @@
 set -ex
 
 if [ "`id -u`" -eq '0' ]; then
-  virtualenv --system-site-packages /venv
+  rm -f /venv/bin/python /venv/bin/python3
+  /usr/local/bin/python3.5 -m virtualenv --python=python3.5 --system-site-packages /venv
 
   . /venv/bin/activate
 
-  pip install --upgrade pip setuptools wheel
-
-  pip install --upgrade /code
+  pip install -e /code
 
   [[ -x /post-install.sh ]] && /post-install.sh
 

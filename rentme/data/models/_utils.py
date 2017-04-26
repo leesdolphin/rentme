@@ -1,7 +1,7 @@
 from collections import OrderedDict
 
 from django.db import models
-
+from django.core.exceptions import FieldDoesNotExist
 
 def get_enum_choices(cls):
     if hasattr(cls, 'choices') and callable(getattr(cls, 'choices')):
@@ -52,3 +52,52 @@ class EnumIntegerField(models.IntegerField):
         del kwargs["choices"]
         kwargs['enum'] = self.enum_class
         return name, path, args, kwargs
+
+
+def _fields_to_format(fields):
+    return ', '.join(f + '={o.' + f + '!r}' for f in fields)
+
+
+def default_debug_methods(_cls=None, *, str_fields=None):
+    def wrapper(cls):
+        def dstr(obj):
+            nonlocal str_fields
+            cn = cls.__name__
+            meta = cls._meta
+            if str_fields is None:
+                str_fields = []
+                if not meta.pk.auto_created:
+                    str_fields.append(meta.pk.name)
+                for check_field in ['name', 'title', 'full_name', 'nickname', 'path']:
+                    try:
+                        meta.get_field(check_field)
+                        str_fields.append(check_field)
+                    except FieldDoesNotExist:
+                        pass
+            str_format = cn + '(' + _fields_to_format(str_fields) + ')'
+            cls.__str__ = lambda o: str_format.format(o=o)
+            return str(obj)
+
+        def drepr(obj):
+            cn = cls.__name__
+            meta = cls._meta
+            repr_fields = [
+                f.name
+                for f in meta.get_fields()
+                if not f.auto_created and (
+                    not f.is_relation or f.one_to_one or f.many_to_one
+                )
+            ]
+            print(repr(repr_fields))
+            repr_format = cn + '(' + _fields_to_format(repr_fields) + ')'
+            cls.__repr__ = lambda o: repr_format.format(o=o)
+            return repr(obj)
+
+        cls.__str__ = dstr
+        cls.__repr__ = drepr
+        return cls
+
+    if _cls:
+        return wrapper(_cls)
+    else:
+        return wrapper

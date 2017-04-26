@@ -1,6 +1,9 @@
 import asyncio
 import functools
 
+from django.db import transaction
+from django.db.models.fields.related import RelatedField
+from django.db.models.fields.reverse_related import ForeignObjectRel
 from django.db.utils import IntegrityError
 import trademe.models.registry
 import trademe.models.search
@@ -21,13 +24,25 @@ def asyncpartial(fn, *default_args, **default_kwargs):
 def default_fk_resolver(field, fk_objects, obj):
     if field.name in obj:
         item = obj[field.name]
-    elif field.attname in obj:
+    elif hasattr(field, 'related_name') and field.related_name in obj:
+        item = obj.pop(field.related_name)
+    elif hasattr(field, 'attname') and field.attname in obj:
         item = obj.pop(field.attname)
     else:
         return RESOLVER_UNSUCCESSFUL_SENTINAL
-    if item is not None and not isinstance(item, field.related_model):
-        return fk_objects.get(pk=item)
-    return RESOLVER_UNSUCCESSFUL_SENTINAL
+    if item is None:
+        return RESOLVER_UNSUCCESSFUL_SENTINAL
+    if isinstance(item, field.related_model):
+        return item
+    if isinstance(item, (list, tuple, set)):
+        items = []
+        for it in item:
+            if isinstance(it, field.related_model):
+                items.append(it)
+            else:
+                items.append(fk_objects.get(pk=it))
+        return items
+    return fk_objects.get(pk=item)
 
 
 def listing_suburb_name_resolver(field, fk_objects, obj):
@@ -65,10 +80,10 @@ def listing_suburb_attribute_resolver(field, fk_objects, obj):
 
 
 CUSTOM_FOREIGN_KEY_RESOLVERS = {
-    ('web.Listing', 'suburb'): [
-        default_fk_resolver,
+    ('data.Listing', 'suburb'): [
         listing_suburb_name_resolver,
-        listing_suburb_attribute_resolver
+        listing_suburb_attribute_resolver,
+        default_fk_resolver,
     ]
 }
 
@@ -110,7 +125,7 @@ class DjangoModelRegistry(trademe.models.registry.ModelRegistry):
         orig_data = dict(data)
         model_label = model._meta.label
         pk_name = model._meta.pk.attname
-        fields = model._meta.fields
+        fields = model._meta.get_fields()
         for field in filter(lambda f: f.is_relation, fields):
             fk_objects = field.related_model.objects
             resolvers = CUSTOM_FOREIGN_KEY_RESOLVERS.get(
@@ -124,27 +139,43 @@ class DjangoModelRegistry(trademe.models.registry.ModelRegistry):
                 if result is not RESOLVER_UNSUCCESSFUL_SENTINAL:
                     data[field.name] = result
                     break
-        fk_data = dict(data)
-        data = {f.name: data.get(f.name, f.get_default()) for f in fields}
-        try:
-            if pk_name in data:
-                pk = data.pop(pk_name)
-                try:
-                    obj, _ = model.objects.update_or_create(defaults=data, **{pk_name: pk})
-                except IntegrityError:
-                    obj = model(**data, **{pk_name: pk})
-                    obj.save()
+        defaults = {f.name: f.get_default()
+                    for f in fields if hasattr(f, 'get_default')}
+        all_data = dict(defaults, **data)
+        fk_data = {}
+        data = {}
+        for f in [f for f in fields if f.name in all_data]:
+            if isinstance(f, RelatedField):
+                if f.one_to_one or f.many_to_one:
+                    data[f.name] = all_data[f.name]
+                else:
+                    fk_data[f.name] = all_data[f.name]
+            elif isinstance(f, ForeignObjectRel):
+                fk_data[f.name] = all_data[f.name]
             else:
-                try:
-                    obj, _ = model.objects.update_or_create(**data)
-                except IntegrityError:
-                    obj = model(**data)
-                    obj.save()
-                except model.MultipleObjectsReturned as e:
-                    print('Multiple objects for data lookup')
-                    print(data)
-                    raise e
-            return obj
+                data[f.name] = all_data[f.name]
+        try:
+            with transaction.atomic():
+                if pk_name in data:
+                    pk = data.pop(pk_name)
+                    try:
+                        obj, _ = model.objects.update_or_create(defaults=data, **{pk_name: pk})
+                    except IntegrityError:
+                        obj = model(**data, **{pk_name: pk})
+                        obj.save()
+                else:
+                    try:
+                        obj, _ = model.objects.update_or_create(**data)
+                    except IntegrityError:
+                        obj = model(**data)
+                    except model.MultipleObjectsReturned as e:
+                        print('Multiple objects for data lookup')
+                        print(data)
+                        raise e
+                for field_name, value in fk_data.items():
+                    getattr(obj, field_name).set(value, clear=True)
+                obj.save()
+                return obj
         except:
             print('ERROR')
             print(orig_data)

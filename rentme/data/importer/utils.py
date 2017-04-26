@@ -1,155 +1,111 @@
 import asyncio
-import collections
+from concurrent.futures import ThreadPoolExecutor
 import functools
-import time
+import uuid
 
+from celery.local import PromiseProxy
 from celery.utils.log import get_task_logger
+from django.db import connections
+from trademe.api import RootManager
+from trademe.cache import CachedResponse, CachingClientSession
 
 from rentme.data.models.registry import model_registry
-from trademe.models.base import ModelBaseClass
 
 
 logger = get_task_logger(__name__)
 
 
-KNOWN_MISSING_M2M_FKS = {
-    'catalogue.Suburb': {
-        # These suburbs don't exist except in the adjecency lists. :'(
-        'adjacent_suburbs': frozenset([977, 1242, 1303, 2175, 3045, 3231, 3322,
-                                       3391, 3528])
-    }
-}
+class AsyncioPromiseProxy(PromiseProxy):
+
+    __slots__ = ('__original_fn')
+
+    def __init__(self, proxy, original_fn, name=None, __doc__=None):
+        super().__init__(lambda: proxy, (), {},
+                         name=name, __doc__=__doc__)
+        object.__setattr__(self, '_AsyncioPromiseProxy__original_fn', original_fn)
+
+    def __call__(self, *a, **k):
+        k.setdefault('_loop', asyncio.get_event_loop())
+        return self.__original_fn(*a, **k)
 
 
-def asyncio_task(fn):
+def wrap_async_fn_in_new_event_loop(fn):
     @functools.wraps(fn)
     def wrapper(*args, **kwargs):
-        # Kill the old event loop and any tasks currently running.
-        old_loop = asyncio.get_event_loop()
-        # while old_loop.is_running():
-        #     old_loop.stop()
-        #     time.sleep(0.5)
-        # old_loop.close()
         new_loop = asyncio.new_event_loop()
-        try:
-            asyncio.set_event_loop(new_loop)
-            return new_loop.run_until_complete(fn(*args, **kwargs))
-        finally:
-            asyncio.set_event_loop(old_loop)
-            ex = None
-            if any(map(lambda task: not task.done(),
-                       asyncio.Task.all_tasks(new_loop))):
-                ex = TypeError('Function did not clean up tasks.')
-            new_loop.close()
-            del new_loop
-            if ex:
-                raise ex
+        with ThreadPoolExecutor(max_workers=2) as executor:
+            new_loop.set_default_executor(executor)
+            try:
+                # asyncio.set_event_loop(new_loop)
+                result = fn(*args, _loop=new_loop, **kwargs)
+                return new_loop.run_until_complete(result)
+            finally:
+                # Try and force all connections to close themselves.
+                connections.close_all()
+                for _ in range(executor._max_workers * 2):
+                    executor.submit(connections.close_all)
+                # asyncio.set_event_loop(old_loop)
+                ex = None
+                if any(map(lambda task: not task.done(),
+                           asyncio.Task.all_tasks(new_loop))):
+                    ex = TypeError('Function did not clean up tasks.')
+                new_loop.close()
+                del new_loop
+                if ex:
+                    raise ex
 
     return wrapper
 
 
-# class AsyncTask()
+def asyncio_task(app, **kwargs):
+    kwargs.setdefault('track_started', True)
+
+    def wrapper(fn):
+        task = app.task(**kwargs)(wrap_async_fn_in_new_event_loop(fn))
+        return AsyncioPromiseProxy(task, fn, __doc__=fn.__doc__)
+
+    return wrapper
 
 
-class TradeMeStorer():
+def get_trademe_session(_loop=None):
+    tm_uid = 'goldilocks-' + str(uuid.uuid4())
+    cookies = {'x-trademe-uniqueclientid:': tm_uid}
 
-    def __init__(self):
-        self.delayed_callbacks = None
+    headers = {
+        'user-agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:50.0)'
+                      ' Gecko/20100101 Firefox/50.0',
+        'Referer': 'https://preview.trademe.co.nz/property/trade-me-property'
+                   '/residential-to-rent/1243057304',
+        'Cache-Control': 'no-cache',
+        'x-trademe-uniqueclientid': tm_uid,
+    }
 
-    def store(self, obj):
-        if self.delayed_callbacks is None:
-            with self:
-                return self._do_store(obj)
-        else:
-            return self._do_store(obj)
+    return InMemoryCachingClientSession(loop=_loop, cookies=cookies, headers=headers)
 
-    @staticmethod
-    @functools.lru_cache(maxsize=32)
-    def get_model_info(trademe_name):
-        model = model_registry.dj_models[trademe_name]
-        pk_name = model._meta.pk.attname
-        basic_field_names, one_to_many, many_to_many = [], [], []
-        for field in model._meta.get_fields():
-            if not field.is_relation:
-                basic_field_names.append(field.attname)
-            elif field.one_to_many:
-                one_to_many.append(field)
-            elif field.many_to_many:
-                many_to_many.append(field)
-        return (model, pk_name, frozenset(basic_field_names),
-                frozenset(one_to_many), frozenset(many_to_many))
 
-    def _do_store(self, obj, defaults=None):
-        assert isinstance(obj, ModelBaseClass)
-        assert hasattr(obj, 'TRADEME_API_NAME'), 'Object is not a TradeMe Object'
-        model_name = obj.TRADEME_API_NAME
-        obj_dict = obj._asdict()
-        instance = self._upsert_base_data(model_name, obj_dict, defaults=defaults)
-        self._upsert_one_to_many_fks(model_name, obj_dict, instance)
-        self._add_delayed_cb(self._upsert_many_to_many_fks, model_name, obj_dict, instance)
+def get_trademe_api(session=None, db_models=True, _loop=None):
+    if session is None:
+        session = get_trademe_session(_loop=_loop)
+    if db_models:
+        return RootManager(session, model_registry=model_registry)
+    else:
+        return RootManager(session)
 
-        return instance
 
-    def _upsert_base_data(self, model_name, obj_dict, defaults=None):
-        model, pk_name, basic_fields, _, _ = self.get_model_info(model_name)
-        pk = obj_dict[pk_name]
-        new_obj_basics = dict(defaults or {})
-        for fieldname in basic_fields:
-            if fieldname in obj_dict:
-                new_obj_basics[fieldname] = obj_dict.pop(fieldname)
-        instance, _ = model.objects.update_or_create(defaults=new_obj_basics, **{pk_name: pk})
-        return instance
+class InMemoryCachingClientSession(CachingClientSession):
 
-    def _upsert_one_to_many_fks(self, model_name, obj_dict, instance):
-        _, _, _, one_to_many_fields, _ = self.get_model_info(model_name)
-        for field in one_to_many_fields:
-            our_fk_name = field.related_name
-            target_name = field.remote_field.name
-            old_fk_items = obj_dict.pop(our_fk_name, [])
-            new_fk_items = []
-            for item in old_fk_items:
-                if isinstance(item, ModelBaseClass):
-                    new_fk_items.append(self._do_store(item, defaults={target_name: instance}))
-                else:
-                    new_fk_items.append(item)
-            setattr(instance, our_fk_name, new_fk_items)
-        instance.save()
+    def __init__(self, *a, **k):
+        super().__init__(*a, **k)
+        self._cache = {}
 
-    def _upsert_many_to_many_fks(self, model_name, obj_dict, instance):
-        model, pk_name, _, _, many_to_many_fields = self.get_model_info(model_name)
-        for field in many_to_many_fields:
-            our_fk_name = field.attname
-            known_missing = KNOWN_MISSING_M2M_FKS[model_name][our_fk_name]
-            old_fk_items = obj_dict.pop(our_fk_name)
-            item_objs = []
-            for item_id in old_fk_items:
-                if item_id in known_missing:
-                    continue
-                try:
-                    item_objs.append(model.objects.get(**{pk_name: item_id}))
-                except model.DoesNotExist as e:
-                    logger.warning('Cannot add %s(%s=%r). It doesn\'t exist.',
-                                   model, pk_name, item_id)
-            setattr(instance, our_fk_name, item_objs)
-        instance.save()
+    def get_cache_key(self, method, url, **kwargs):
+        return method, self.standardise_url(url), frozenset(kwargs.items())
 
-    def _add_delayed_cb(self, fn, *args, **kwargs):
-        self.delayed_callbacks.append(functools.partial(fn, *args, **kwargs))
+    async def get_cached_response(self, method, url, **kwargs):
+        key = self.get_cache_key(method, url, **kwargs)
+        return self._cache.get(key, None)
 
-    def store_all(self, objects):
-        if self.delayed_callbacks is None:
-            with self:
-                return [self._do_store(obj) for obj in objects]
-        else:
-            return [self._do_store(obj) for obj in objects]
-
-    def __enter__(self):
-        assert self.delayed_callbacks is None
-        self.delayed_callbacks = []
-        return self
-
-    def __exit__(self, exc_type, exc_value, traceback):
-        if exc_type is None:
-            for cb in self.delayed_callbacks:
-                cb()
-        self.delayed_callbacks = None
+    async def do_cache_response(self, response, method, url, **kwargs):
+        key = self.get_cache_key(method, url, **kwargs)
+        response = await CachedResponse.from_response(response)
+        self._cache[key] = response

@@ -12,6 +12,13 @@ logger = get_task_logger(__name__)
 @app.task
 def clean_related_tables():
     with transaction.atomic():
+        ps = (listing.Photo.objects
+                     .annotate(Count('listings'), Count('listing_photo_set'))
+                     .filter(listings__count=0, listing_photo_set__count=0))
+        for pts in ps:
+            from pprint import pprint
+            pprint(pts.__dict__)
+            # listing.Photo.objects.
         to_remove = [
             listing.BroadbandTechnology.objects
                    .annotate(Count('listings'))

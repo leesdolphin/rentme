@@ -1,6 +1,6 @@
 {% extends 'rentme/_base.html' %}
 
-{% block title %}All imported listings{% endblock %}
+{% block title %}All imported listings{% if extra_title %} - {{ extra_title }}{% endif %}{% endblock %}
 
 {% block content %}
 <div class="list-group">

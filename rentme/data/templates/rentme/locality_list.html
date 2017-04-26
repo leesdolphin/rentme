@@ -1,8 +1,134 @@
 <html>
 <head>
     <title>All locality</title>
+    <style>
+
+    .links line {
+      stroke: #999;
+      stroke-opacity: 0.6;
+    }
+
+    .nodes circle {
+      stroke: #fff;
+      stroke-width: 1.5px;
+    }
+
+    </style>
 </head>
 <body>
+<svg width="960" height="600"></svg>
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script>
+
+var svg = d3.select("svg"),
+    width = +svg.attr("width") / 2,
+    height = +svg.attr("height") / 2;
+
+var simulation = d3.forceSimulation()
+    .force("link", d3.forceLink().id(function(d) { return d.id; }))
+    .force("charge", d3.forceManyBody())
+    .force("center", d3.forceCenter(width, height));
+
+function hash_string(str) {
+  if (str) {
+    return (str
+            .split('')
+            .map(function (char) {return char.charCodeAt(0)})
+            .reduce(function(a, b) {return a + 7 * (13 + b)}))
+  } else {
+    return 696969;
+  }
+}
+function color(string) {
+  var hash = fNaN(hash_string(string))
+  var SAT_RANGE = 20
+  var LIGHT_RANGE = 20
+  var saturation = 50 + (hash % SAT_RANGE)
+  hash = ~~(hash / SAT_RANGE)
+  var lightness = 50 + (hash % LIGHT_RANGE)
+  hash = ~~(hash / LIGHT_RANGE)
+  var hue = fNaN(hash % 360)
+  return "hsl(" + hue + ", " + saturation + "%, " + lightness + "%)";
+}
+
+const fNaN = (f) => {
+  if (isNaN(f)) {
+    throw Exception("Value is NaN")
+  }
+  return f
+}
+
+
+d3.json("localities.json", function(error, graph) {
+  if (error) throw error;
+
+  var link = svg.append("g")
+      .attr("class", "links")
+    .selectAll("line")
+    .data(graph.links)
+    .enter().append("line")
+      .attr("stroke-width", 2);
+
+  var MIN_RADIUS = 1;
+  var MAX_RADIUS = 5;
+  var node_sizes = graph.nodes.map(function (node) { return node.listings });
+  var scale_factor = (MAX_RADIUS - MIN_RADIUS) / (node_sizes.reduce((a, b) => Math.max(a, b)) - node_sizes.reduce((a, b) => Math.min(a, b)))
+
+  var node = svg.append("g")
+      .attr("class", "nodes")
+    .selectAll("circle")
+    .data(graph.nodes)
+    .enter().append("circle")
+      .attr("r", (d) => fNaN(MIN_RADIUS + (d.listings * scale_factor) ))
+      .attr("fill", (d) => color(d.group))
+      .call(d3.drag()
+          .on("start", dragstarted)
+          .on("drag", dragged)
+          .on("end", dragended));
+
+  node.append("title")
+      .text((d) => d.name + " - " + d.listings);
+
+  simulation
+      .nodes(graph.nodes)
+      .on("tick", ticked);
+
+  simulation.force("link")
+      .links(graph.links);
+
+  function ticked() {
+    link
+        .attr("x1", function(d) { return d.source.x; })
+        .attr("y1", function(d) { return d.source.y; })
+        .attr("x2", function(d) { return d.target.x; })
+        .attr("y2", function(d) { return d.target.y; });
+
+    node
+        .attr("cx", function(d) { return d.x; })
+        .attr("cy", function(d) { return d.y; });
+  }
+});
+
+function dragstarted(d) {
+  if (!d3.event.active) simulation.alphaTarget(0.3).restart();
+  d.fx = d.x;
+  d.fy = d.y;
+}
+
+function dragged(d) {
+  d.fx = d3.event.x;
+  d.fy = d3.event.y;
+}
+
+function dragended(d) {
+  if (!d3.event.active) simulation.alphaTarget(0);
+  d.fx = null;
+  d.fy = null;
+}
+
+</script>
+
+
 <ul>
     {% for locality in localities.all %}
     <li>
@@ -13,7 +139,7 @@
                 <b>D{{district.pk}}D</b> {{district.name}}
                 <ul>
                     {% for suburb in district.suburbs.all %}
-                    <li><b>S{{suburb.pk}}S</b> {{suburb.name}}</li>
+                    <li><b>S{{suburb.pk}}S</b> {{suburb.name}} <i>{{ suburb.listings.count }}</i></li>
                     {% endfor %}
                 </ul>
             </li>

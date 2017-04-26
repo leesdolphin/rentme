@@ -1,29 +1,34 @@
-<a href="{{listing.get_absolute_url}}" class="list-group-item">
+<div class="list-group-item">
+  <a href="{{listing.get_absolute_url}}">
     <div class="media">
-        <div class="media-left media-middle listing-thumbnail-media">
-            <div class="listing-thumbnail">
-                {% if listing.thumbnail %}
-                <img src="{{ listing.thumbnail }}"
-                     class="img-thumbnail"  />
-                {% else %}
-                No Thumbnail
-                {% endif %}
-            </div>
+      <div class="media-left media-middle listing-thumbnail-media">
+        <div class="listing-thumbnail">
+          {% if listing.thumbnail %}
+          <img src="{{ listing.thumbnail.thumbnail }}" class="img-thumbnail" />
+          {% else %}
+          No Thumbnail
+          {% endif %}
         </div>
-        <div class="media-body">
-            <h4 class="media-heading">
-                    {%  include 'rentme/incl/listing_rating_icon.html' with listing=listing only %}
-                </span>
-                {{listing.title}}
-                <small>
-                    ${{listing.rent_per_week}}/week &mdash;
-                    {{listing.address|default:""}}
-                </small>
-            </h4>
-{{listing.description|default:"No description available"|truncatewords:30}}
-        </div>
-        <div class="media-right">
+      </div>
+      <div class="media-body">
+        <h4 class="media-heading">
+          {# {%  include 'rentme/incl/listing_rating_icon.html' with listing=listing only %}#}
+          </span>
+          {{listing.title}}
+          <small>
+            ${{listing.rent_per_week}}/week &mdash;
+            {{listing.address|default:""}}
+          </small>
+          <small>
+            <a href="{{ listing.trademe_url }}">{{ listing.listing_id }}
+            </a>
+          </small>
+        </h4>
+{{listing.body|default:"No description available"|truncatewords:30}}
+      </div>
+      <div class="media-right">
 
-        </div>
-  </div>
-</a>
+      </div>
+    </div>
+  </a>
+</div>

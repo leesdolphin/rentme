@@ -16,7 +16,11 @@ app = Celery('rentme.data.importer')
 #   should have a `CELERY_` prefix.
 app.config_from_object('django.conf:settings', namespace='CELERY')
 
-app.conf.update(imports=('rentme.data.importer.catalogue', ))
+app.conf.update(imports=(
+    'rentme.data.importer.catalogue',
+    'rentme.data.importer.listing',
+    'rentme.data.importer.cleanup',
+))
 
 # Load task modules from all registered Django app configs.
 app.autodiscover_tasks()

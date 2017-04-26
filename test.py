@@ -1,4 +1,5 @@
 import asyncio
+from datetime import datetime, timezone
 import logging
 import os
 import traceback
@@ -9,9 +10,8 @@ import django
 
 import trademe.api as a
 from trademe.cache import OnDiskCachingClientSession, RateLimitingSession
+from trademe.errors import ClassifiedExpiredError
 
-# Temporary
-from trademe.cache import CachedResponse
 
 if __name__ == '__main__':
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'rentme.settings')
@@ -95,6 +95,10 @@ class AsyncTaskTracker():
             if not success:
                 self._task_lock.release()
 
+    def check_exceptions(self):
+        if self._exceptions_to_raise:
+            raise Exception() from self._exceptions_to_raise.pop()
+
     def _fut_done_callback(self, fut):
         self._task_lock.release()
         if fut.cancelled():
@@ -125,10 +129,20 @@ exit_now = False
 
 
 async def load_listing(api, listing_id):
+    from rentme.data.models.listing import Listing
     try:
+        try:
+            Listing.objects.get(listing_id=listing_id).delete()
+        except Listing.DoesNotExist:
+            pass
+        misses = api.listing.listing.http_requester.cache_info.misses
         listing = await api.listing.listing(listing_id)
-        print(listing_id, ':', listing)
-        await asyncio.sleep(60)
+        print(listing_id, ': ', listing)
+        if api.listing.listing.http_requester.cache_info.misses > misses:
+            await asyncio.sleep(10)
+    except ClassifiedExpiredError as e:
+        print('Classified expired:', listing_id)
+        return
     except Exception as e:
         print('\n', listing_id)
         traceback.print_exc()
@@ -141,54 +155,89 @@ async def load_listing(api, listing_id):
             return
 
 
+async def check_listing_exists(session, listing_id):
+    url = ('http://www.trademe.co.nz/property/residential-property-to-rent/'
+           'auction-%s.htm' % (listing_id, ))
+    async with session.head(url, no_cache=True) as response:
+        if response.status == 200:
+            return True
+        else:
+            return False
+
+
+async def delete_if_missing(session, api, listing):
+    if not await check_listing_exists(session, listing.listing_id):
+        print('Deleting listing', listing.listing_id)
+        listing.delete()
+    else:
+        await load_listing(api, listing.listing_id)
+
+
+async def delete_all_outdated(task_tracker, session, api):
+    from rentme.data.models.listing import Listing
+    for listing in Listing.objects.filter(end_date__lt=datetime.now(tz=timezone.utc)):
+        await task_tracker.add_task(delete_if_missing(session, api, listing))
+        await asyncio.sleep(.1)
+
+
 async def main():
     import rentme.data.models.registry as registry
-    import rentme.data.models.listing as listing_models
 
     warnings.simplefilter('error')
     asyncio.get_event_loop().set_debug(True)
     logging.getLogger('asyncio').setLevel(logging.DEBUG)
 
     from rentme.data.importer.cleanup import clean_related_tables
+    from rentme.data.importer.listing import load_listing_search_results
+    load_listing_search_results.delay()
     clean_related_tables()
-
     clean_count = 0
 
-    async with TestSession(cache_folder=SCRIPT_DIR + '/_cache/',
-                           max_inflight_requests=5, rate_limit_by_domain=True,
-                           cookies=TM_CID, headers=headers) as session, \
-            AsyncTaskTracker(max_tasks=30, raise_exceptions=False) as tt:
-        api = a.RootManager(session, model_registry=registry.model_registry)
+    try:
+        async with TestSession(cache_folder=SCRIPT_DIR + '/_cache/',
+                               max_inflight_requests=5, rate_limit_by_domain=True,
+                               cookies=TM_CID, headers=headers) as session, \
+                AsyncTaskTracker(max_tasks=20, raise_exceptions=True) as tt:
+            api = a.RootManager(session, model_registry=registry.model_registry)
+            # for lid in ['1306451550']:
+            #     await load_listing(api, lid)
+            # return
 
-        search_res = await api.search.rental(return_metadata=True,
-                                             return_ads=True,
-                                             sort_order='ExpiryDesc',
-                                             return_super_features=True,
-                                             rows=25, page=1)
-        print(search_res.total_count)
-        pages = int(search_res.total_count / search_res.page_size) + 1
-        for page_no in range(1, pages):
-            misses = session.cache_info.misses
-            print('\nPage', page_no, '/', pages)
-            search_res = await api.search.rental(return_metadata=True, return_ads=True,
-                                                 sort_order='ExpiryDesc',
-                                                 return_super_features=True, rows=25, page=page_no)
-            for listing_id in sorted(search_res.list):
-                if not listing_models.Listing.objects.filter(
-                        listing_id=int(listing_id)).exists():
+            search_kwargs = dict(return_metadata=True, return_ads=True,
+                                 return_super_features=True, sort_order='ExpiryDesc',
+                                 rows=25)
+            search_res = await api.search.rental(**search_kwargs, page=1)
+            print(search_res.total_count)
+            pages = int(search_res.total_count / search_res.page_size) + 1
+            # await tt.add_task(delete_all_outdated(tt, session, api))
+
+
+            return
+            for page_no in range(1, pages + 1):
+                misses = session.cache_info.misses
+                print('\nPage', page_no, '/', pages)
+                search_res = await api.search.rental(return_metadata=True, return_ads=True,
+                                                     sort_order='ExpiryDesc',
+                                                     return_super_features=True, rows=25, page=page_no)
+                for listing_id in sorted(search_res.list):
+                    if exit_now:
+                        return
+                    # if not listing_models.Listing.objects.filter(
+                    #         listing_id=int(listing_id)).exists():
                     await tt.add_task(load_listing(api, listing_id))
-                    await tt.add_task(asyncio.sleep(1))
-            if session.cache_info.misses > misses:
-                clean_count = 0
-                print('Sleeping')
-                await tt.add_task(asyncio.sleep(5))
-            elif clean_count < 5:
-                clean_count += 1
-            else:
-                break
-            if exit_now:
-                return
-    clean_related_tables()
+                if session.cache_info.misses > misses:
+                    clean_count = 0
+                    # print('Sleeping')
+                    # await asyncio.sleep(1)
+                    # await tt.add_task(asyncio.sleep(10))
+                elif clean_count < 100:
+                    clean_count += 1
+                else:
+                    break
+                if exit_now:
+                    return
+    finally:
+        clean_related_tables()
 
 
 if __name__ == '__main__':

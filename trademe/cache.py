@@ -13,78 +13,6 @@ import multidict
 CacheInfo = collections.namedtuple('CacheInfo', 'hits misses attempts')
 
 
-class RateLimitingSession(aiohttp.client.ClientSession):
-
-    def __init__(self, *a,
-                 max_inflight_requests=None, rate_limit_by_domain=False, **k):
-        super().__init__(*a, **k)
-        assert max_inflight_requests is None or max_inflight_requests > 0
-        self._max_inflight_requests = max_inflight_requests
-        self._rate_limit_by_domain = rate_limit_by_domain
-        self._locks = dict()
-
-    async def _request(self, method, url, **kwargs):
-        if self._max_inflight_requests is None:
-            return await super()._request(method, url, **kwargs)
-        async with self.request_lock(url):
-            return await super()._request(method, url, **kwargs)
-
-    def request_lock(self, url):
-        if self._max_inflight_requests is None:
-            # New lock every time because no locking has been requested.
-            return asyncio.Lock()
-        semaphore_key = '_default_'
-        if self._rate_limit_by_domain:
-            parsed = urllib.parse.urlparse(url)
-            semaphore_key = (parsed.scheme, parsed.netloc)
-        if semaphore_key not in self._locks:
-            self._locks[semaphore_key] = asyncio.BoundedSemaphore(self._max_inflight_requests)
-        return self._locks[semaphore_key]
-
-
-class CachingClientSession(aiohttp.client.ClientSession):
-
-    def __init__(self, *a, **k):
-        super().__init__(*a, **k)
-        self._cache_info = CacheInfo(0, 0, 0)
-
-    @property
-    def cache_info(self):
-        return self._cache_info
-
-    async def _request(self, method, url, **kwargs):
-        if kwargs.pop('no_cache', False):
-            return await super()._request(method, url, **kwargs)
-        self._cache_info = self._cache_info._replace(attempts=self._cache_info.attempts + 1)
-        try:
-            cached_response = await self.get_cached_response(method, url, **kwargs)
-        except:
-            raise
-            cached_response = None
-        if cached_response is not None:
-            await self.do_cache_response(cached_response, method, url, **kwargs)
-            self._cache_info = self._cache_info._replace(
-                hits=self._cache_info.hits + 1)
-            return cached_response
-        self._cache_info = self._cache_info._replace(
-            misses=self._cache_info.misses + 1)
-        print('Cache miss for', method, url)
-        real_response = await super()._request(method, url, **kwargs)
-        try:
-            await self.do_cache_response(real_response, method, url, **kwargs)
-        except:
-            traceback.print_exc()
-            raise
-        return real_response
-
-    @staticmethod
-    def standardise_url(url):
-        parsed = urllib.parse.urlsplit(url)
-        parsed_qs = urllib.parse.urlencode(sorted(urllib.parse.parse_qsl(parsed.query)))
-        parsed = parsed._replace(query=parsed_qs)
-        return urllib.parse.urlunsplit(parsed)
-
-
 class CachedResponse(aiohttp.client.ClientResponse):
 
     @classmethod
@@ -94,7 +22,8 @@ class CachedResponse(aiohttp.client.ClientResponse):
                    response.headers, response.raw_headers, response.version,
                    response.status, response.reason)
 
-    def __init__(self, method, url, content, cookies, headers, raw_headers, version, status, reason):
+    def __init__(self, method, url, content, cookies, headers, raw_headers,
+                 version, status, reason):
         self.__setstate__({
             'content': content,
             'url': url,
@@ -144,6 +73,77 @@ class CachedResponse(aiohttp.client.ClientResponse):
 
     async def read(self):
         return self._content
+
+
+class RateLimitingSession(aiohttp.client.ClientSession):
+
+    def __init__(self, *a,
+                 max_inflight_requests=None, rate_limit_by_domain=False, **k):
+        super().__init__(*a, **k)
+        assert max_inflight_requests is None or max_inflight_requests > 0
+        self._max_inflight_requests = max_inflight_requests
+        self._rate_limit_by_domain = rate_limit_by_domain
+        self._locks = dict()
+
+    async def _request(self, method, url, **kwargs):
+        if self._max_inflight_requests is None:
+            return await super()._request(method, url, **kwargs)
+        async with self.request_lock(url):
+            return await super()._request(method, url, **kwargs)
+
+    def request_lock(self, url):
+        if self._max_inflight_requests is None:
+            # New lock every time because no locking has been requested.
+            return asyncio.Lock()
+        semaphore_key = '_default_'
+        if self._rate_limit_by_domain:
+            parsed = urllib.parse.urlparse(url)
+            semaphore_key = (parsed.scheme, parsed.netloc)
+        if semaphore_key not in self._locks:
+            self._locks[semaphore_key] = asyncio.BoundedSemaphore(self._max_inflight_requests)
+        return self._locks[semaphore_key]
+
+
+class CachingClientSession(aiohttp.client.ClientSession):
+
+    def __init__(self, *a, **k):
+        super().__init__(*a, **k)
+        self._cache_info = CacheInfo(0, 0, 0)
+
+    @property
+    def cache_info(self):
+        return self._cache_info
+
+    async def _request(self, method, url, **kwargs):
+        if kwargs.pop('no_cache', False):
+            return await super()._request(method, url, **kwargs)
+        self._cache_info = self._cache_info._replace(attempts=self._cache_info.attempts + 1)
+        try:
+            cached_response = await self.get_cached_response(method, url, **kwargs)
+        except:
+            raise
+        if cached_response is not None:
+            await self.do_cache_response(cached_response, method, url, **kwargs)
+            self._cache_info = self._cache_info._replace(
+                hits=self._cache_info.hits + 1)
+            return cached_response
+        self._cache_info = self._cache_info._replace(
+            misses=self._cache_info.misses + 1)
+        print('Cache miss for', method, url)
+        real_response = await super()._request(method, url, **kwargs)
+        try:
+            await self.do_cache_response(real_response, method, url, **kwargs)
+        except:
+            traceback.print_exc()
+            raise
+        return real_response
+
+    @staticmethod
+    def standardise_url(url):
+        parsed = urllib.parse.urlsplit(url)
+        parsed_qs = urllib.parse.urlencode(sorted(urllib.parse.parse_qsl(parsed.query)))
+        parsed = parsed._replace(query=parsed_qs)
+        return urllib.parse.urlunsplit(parsed)
 
 
 class OnDiskCachingClientSession(CachingClientSession):

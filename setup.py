@@ -10,6 +10,21 @@ setup(
     author_email='',
     description='',
     include_package_data=True,
-    install_requires=['django', 'celery', 'django_celery_results',
-                      'django_celery_beat', 'aiohttp', 'cchardet', 'aiodns', 'psycopg2']
+    install_requires=[
+        'aiodns',
+        'aiohttp',
+        'bitarray',
+        'cchardet',
+        'celery',
+        'django_celery_beat',
+        'django_celery_results',
+        'django',
+        'ImageHash',
+        'psycopg2',
+    ],
+    entry_points={
+        'console_scripts': [
+            'rentme = rentme:management_command',
+        ],
+    }
 )

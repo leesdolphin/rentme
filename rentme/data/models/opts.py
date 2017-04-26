@@ -3,7 +3,6 @@ import re
 
 from django.core.urlresolvers import reverse
 from django.db import models
-from django.utils.functional import cached_property
 
 
 # Create your models here.
@@ -52,28 +51,6 @@ class TradeMeListing(models.Model):
     def __str__(self):
         return '[%d] %s' % (self.id, self.title)
 
-    @cached_property
-    def thumbnail(self):
-        for photo in self.all_photos:
-            return photo
-        return None
-
-    @cached_property
-    def trademe_url(self):
-        return 'http://www.trademe.co.nz/property/residential-property-to' \
-               '-rent/auction-' + str(self.id) + '.htm'
-
-    def get_absolute_url(self):
-        return reverse('rentals.view', kwargs={'id': str(self.id)})
-
-    @cached_property
-    def all_photos(self):
-        imgs = [photo.largest_image
-                for photo in self.photos.all()
-                if photo.largest_image]
-        if self.thumbnail_href and self.thumbnail_href not in imgs:
-            imgs.insert(0, self.thumbnail_href)
-        return photos_cleanup(imgs)
 
     def get_review_url(self, rating):
         rating = rating.lower()

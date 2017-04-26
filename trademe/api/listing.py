@@ -35,10 +35,10 @@ async def parse_listing(json_response, *, parser_registry):
             'IsSuperFeatured', 'ListingId', 'Member',
             'MemberProfile', 'NoteDate',
             'PhotoId', 'Photos', 'PriceDisplay', 'ShippingOptions', 'StartDate',
-            'StartPrice', 'SuburbId', 'SuperFeatureEndDate', 'Title',
+            'SuburbId', 'SuperFeatureEndDate', 'Title',
             'ViewingTrackerSupported', 'ViewCount',
             extra={'Suburb': 'suburb_name'}),
-        ignore_keys=['ContactDetails', 'CategoryName', 'CategoryPath',
+        ignore_keys=['ContactDetails', 'CategoryName', 'CategoryPath', 'StartPrice', 
                      'EmbeddedContent', 'SponsorLinks', 'ListingLength',
                      'ReserveState', 'Store', 'ShippingOptions', 'Region',
                      'OpenHomes', 'PaymentOptions', 'StartPrice', 'RegionId'])

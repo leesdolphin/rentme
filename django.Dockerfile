@@ -2,8 +2,8 @@ FROM rentme-py-base
 
 ENV DJANGO_SETTINGS_MODULE=rentme.settings
 RUN pip install uwsgi && \
-    echo 'django-admin collectstatic' > post-install.sh && \
-    chmod +x post-install.sh
+    echo 'django-admin collectstatic --no-input' > /post-install.sh && \
+    chmod +x /post-install.sh
 
 ADD docker-utils/django.uwsgi.ini /django.uwsgi.ini
 

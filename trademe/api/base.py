@@ -4,6 +4,8 @@ import json
 import urllib.parse
 import warnings
 
+from trademe.errors import raise_for_error_key
+
 
 class TradeMeApiEndpoint:
 
@@ -57,17 +59,10 @@ class TradeMeApiEndpoint:
             text = await response.text()
             data = json.loads(text, parse_float=decimal.Decimal)
         except:
-            data = None
-            if data is None:
-                raise ValueError(('Response failed to be parsed.'
-                                  ' Status: {0.status} {0.reason}')
-                                 .format(response))
-        if response.status >= 400 or 'ErrorDescription' in data:
-            raise ValueError(('Response indicated failure.'
-                              ' Status: {0.status} {0.reason}.'
-                              ' TradeMe Reason: {1}')
-                             .format(response,
-                                     data.get('ErrorDescription', None)))
+            response.raise_for_status()
+            raise ValueError('Response failed to be parsed.')
+        raise_for_error_key(data)
+        response.raise_for_status()
         try:
             return await self.parse_response_json(data)
         except Exception as e:
@@ -124,6 +119,7 @@ class APIManagerBase:
     def __init__(self, http_requester,
                  parser_registry=None, model_registry=None):
         super().__init__()
+        self.__http_requester = http_requester
         endpoints = {}
         for cls in reversed(self.__class__.mro()):
             if hasattr(cls, 'Endpoints'):
@@ -142,3 +138,17 @@ class APIManagerBase:
             endpoint_instance = endpoint_cls(http_requester,
                                              parser_registry, model_registry)
             setattr(self, endpoint, endpoint_instance)
+
+    def __enter__(self):
+        self.__http_requester.__enter__()
+        return self
+
+    def __exit__(self, *a):
+        self.__http_requester.__exit__(*a)
+
+    async def __aenter__(self):
+        await self.__http_requester.__aenter__()
+        return self
+
+    async def __aexit__(self, *a):
+        await self.__http_requester.__aexit__(*a)
