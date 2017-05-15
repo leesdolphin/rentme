@@ -82,16 +82,11 @@ class ParserRegistry(ParserRegistryBase):
                         dates.append(k)
                     if re.search('[A-Z]', k):
                         caps_keys.append(k)
-                if dates:
-                    print(parser_name, 'Dates', dates)
-                if caps_keys:
-                    print(parser_name, 'CAP KEYS', caps_keys)
                 try:
                     model_fn = model_registry.get_model(parser_name)
                 except KeyError as e:
                     raise KeyError('Cannot find model function. '
                                    'Given data: {}'.format(model_init_kwargs)) from e
-                # print(model_fn)
                 return await model_fn(model_init_kwargs)
         return wrapped
 

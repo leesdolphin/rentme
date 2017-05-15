@@ -1,18 +1,29 @@
 import asyncio
+import base64
 from concurrent.futures import ThreadPoolExecutor
+from datetime import timedelta
 import functools
+import http.cookies
+import json
 import uuid
 
+from aioutils import asyncio_loop
 from celery.local import PromiseProxy
 from celery.utils.log import get_task_logger
 from django.db import connections
+from django.utils import timezone
 from trademe.api import RootManager
-from trademe.cache import CachedResponse, CachingClientSession
+from trademe.cache import CachedResponse, CachingClientSession, CachingStrategy
+from trademe.cache import RateLimitingCachingClientSession
 
+from rentme.data.importer.models import CachedResponse as CachedResponseModel
 from rentme.data.models.registry import model_registry
 
-
 logger = get_task_logger(__name__)
+
+
+def b64encode(byte_str):
+    return base64.b64encode(byte_str).decode()
 
 
 class AsyncioPromiseProxy(PromiseProxy):
@@ -67,7 +78,8 @@ def asyncio_task(app, **kwargs):
     return wrapper
 
 
-def get_trademe_session(_loop=None):
+@asyncio_loop
+def get_trademe_session(_loop=None, rate_limit=False):
     tm_uid = 'goldilocks-' + str(uuid.uuid4())
     cookies = {'x-trademe-uniqueclientid:': tm_uid}
 
@@ -79,8 +91,18 @@ def get_trademe_session(_loop=None):
         'Cache-Control': 'no-cache',
         'x-trademe-uniqueclientid': tm_uid,
     }
-
-    return InMemoryCachingClientSession(loop=_loop, cookies=cookies, headers=headers)
+    if rate_limit:
+        if rate_limit is True:
+            rate_limit = 5
+        return RateLimitingCachingClientSession(
+            max_inflight_requests=rate_limit, rate_limit_by_domain=True,
+            cache_strategy=DatabaseCachingStrategy(), loop=_loop,
+            cookies=cookies, headers=headers
+        )
+    else:
+        return CachingClientSession(
+            cache_strategy=DatabaseCachingStrategy(), loop=_loop,
+            cookies=cookies, headers=headers)
 
 
 def get_trademe_api(session=None, db_models=True, _loop=None):
@@ -92,7 +114,7 @@ def get_trademe_api(session=None, db_models=True, _loop=None):
         return RootManager(session)
 
 
-class InMemoryCachingClientSession(CachingClientSession):
+class InMemoryCachingStrategy(CachingStrategy):
 
     def __init__(self, *a, **k):
         super().__init__(*a, **k)
@@ -109,3 +131,64 @@ class InMemoryCachingClientSession(CachingClientSession):
         key = self.get_cache_key(method, url, **kwargs)
         response = await CachedResponse.from_response(response)
         self._cache[key] = response
+
+
+class DatabaseCachingStrategy(CachingStrategy):
+
+    def __init__(self, *a, expiry_time=timedelta(days=7), **k):
+        super().__init__(*a, **k)
+        if isinstance(expiry_time, timedelta):
+            self._expiry_time = expiry_time
+        else:
+            self._expiry_time = timedelta(seconds=expiry_time)
+
+    def get_cache_key(self, method, url, **kwargs):
+        return method, self.standardise_url(url), json.dumps(sorted(kwargs.items()))
+
+    @asyncio_loop
+    async def get_cached_response(self, method, url, *, _loop, **kwargs):
+        return await _loop.run_in_executor(
+            None, self.get_cached_response_sync,
+            _loop, method, url, kwargs)
+
+    def get_cached_response_sync(self, loop, method, url, kwargs):
+        method, url, kwargs = self.get_cache_key(method, url, **kwargs)
+        try:
+            model = CachedResponseModel.objects.get(
+                method=method,
+                url=url,
+                kwargs=kwargs,
+                expiry__gte=timezone.now()
+            )
+            content = model.content.tobytes()
+            response_state = json.loads(model.data)
+            response_state['loop'] = loop
+            return CachedResponse.from_json_dict(response_state, content=content)
+        except CachedResponseModel.DoesNotExist:
+            return None
+
+    @asyncio_loop
+    async def do_cache_response(self, response, method, url, *, _loop, **kwargs):
+        response = await CachedResponse.from_response(response)
+        return await _loop.run_in_executor(
+            None, self.do_cache_response_sync,
+            response, method, url, kwargs)
+
+    def do_cache_response_sync(self, cached_response, method, url, kwargs):
+        method, url, kwargs = self.get_cache_key(method, url, **kwargs)
+        state = cached_response.to_json_dict(encode_content=False)
+
+        content = state.pop('content')
+        data = json.dumps(state)
+        expiry = timezone.now() + self._expiry_time
+        model, _ = CachedResponseModel.objects.update_or_create(
+            method=method,
+            url=url,
+            kwargs=kwargs,
+            defaults=dict(
+                content=content,
+                data=data,
+                expiry=expiry,
+            )
+        )
+        model.save()

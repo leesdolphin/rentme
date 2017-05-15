@@ -1,24 +1,19 @@
 from celery.utils.log import get_task_logger
 from django.db import transaction
 from django.db.models import Count
+from django.utils import timezone
 
 from rentme.data.importer.celery import app
+from rentme.data.importer.models import CachedResponse
 from rentme.data.models import listing
 
 
 logger = get_task_logger(__name__)
 
 
-@app.task
+@app.task(ignore_result=True)
 def clean_related_tables():
     with transaction.atomic():
-        ps = (listing.Photo.objects
-                     .annotate(Count('listings'), Count('listing_photo_set'))
-                     .filter(listings__count=0, listing_photo_set__count=0))
-        for pts in ps:
-            from pprint import pprint
-            pprint(pts.__dict__)
-            # listing.Photo.objects.
         to_remove = [
             listing.BroadbandTechnology.objects
                    .annotate(Count('listings'))
@@ -44,5 +39,10 @@ def clean_related_tables():
             for model, rm_count in stats.items():
                 removal_stats[model] = removal_stats.get(model, 0) + rm_count
         print(total_removed, removal_stats)
-        if removal_stats.get('web.Listing', 0) > 0:
+        if removal_stats.get('data.Listing', 0) > 0:
             raise Exception('*void screaming*')
+
+
+@app.task(ignore_result=True)
+def clean_cache_tables():
+    CachedResponse.objects.filter(expiry__gte=timezone.now()).delete()

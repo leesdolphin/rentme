@@ -31,20 +31,29 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = (
+    'django_celery_beat',
+    'django_celery_results',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
-    'django.contrib.sessions',
     'django.contrib.messages',
+    'django.contrib.sessions',
     'django.contrib.staticfiles',
-    'django_celery_results',
-    'django_celery_beat',
-    # 'rentme.web',
-    'rentme.data',
+    'rentme.api',
     'rentme.data.importer',
+    'rentme.data',
+    'rest_framework',
 )
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE = ()
+if DEBUG:
+    INSTALLED_APPS = INSTALLED_APPS + (
+        'debug_toolbar',
+    )
+    MIDDLEWARE = MIDDLEWARE + (
+        'debug_toolbar.middleware.DebugToolbarMiddleware',
+    )
+MIDDLEWARE = MIDDLEWARE + (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',

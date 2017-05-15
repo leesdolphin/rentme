@@ -88,7 +88,6 @@ def default_debug_methods(_cls=None, *, str_fields=None):
                     not f.is_relation or f.one_to_one or f.many_to_one
                 )
             ]
-            print(repr(repr_fields))
             repr_format = cn + '(' + _fields_to_format(repr_fields) + ')'
             cls.__repr__ = lambda o: repr_format.format(o=o)
             return repr(obj)

@@ -9,9 +9,9 @@ import warnings
 import django
 
 import trademe.api as a
-from trademe.cache import OnDiskCachingClientSession, RateLimitingSession
+from trademe.cache import CachingClientSession, OnDiskCachingStrategy, RateLimitingSession, MigratingCachingStrategy
 from trademe.errors import ClassifiedExpiredError
-
+from aioutils.task_queues import AsyncTaskTracker
 
 if __name__ == '__main__':
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'rentme.settings')
@@ -32,83 +32,8 @@ headers = {
 headers.update(TM_CID)
 
 
-class TestSession(RateLimitingSession, OnDiskCachingClientSession):
+class TestSession(RateLimitingSession, CachingClientSession):
     pass
-
-
-class NoOpSemaphore():
-
-    def __aenter__(self):
-        pass
-
-    def __aexit__(self, *a, **k):
-        pass
-
-    async def acquire():
-        return True
-
-    def locked():
-        return False
-
-    def release():
-        pass
-
-
-class AsyncTaskTracker():
-
-    def __init__(self, max_tasks=None, raise_exceptions=True):
-        if max_tasks is None:
-            self._task_lock = NoOpSemaphore()
-        else:
-            assert max_tasks > 0
-            self._task_lock = asyncio.BoundedSemaphore(max_tasks)
-        self._raise_exceptions = raise_exceptions
-        self._task_list = []
-        self._exceptions_to_raise = []
-
-    @asyncio.coroutine
-    def __aenter__(self):
-        return self
-
-    @asyncio.coroutine
-    def __aexit__(self, exc_type, exc_value, traceback):
-        task_list = self._task_list
-        self._task_list = []
-        if exc_type is not None:
-            for task in task_list:
-                if not task.done():
-                    task.cancel()
-        if task_list:
-            yield from asyncio.wait(task_list)
-
-    async def add_task(self, coro_or_future):
-        if self._raise_exceptions:
-            self.check_exceptions()
-        success = False
-        try:
-            await self._task_lock.acquire()
-            fut = asyncio.ensure_future(coro_or_future)
-            self._task_list.append(fut)
-            fut.add_done_callback(self._fut_done_callback)
-            success = True
-        finally:
-            if not success:
-                self._task_lock.release()
-
-    def check_exceptions(self):
-        if self._exceptions_to_raise:
-            raise Exception() from self._exceptions_to_raise.pop()
-
-    def _fut_done_callback(self, fut):
-        self._task_lock.release()
-        if fut.cancelled():
-            if fut in self._task_list:
-                self._task_list.remove(fut)
-        else:
-            try:
-                fut.result()
-            except Exception as e:
-                self._exceptions_to_raise.append((fut, e))
 
 
 async def fetch(session, *args, **kwargs):
@@ -129,6 +54,7 @@ exit_now = False
 
 
 async def load_listing(api, listing_id):
+    global exit_now
     from rentme.data.models.listing import Listing
     try:
         try:
@@ -144,13 +70,14 @@ async def load_listing(api, listing_id):
         print('Classified expired:', listing_id)
         return
     except Exception as e:
+        if exit_now:
+            return
         print('\n', listing_id)
         traceback.print_exc()
         print('Failing listing ID:', listing_id)
         try:
             input('Press enter to continue:')
         except KeyboardInterrupt:
-            global exit_now
             exit_now = True
             return
 
@@ -176,28 +103,37 @@ async def delete_if_missing(session, api, listing):
 async def delete_all_outdated(task_tracker, session, api):
     from rentme.data.models.listing import Listing
     for listing in Listing.objects.filter(end_date__lt=datetime.now(tz=timezone.utc)):
-        await task_tracker.add_task(delete_if_missing(session, api, listing))
+        await task_tracker.add_task()
         await asyncio.sleep(.1)
 
 
 async def main():
     import rentme.data.models.registry as registry
+    from rentme.data.importer.cleanup import clean_related_tables
+    from rentme.data.importer.listing import load_listing_search_results, delete_all_outdated
+    from rentme.data.importer.utils import DatabaseCachingStrategy
 
     warnings.simplefilter('error')
     asyncio.get_event_loop().set_debug(True)
     logging.getLogger('asyncio').setLevel(logging.DEBUG)
 
-    from rentme.data.importer.cleanup import clean_related_tables
-    from rentme.data.importer.listing import load_listing_search_results
     load_listing_search_results.delay()
-    clean_related_tables()
+    delete_all_outdated.delay()
+    clean_related_tables.delay()
+    return
     clean_count = 0
 
+    cache_strategy = MigratingCachingStrategy(
+        primary_cache=DatabaseCachingStrategy(),
+        old_caches=(
+            OnDiskCachingStrategy(cache_folder=SCRIPT_DIR + '/_cache/'),
+        ))
     try:
-        async with TestSession(cache_folder=SCRIPT_DIR + '/_cache/',
-                               max_inflight_requests=5, rate_limit_by_domain=True,
+        async with TestSession(cache_strategy=cache_strategy,
+                               max_inflight_requests=5,
+                               rate_limit_by_domain=True,
                                cookies=TM_CID, headers=headers) as session, \
-                AsyncTaskTracker(max_tasks=20, raise_exceptions=True) as tt:
+                AsyncTaskTracker(max_tasks=20000, raise_exceptions=True) as tt:
             api = a.RootManager(session, model_registry=registry.model_registry)
             # for lid in ['1306451550']:
             #     await load_listing(api, lid)
@@ -212,7 +148,7 @@ async def main():
             # await tt.add_task(delete_all_outdated(tt, session, api))
 
 
-            return
+            # return
             for page_no in range(1, pages + 1):
                 misses = session.cache_info.misses
                 print('\nPage', page_no, '/', pages)

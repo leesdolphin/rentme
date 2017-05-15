@@ -19,8 +19,10 @@ setup(
         'django_celery_beat',
         'django_celery_results',
         'django',
+        'djangorestframework',
         'ImageHash',
         'psycopg2',
+        'django-debug-toolbar'
     ],
     entry_points={
         'console_scripts': [

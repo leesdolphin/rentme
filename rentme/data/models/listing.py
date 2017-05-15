@@ -1,7 +1,8 @@
+import enum
+
 from django.db import models
 from django.urls import reverse
 from django.utils.functional import cached_property
-
 from trademe.models.enums import AllowsPickups, GeographicLocationAccuracy
 
 from . import catalogue
@@ -128,6 +129,22 @@ class Agency(models.Model):
     website = models.URLField(blank=True, null=True)
 
 
+class PricePeriodEnum(enum.Enum):
+
+    WEEKLY = 1
+    MONTHLY = 2
+
+
+class ListingPrice(models.Model):
+
+    dollars = models.IntegerField()
+    period = EnumIntegerField(PricePeriodEnum)
+
+    @property
+    def display(self):
+        return '{} per {}'.format(self.dollars, self.period.name.lower())
+
+
 @model_registry.register_django_model
 @default_debug_methods
 class Listing(models.Model):
@@ -155,6 +172,7 @@ class Listing(models.Model):
     photo = models.ForeignKey('Photo', blank=True, null=True, related_name='listing_photo_set')
     photos = models.ManyToManyField('Photo', related_name='listings')
     price_display = models.TextField()
+    price = models.ForeignKey('ListingPrice', null=True)
     # region = models.ForeignKey(catalogue.Locality, related_name='listings')
     start_date = models.DateTimeField()
     suburb = models.ForeignKey(catalogue.Suburb, related_name='listings', null=True)

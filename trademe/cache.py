@@ -1,16 +1,32 @@
 import asyncio
+import base64
 import collections
 import hashlib
+import http.cookies
 import pathlib
 import pickle
-import traceback
 import urllib.parse
 
 import aiohttp
+import aiohttp.http_writer
+import aioutils.aiohttp
 import multidict
+import yarl
 
 
-CacheInfo = collections.namedtuple('CacheInfo', 'hits misses attempts')
+def b64encode(byte_str):
+    return base64.b64encode(byte_str).decode()
+
+
+class CacheInfo(collections.namedtuple('CacheInfo', 'hits misses attempts')):
+
+    __slots__ = ()
+
+    def _increment(self, hits=0, misses=0, attempts=0):
+        return self._replace(
+            hits=self.hits + hits,
+            misses=self.misses + misses,
+            attempts=self.attempts + attempts)
 
 
 class CachedResponse(aiohttp.client.ClientResponse):
@@ -22,8 +38,22 @@ class CachedResponse(aiohttp.client.ClientResponse):
                    response.headers, response.raw_headers, response.version,
                    response.status, response.reason)
 
+    @classmethod
+    def from_json_dict(cls, data, *, content=None):
+        if content is None:
+            data['content'] = base64.b64decode(data['content'])
+        else:
+            data['content'] = content
+        data['raw_headers'] = tuple(
+            (base64.b64decode(key), base64.b64decode(value))
+            for key, value in data['raw_headers']
+        )
+        data['cookies'] = http.cookies.SimpleCookie('\r\n'.join(data['cookies']))
+
+        return cls(**data)
+
     def __init__(self, method, url, content, cookies, headers, raw_headers,
-                 version, status, reason):
+                 version, status, reason, loop=None):
         self.__setstate__({
             'content': content,
             'url': url,
@@ -31,21 +61,22 @@ class CachedResponse(aiohttp.client.ClientResponse):
             'headers': headers,
             'method': method,
             'raw_headers': raw_headers,
-            'version': version,
+            'version': tuple(version),
             'status': status,
             'reason': reason,
+            'loop': loop
         })
         self._get_encoding()
 
     def __getstate__(self):
         return {
             'content': self._content,
-            'url': self._url,
+            'url': str(self._url),
             'cookies': self.cookies,
             'headers': tuple(self.headers.items()),
             'method': self.method,
             'raw_headers': self.raw_headers,
-            'version': self.version,
+            'version': tuple(self.version),
             'status': self.status,
             'reason': self.reason,
         }
@@ -56,58 +87,44 @@ class CachedResponse(aiohttp.client.ClientResponse):
         self._content = state['content']
         self._continue = None
         self._history = ()
-        self._loop = asyncio.get_event_loop()
+        self._loop = state.get('loop') or asyncio.get_event_loop()
         self._reader = None
         self._should_close = True
         self._timeout = 0
-        self._url = state['url']
+        self._url = yarl.URL(state['url'])
         self._writer = None
         self.content = None
         self.cookies = state['cookies']
         self.headers = multidict.MultiDict(state['headers'])
         self.method = state['method']
         self.raw_headers = state['raw_headers']
-        self.version = state['version']
+        self.version = aiohttp.http_writer.HttpVersion(*state['version'])
         self.status = state['status']
         self.reason = state['reason']
+
+    def to_json_dict(self, encode_content=True):
+        data = self.__getstate__()
+        if encode_content:
+            data['content'] = base64.b64encode(data['content']).decode()
+        data['raw_headers'] = tuple(
+            (base64.b64encode(key).decode(), base64.b64encode(value).decode())
+            for key, value in data['raw_headers']
+        )
+        data['cookies'] = tuple(
+            cookie.OutputString()
+            for cookie in data['cookies'].values()
+        )
+        return data
 
     async def read(self):
         return self._content
 
 
-class RateLimitingSession(aiohttp.client.ClientSession):
-
-    def __init__(self, *a,
-                 max_inflight_requests=None, rate_limit_by_domain=False, **k):
-        super().__init__(*a, **k)
-        assert max_inflight_requests is None or max_inflight_requests > 0
-        self._max_inflight_requests = max_inflight_requests
-        self._rate_limit_by_domain = rate_limit_by_domain
-        self._locks = dict()
-
-    async def _request(self, method, url, **kwargs):
-        if self._max_inflight_requests is None:
-            return await super()._request(method, url, **kwargs)
-        async with self.request_lock(url):
-            return await super()._request(method, url, **kwargs)
-
-    def request_lock(self, url):
-        if self._max_inflight_requests is None:
-            # New lock every time because no locking has been requested.
-            return asyncio.Lock()
-        semaphore_key = '_default_'
-        if self._rate_limit_by_domain:
-            parsed = urllib.parse.urlparse(url)
-            semaphore_key = (parsed.scheme, parsed.netloc)
-        if semaphore_key not in self._locks:
-            self._locks[semaphore_key] = asyncio.BoundedSemaphore(self._max_inflight_requests)
-        return self._locks[semaphore_key]
-
-
 class CachingClientSession(aiohttp.client.ClientSession):
 
-    def __init__(self, *a, **k):
+    def __init__(self, *a, cache_strategy, **k):
         super().__init__(*a, **k)
+        self._cache_strategy = cache_strategy
         self._cache_info = CacheInfo(0, 0, 0)
 
     @property
@@ -117,26 +134,29 @@ class CachingClientSession(aiohttp.client.ClientSession):
     async def _request(self, method, url, **kwargs):
         if kwargs.pop('no_cache', False):
             return await super()._request(method, url, **kwargs)
-        self._cache_info = self._cache_info._replace(attempts=self._cache_info.attempts + 1)
-        try:
-            cached_response = await self.get_cached_response(method, url, **kwargs)
-        except:
-            raise
+        self._cache_info = self._cache_info._increment(attempts=1)
+
+        cached_response = await self._cache_strategy.get_cached_response(
+            method, url, **kwargs)
         if cached_response is not None:
-            await self.do_cache_response(cached_response, method, url, **kwargs)
-            self._cache_info = self._cache_info._replace(
-                hits=self._cache_info.hits + 1)
+            self._cache_info = self._cache_info._increment(hits=1)
             return cached_response
-        self._cache_info = self._cache_info._replace(
-            misses=self._cache_info.misses + 1)
+
+        self._cache_info = self._cache_info._increment(misses=1)
         print('Cache miss for', method, url)
         real_response = await super()._request(method, url, **kwargs)
-        try:
-            await self.do_cache_response(real_response, method, url, **kwargs)
-        except:
-            traceback.print_exc()
-            raise
+        await self._cache_strategy.do_cache_response(real_response, method, url, **kwargs)
+
         return real_response
+
+
+class RateLimitingCachingClientSession(
+        aioutils.aiohttp.RateLimitingSession,
+        CachingClientSession):
+    pass
+
+
+class CachingStrategy(object):
 
     @staticmethod
     def standardise_url(url):
@@ -145,8 +165,14 @@ class CachingClientSession(aiohttp.client.ClientSession):
         parsed = parsed._replace(query=parsed_qs)
         return urllib.parse.urlunsplit(parsed)
 
+    async def get_cached_response(self, method, url, **kwargs):
+        raise NotImplementedError()
 
-class OnDiskCachingClientSession(CachingClientSession):
+    async def do_cache_response(self, response, method, url, **kwargs):
+        raise NotImplementedError()
+
+
+class OnDiskCachingStrategy(CachingStrategy):
 
     def __init__(self, *a, cache_folder, **k):
         self.cache_folder = pathlib.Path(cache_folder).resolve()
@@ -186,3 +212,29 @@ class OnDiskCachingClientSession(CachingClientSession):
         except:
             filename.unlink()
             raise
+
+
+class MigratingCachingStrategy(CachingStrategy):
+
+    def __init__(self, *a, primary_cache, old_caches=(), **k):
+        super().__init__(*a, **k)
+        self.primary_cache = primary_cache
+        self.old_caches = tuple(old_caches)
+
+    async def get_cached_response(self, method, url, **kwargs):
+        primary_response = await self.primary_cache.get_cached_response(
+            method, url, **kwargs)
+        if primary_response is not None:
+            return primary_response
+        for cache in self.old_caches:
+            cache_response = await cache.get_cached_response(
+                method, url, **kwargs)
+            if cache_response is not None:
+                await self.do_cache_response(
+                    cache_response, method, url, **kwargs)
+                return cache_response
+        return None
+
+    async def do_cache_response(self, response, method, url, **kwargs):
+        await self.primary_cache.do_cache_response(
+            response, method, url, **kwargs)
