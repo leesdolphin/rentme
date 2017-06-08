@@ -1,0 +1,29 @@
+import types
+{% for import_line in imports %}{{ import_line }}
+{% endfor %}{% for model in models %}
+
+class {{model.classname}}({{model.baseclass}}):
+
+    swagger_types = types.MappingProxyType({{'{'}}{% for field in model.fields %}
+        '{{field.attribute}}': '{{field.swagger_type}}',{% endfor %}
+    })
+    attribute_map = types.MappingProxyType({{'{'}}{% for field in model.fields %}
+        '{{field.attribute}}': '{{field.key}}',{% endfor %}
+    })
+{% for field in model.fields %}
+    {{field.attribute}} = {{field.django_type}}({% if field.args or field.kwargs %}
+    {%- for arg in field.args %}
+        {{arg}},{% endfor %}{% for key, value in field.kwargs.items() %}
+        {{key}}={{value}},{% endfor %}
+    {% endif %}){% endfor %}
+
+    class Meta:
+{% if model.uniqueness %}
+        unique_together = ({% for uniqueness in model.uniqueness %}
+            ({% for field in uniqueness %}
+                '{{field}}',{% endfor %}
+            ),{% endfor %}
+        )
+{% else %}
+        pass
+{% endif %}{% endfor %}

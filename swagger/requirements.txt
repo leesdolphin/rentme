@@ -1,3 +1,5 @@
+inflection
 lxml
 beautifulsoup4
 more-itertools
+jinja2
