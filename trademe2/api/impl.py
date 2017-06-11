@@ -1,7 +1,7 @@
 from trademe.models.enums import PhotoSize, PropertyType, SearchSortOrder
 from trademe2.api.base import TradeMeApiEndpoint
 from trademe2.api.validation import build_enum_validator, build_list_validator
-from trademe2.api.validation import ParameterValidator
+from trademe2.api.validation import ParameterValidator, validate_int
 
 
 class ListingEndpoint(TradeMeApiEndpoint):

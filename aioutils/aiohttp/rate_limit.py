@@ -22,8 +22,7 @@ class RateLimitingSession(aiohttp.client.ClientSession):
 
     def request_lock(self, url):
         if self._max_inflight_requests is None:
-            # New lock every time because no locking has been requested.
-            raise Exception("Cannot create a lock when locking is disabled.")
+            raise Exception('Cannot create a lock when locking is disabled.')
         semaphore_key = '_default_'
         if self._rate_limit_by_domain:
             parsed = urllib.parse.urlparse(url)

@@ -7,17 +7,17 @@ import inflection
 
 DJANGO_MODELS = {
     'string': {
-        None: 'models.TextField',
-        'date-time': 'models.DateTimeField'
+        None: ('str', 'models.TextField'),
+        'date-time': ('datetime', 'models.DateTimeField'),
     },
     'boolean': {
-        None: 'models.BooleanField',
+        None: ('bool', 'models.NullBooleanField'),
     },
     'integer': {
-        'int64': 'models.IntegerField',
+        'int64': ('int', 'models.IntegerField'),
     },
     'number': {
-        'double': 'models.FloatField',
+        'double': ('float', 'models.FloatField'),
     },
 }
 
@@ -62,10 +62,14 @@ def quote(string):
     return repr(string)
 
 
-def generate_models_for_definition(name, dfn):
+def generate_models_for_definition(name, dfn, *, model_args={}):
+    if name in ['ListingRequest', 'DraftListing']:
+        return []
     model = {
         'classname': name,
         'baseclass': 'models.Model',
+        'attr_map': [],
+        'extra_model_attrs': model_args
     }
     model_pyname = to_python_name(name)
     fields = []
@@ -77,8 +81,13 @@ def generate_models_for_definition(name, dfn):
             uniqueness.append([
                 to_python_name(lower_keys[possible_pk.lower()])
             ])
+    print(name)
     if name in ['ListedItemDetail', 'Flatmate']:
-        uniqueness.append(['listing_id'])
+        uniqueness = [['listing_id']]
+    if name in ['PhotoUrl']:
+        uniqueness = [['photo_id']]
+    if name in ['Photo']:
+        model['attr_map'].append(('photo_id', 'Key'))
     if uniqueness:
         model['uniqueness'] = uniqueness
     for vname, attr in sorted(dfn.items()):
@@ -87,8 +96,9 @@ def generate_models_for_definition(name, dfn):
         field = {
             'attribute': pyname,
             'key': vname,
-            'kwargs': {},
+            'kwargs': {'null': True},
         }
+        model['attr_map'].append((pyname, vname))
         if '$ref' in attr:
             if 'x-ref-name' in attr:
                 attr.pop('$ref')
@@ -108,10 +118,11 @@ def generate_models_for_definition(name, dfn):
             attr.pop('type')
             items = attr.pop('items')
             if items.get('type') in DJANGO_MODELS:
+                # Generate a specical model to hold this list.
                 ref_name = name + vname
                 other_models += generate_models_for_definition(ref_name, {
                     'value': items,
-                })
+                }, model_args={'expect_single_value': quote('value')})
             elif items.get('$ref'):
                 if 'x-ref-name' in items:
                     ref_name = items.get('x-ref-name')
@@ -135,8 +146,7 @@ def generate_models_for_definition(name, dfn):
             f = attr.pop('format', None)
             if f == 'date-time':
                 attr.pop('x-tm-datetime')
-            field['swagger_type'] = t
-            field['django_type'] = DJANGO_MODELS[t][f]
+            field['swagger_type'], field['django_type'] = DJANGO_MODELS[t][f]
         if 'description' in attr:
             field['kwargs']['help_text'] = to_multiline_string(
                 attr.pop('description'), indent=18, max_len=78)
@@ -165,6 +175,7 @@ def generate_models_for_definition(name, dfn):
             raise Exception()
         if [field['attribute']] in uniqueness:
             field['kwargs']['primary_key'] = True
+            del field['kwargs']['null']
         fields.append(field)
     if 'uniqueness' not in model:
         non_m2m_fields = [field['attribute']
@@ -172,6 +183,8 @@ def generate_models_for_definition(name, dfn):
                           if 'ManyToMany' not in field['django_type']]
         if non_m2m_fields:
             model['uniqueness'] = [non_m2m_fields]
+    if any(len(uniq) >= 32 for uniq in model.get('uniqueness', [])):
+        raise Exception("Uniqueness not valid for model {!r}".format(name))
     model['fields'] = fields
     return other_models + [model]
 

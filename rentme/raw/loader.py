@@ -1,7 +1,10 @@
 from __future__ import absolute_import
 
+from datetime import date, datetime, timezone
+from pprint import pprint
 import re
-from datetime import date, datetime
+
+from django.db.utils import IntegrityError
 
 
 class ModelDiscoverer():
@@ -154,8 +157,8 @@ class Deserializer():
         match = re.fullmatch(r'/Date\(([1-9][0-9]*|0)\)/', string)
         if match:
             utc_unix_seconds = int(match.group(1)) / 1000
-            return datetime.datetime.fromtimestamp(utc_unix_seconds,
-                                                   tz=datetime.timezone.utc)
+            return datetime.fromtimestamp(utc_unix_seconds,
+                                          tz=timezone.utc)
         else:
             return None
 
@@ -172,19 +175,49 @@ class Deserializer():
         if not instance.swagger_types:
             return data
 
+        if not isinstance(data, (dict, )):
+            if hasattr(instance, 'expect_single_value'):
+                key = instance.expect_single_value
+                value = self.deserialize(data, instance.swagger_types[key])
+                setattr(instance, key, value)
+                try:
+                    instance.save()
+                except IntegrityError:
+                    instance = klass.objects.get(**{key: value})
+                    setattr(instance, key, value)
+                    instance.save()
+                return instance
+            else:
+                pprint((klass.swagger_types, klass.attribute_map, data))
+
+        if data is None or not isinstance(data, (dict, )):
+            return instance
+
         m2m = {}
+        attrs = {}
 
         for attr, attr_type in instance.swagger_types.items():
-            if data is not None \
-               and instance.attribute_map[attr] in data \
-               and isinstance(data, (list, dict)):
-                value = data[instance.attribute_map[attr]]
+            key = next(
+                (key for key in instance.attribute_map.getall(attr, [])
+                 if key in data),
+                None)
+            if key is not None:
+                value = data[key]
                 if attr_type.startswith('list['):
                     m2m[attr] = self.deserialize(value, attr_type)
                 else:
-                    setattr(instance, attr, self.deserialize(value, attr_type))
+                    attrs[attr] = self.deserialize(value, attr_type)
+        try:
+            for name, value in attrs.items():
+                setattr(instance, name, value)
+            instance.save()
+        except IntegrityError:
+            instance = klass.objects.get(**attrs)
+            for name, value in attrs.items():
+                setattr(instance, name, value)
+            instance.save()
 
-        instance.save()
+
 
         for attr, val in m2m.items():
             getattr(instance, attr).set(val)

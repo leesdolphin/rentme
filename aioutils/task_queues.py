@@ -84,7 +84,7 @@ class TaskList():
 
     @asyncio_loop(loop_kwarg='loop')
     async def add_task(self, coro_or_future, *, loop):
-        self._add_task(coro_or_future, loop=loop)
+        return self._add_task(coro_or_future, loop=loop)
 
     def _add_task(self, coro_or_future, *, loop):
         self.check_exceptions()
@@ -140,7 +140,7 @@ class SizeBoundedTaskList(TaskList):
         await self.task_lock.acquire()
         try:
             self.check_exceptions()
-            await super().add_task(coro_or_future, loop=loop)
+            return await super().add_task(coro_or_future, loop=loop)
         except:
             self.task_lock.release()
 

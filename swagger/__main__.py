@@ -11,6 +11,17 @@ from bs4 import BeautifulSoup
 import more_itertools
 
 from aioutils.task_queues import SizeBoundedTaskList
+from .parse_types import load_enum_into_item, parse_type_format
+
+
+class TypesEncoder(json.JSONEncoder):
+
+    def default(self, o):
+        if hasattr(o, 'items'):
+            return dict(o)
+        else:
+            super().default(o)
+
 
 error_definitions = {
     'ErrorResult': {
@@ -79,6 +90,40 @@ standard_responses = {
 }
 
 
+class DefinitionContainer():
+
+    def __init__(self):
+        self.definitions = {}
+        self.reverse = {}
+
+    def add_definition(self, prefered_name, definition):
+        if not prefered_name.isidentifier():
+            print("Invalid identifier {!r}".format(prefered_name))
+        rev_lookup = json.dumps(definition, indent=2, sort_keys=True, cls=TypesEncoder)
+        rev_names = self.reverse.setdefault(rev_lookup, [])
+        if prefered_name in rev_names:
+            return prefered_name
+        elif prefered_name not in self.definitions:
+            self.reverse[rev_lookup].append(prefered_name)
+            self.definitions[prefered_name] = definition
+            return prefered_name
+        # print("could not create definition with prefered name {!r}. Clashes with {!r}".format(prefered_name, rev_names))
+        attempts = 0
+        while attempts < 10:
+            new_name = prefered_name + str(attempts)
+            if new_name in rev_names:
+                return new_name
+            elif new_name not in self.definitions:
+                self.reverse[rev_lookup].append(new_name)
+                self.definitions[new_name] = definition
+                return new_name
+            else:
+                new_name += '_'
+            attempts += 1
+        raise Exception('Failed to generate unique name for'
+                        ' model {}.{}'.format(prefered_name))
+
+
 def iter_heading_contents(children):
     heading_tags = frozenset({'h1', 'h2', 'h3', 'h4'})
     last_heading = None
@@ -119,12 +164,12 @@ def safe_add(orig, *new):
             if key in orig:
                 if value != orig[key]:
                     print('Warning. Key already defined, ', key)
-                    from pprint import pformat
-                    import difflib
-                    print(''.join(difflib.ndiff(
-                        pformat(orig[key]).splitlines(keepends=True),
-                        pformat(value).splitlines(keepends=True),
-                    )))
+                    # from pprint import pformat
+                    # import difflib
+                    # print(''.join(difflib.ndiff(
+                    #     pformat(orig[key]).splitlines(keepends=True),
+                    #     pformat(value).splitlines(keepends=True),
+                    # )))
             else:
                 orig[key] = value
     return orig
@@ -158,7 +203,60 @@ def split_definition_paragraphs(paragraphs):
     return def_line, paragraphs_to_markdown(*lines)
 
 
-async def generate_swagger_from_docs(session, url):
+def paragraphs_to_markdown(*paras, indent=0):
+    paragraphs = []
+    for item in paras:
+        if item.name in ['ul', 'ol']:
+            lst = []
+            prefix = ' - ' if item.name == 'ul' else '1. '
+            for li in item.children:
+                if li.name == 'li':
+                    lst.append(prefix + paragraphs_to_markdown(
+                        li, indent=indent + 3))
+            paragraphs.append('\n'.join(lst))
+        elif item.name is None or not (item.find('ul,ol')):
+            paragraphs.append(text(item))
+        else:
+            paragraphs.append(paragraphs_to_markdown(
+                *item.children, indent=indent))
+    paragraphs = filter(lambda s: s.strip(), paragraphs)
+    if indent != 0:
+        new_paras = []
+        i_chars = ' ' * indent
+        for para in paragraphs:
+            para = '\n'.join(i_chars + line for line in para.splitlines())
+            new_paras.append(para)
+        paragraphs = new_paras
+    return '\n\n'.join(paragraphs)
+
+
+def text(*elms, one_line=True, strip=True, sep=' '):
+    text_elms = []
+    for elm in elms:
+        if elm.name is None:
+            child_elms = [elm]
+        else:
+            child_elms = elm.children
+        for e in child_elms:
+            if isinstance(e, bs4.NavigableString):
+                txt = str(e)
+                txt = re.sub(r'[ \n\t]+', ' ', txt)
+                text_elms.append(txt)
+            elif e.name == 'br':
+                text_elms.append(' ' if one_line else '\n')
+            elif e.name not in ['script', 'style']:
+                text_elms.append(text(e, one_line=one_line, strip=False))
+        text_elms.append(sep)
+    t = ''.join(text_elms)
+    t = re.sub(r'[ ]+', ' ', t)
+    if not one_line:
+        t = re.sub(r'[ ]*\n[ ]*', '\n', t)
+    if strip:
+        t = t.strip()
+    return t
+
+
+async def generate_swagger_from_docs(session, url, definitions):
     KNOWN_BAD_HEADINGS = {
         'Request Builder',
         'Request',
@@ -189,7 +287,6 @@ async def generate_swagger_from_docs(session, url):
     }
     params = []
     metadata = None
-    definitions = {}
     response = None
     for heading, table, paragraphs in content_iter:
         if heading is None:
@@ -199,7 +296,6 @@ async def generate_swagger_from_docs(session, url):
             path['description'] = paragraphs_to_markdown(*paragraphs)
             continue
         heading_text = text(heading)
-        print(heading_text)
         if heading_text in ['URL parameters', 'Query String parameters']:
             if heading_text == 'URL parameters':
                 in_type = 'path'
@@ -213,7 +309,7 @@ async def generate_swagger_from_docs(session, url):
             dfn_obj = parse_type_format(name)
             dfn_ref = get_refname(dfn_obj)
             if dfn_ref:
-                definitions = safe_add(definitions, parse_response(dfn_ref, desc, table))
+                dfn_obj = parse_response(dfn_obj, desc, definitions, table=table)
             else:
                 dfn_obj['description'] = desc
             if heading_text == 'POST Data':
@@ -237,37 +333,12 @@ async def generate_swagger_from_docs(session, url):
     path['responses'] = safe_add({
         '200': response,
     }, standard_responses)
-    return ({
+    return {
         metadata['URL'].replace('https://api.trademe.co.nz/v1', ''): {
             metadata['HTTP Method'].lower(): path,
             'parameters': params,
         }
-    }, definitions)
-
-
-def paragraphs_to_markdown(*paras, indent=0):
-    paragraphs = []
-    for item in paras:
-        if item.name in ['ul', 'ol']:
-            lst = []
-            prefix = ' - ' if item.name == 'ul' else '1. '
-            for li in item.children:
-                if li.name == 'li':
-                    lst.append(prefix + paragraphs_to_markdown(li, indent=indent + 3))
-            paragraphs.append('\n'.join(lst))
-        elif item.name is None or not (item.find('ul,ol')):
-            paragraphs.append(text(item))
-        else:
-            paragraphs.append(paragraphs_to_markdown(*item.children, indent=indent))
-    paragraphs = filter(lambda s: s.strip(), paragraphs)
-    if indent != 0:
-        new_paras = []
-        i_chars = ' ' * indent
-        for para in paragraphs:
-            para = '\n'.join(i_chars + line for line in para.splitlines())
-            new_paras.append(para)
-        paragraphs = new_paras
-    return '\n\n'.join(paragraphs)
+    }
 
 
 def convert_supported_formats_to_mime(supported_formats):
@@ -323,19 +394,19 @@ def parse_params(in_type, table):
 
 
 def get_refname(data):
-    if '$ref' in data or '$ref' in data.get('items', []):
-        return data.get('x-ref-name') or data['items']['x-ref-name']
-    return None
+    try:
+        return data.ref_name
+    except AttributeError:
+        return None
 
 
-def parse_response(definition_name, docs, table=None, *, table_iter=None):
+def parse_response(dfn_obj, docs, definitions, *, table=None, table_iter=None):
     if table_iter is None:
         assert table is not None
         table_iter = iter(iter_parse_nested_table(table))
     else:
         assert table is None
     table_iter = more_itertools.peekable(table_iter)
-    all_dfns = {}
     this_dfn = {}
     for t, key, value, desc in table_iter:
         if t != 'kv':
@@ -356,123 +427,15 @@ def parse_response(definition_name, docs, table=None, *, table_iter=None):
             if table_iter.peek([None])[0] == 'nested':
                 t, _, values, _ = next(table_iter)
                 if values is not None:
-                    resp = parse_response(ref_name, desc, table_iter=values)
-                    all_dfns.update(resp)
+                    data = parse_response(data, desc, definitions, table_iter=values)
+            else:
+                print('xx', table_iter.peek([None]))
         this_dfn[key] = data
-    all_dfns[definition_name] = {
+    dfn_obj.ref_name = definitions.add_definition(get_refname(dfn_obj), {
         'type': 'object',
         'properties': this_dfn,
-    }
-    return all_dfns
-
-
-def load_enum_into_item(enum_row, data):
-    t, _, values, _ = enum_row
-    assert t == 'enum'
-    _, has_value, _ = values[0]
-    if has_value is None:
-        data['enum'] = [k for k, _, _ in values]
-        data['type'] = 'string'
-        data['x-named-enum'] = [
-            {
-                'key': k,
-                'value': k,
-                'description': desc,
-            }
-            for k, _, desc in values
-        ]
-    else:
-        data['enum'] = [v for _, v, _ in values]
-        data['type'] = 'integer'
-        data['format'] = 'int64'
-        data['x-keyed-enum'] = [
-            {
-                'key': k,
-                'value': v,
-                'description': desc,
-            }
-            for k, v, desc in values
-        ]
-    return data
-
-
-def parse_type_format(value):
-    if value[0] == '<':
-        ref, _, extra = value[1:].partition('>')
-        data = {
-            '$ref': '#/definitions/' + ref,
-            'x-ref-name': ref
-        }
-        if not extra:
-            return data
-    elif value.startswith('Collection of '):
-        return {
-            'type': 'array',
-            'items': parse_type_format(value[len('Collection of '):]),
-        }
-    else:
-        types = {
-            'Integer': ('integer', 'int64'),
-            'String': ('string', ''),
-            'Number': ('number', 'double'),
-            'DateTime': ('string', 'date-time'),
-            'Boolean': ('boolean', ''),
-        }
-        if value.startswith('Long Integer'):
-            v_type = 'Integer'
-            extra = value[len('Long Integer'):]
-        else:
-            v_type, _, extra = value.partition(' ')
-        if v_type == 'Enumeration':
-            data = {
-                'enum': True,
-            }
-        elif v_type == 'DateTime':
-            data = {
-                'type': 'string',
-                'format': 'date-time',
-                'x-tm-datetime': True,
-            }
-        elif v_type in types:
-            t, f = types[v_type]
-            data = {'type': t}
-            if f:
-                data['format'] = f
-        else:
-            print(value, repr(v_type))
-            raise Exception('ssss')
-    extra = extra.strip() if extra else ''
-    if extra == '(optional)':
-        data['required'] = False
-    elif extra == '(required)':
-        data['required'] = False
-    return data
-
-
-def text(*elms, one_line=True, strip=True, sep=' '):
-    text_elms = []
-    for elm in elms:
-        if elm.name is None:
-            child_elms = [elm]
-        else:
-            child_elms = elm.children
-        for e in child_elms:
-            if isinstance(e, bs4.NavigableString):
-                txt = str(e)
-                txt = re.sub(r'[ \n\t]+', ' ', txt)
-                text_elms.append(txt)
-            elif e.name == 'br':
-                text_elms.append(' ' if one_line else '\n')
-            elif e.name not in ['script', 'style']:
-                text_elms.append(text(e, one_line=one_line, strip=False))
-        text_elms.append(sep)
-    t = ''.join(text_elms)
-    t = re.sub(r'[ ]+', ' ', t)
-    if not one_line:
-        t = re.sub(r'[ ]*\n[ ]*', '\n', t)
-    if strip:
-        t = t.strip()
-    return t
+    })
+    return dfn_obj
 
 
 def iter_parse_nested_table(table):
@@ -525,8 +488,7 @@ def iter_parse_enum_table(table):
             yield (name, value, description)
 
 
-async def iter_apis(session):
-    # return ['https://developer.trademe.co.nz/api-reference/selling-methods/create-a-draft-listing/']
+async def iter_api_index(session):
     url = 'https://developer.trademe.co.nz/api-reference/api-index/'
     async with session.get(url) as o:
         soup = BeautifulSoup(await o.text(), 'lxml')
@@ -534,38 +496,55 @@ async def iter_apis(session):
     for link in soup.select('div.generated-content a'):
         if 'href' in link.attrs:
             href = urljoin(url, link.attrs['href'])
-            if '/api-index/' in href:
+            if '/api-reference/' in href:
                 x.append(href)
+    return x
 
+
+async def iter_api_methods_page(session, url):
+    if not url.startswith('http'):
+        url = 'https://developer.trademe.co.nz/api-reference/' + url + '/'
+    async with session.get(url) as o:
+        soup = BeautifulSoup(await o.text(), 'lxml')
+    x = []
+    for item in soup.select('div.generated-content li'):
+        if '(deprecated)' in text(item):
+            continue
+        link = item.find('a')
+        print(link, link and 'href' in link.attrs)
+        if link and 'href' in link.attrs:
+            href = urljoin(url, link.attrs['href'])
+            if '/api-reference/' in href:
+                x.append(href)
     return x
 
 
 async def main():
     paths = {}
-    definitions = dict(error_definitions)
+    definitions = DefinitionContainer()
     async with aioutils.aiohttp.CachingClientSession(
         cache_strategy=aioutils.aiohttp.OnDiskCachingStrategy(
             cache_folder='./.cache')
     ) as session:
-        urls = await iter_apis(session)
+        # urls = await iter_apis(session)
+        urls = await iter_api_methods_page(session, 'catalogue-methods')
         # urls = [
         #     'https://developer.trademe.co.nz/api-reference/listing-methods/retrieve-the-details-of-a-single-listing/',
         #     'https://developer.trademe.co.nz/api-reference/search-methods/rental-search/',
         #     'https://developer.trademe.co.nz/api-reference/search-methods/flatmate-search/',
+        #     'https://developer.trademe.co.nz/api-reference/selling-methods/create-a-draft-listing/'
         # ]
         async with SizeBoundedTaskList(5) as tl:
             for url in urls:
-                await tl.add_task(
-                    generate_swagger_from_docs(
-                        session,
-                        url
-                    )
+                await generate_swagger_from_docs(
+                    session,
+                    url,
+                    definitions
                 )
             for doc_task in tl.as_completed():
-                gen_path, gen_dfns = await doc_task
+                gen_path = await doc_task
                 # TODO: union paths taking into account the http method and url.
                 paths = safe_add(paths, gen_path)
-                definitions = definition_union(definitions, gen_dfns)
 
     swagger = {
         'swagger': '2.0',
@@ -577,11 +556,11 @@ async def main():
         'host': 'api.trademe.co.nz',
         'basePath': '/v1/',
         'paths': paths,
-        'definitions': definitions,
+        'definitions': definitions.definitions,
     }
 
     with open('swagger.json', 'w') as f:
-        json.dump(swagger, f, sort_keys=True, indent=2)
+        json.dump(swagger, f, sort_keys=True, indent=2, cls=TypesEncoder)
 
 
 if __name__ == '__main__':

@@ -1,15 +1,17 @@
 import types
+import multidict
 {% for import_line in imports %}{{ import_line }}
 {% endfor %}{% for model in models %}
 
 class {{model.classname}}({{model.baseclass}}):
-
+{% for key, value in model.extra_model_attrs.items() %}
+    {{key}} = {{value}}{% endfor %}
     swagger_types = types.MappingProxyType({{'{'}}{% for field in model.fields %}
         '{{field.attribute}}': '{{field.swagger_type}}',{% endfor %}
     })
-    attribute_map = types.MappingProxyType({{'{'}}{% for field in model.fields %}
-        '{{field.attribute}}': '{{field.key}}',{% endfor %}
-    })
+    attribute_map = multidict.MultiDictProxy(multidict.MultiDict([{% for attr, key in model.attr_map %}
+        ('{{attr}}', '{{key}}'),{% endfor %}
+    ]))
 {% for field in model.fields %}
     {{field.attribute}} = {{field.django_type}}({% if field.args or field.kwargs %}
     {%- for arg in field.args %}

@@ -42,6 +42,7 @@ INSTALLED_APPS = (
     'rentme.api',
     'rentme.data.importer',
     'rentme.data',
+    'rentme.raw',
     'rest_framework',
 )
 
@@ -124,3 +125,14 @@ STATICFILES_DIRS = []
 CELERY_TIMEZONE = 'UTC'
 CELERY_RESULT_BACKEND = 'django-db'
 CELERY_BROKER_URL = 'amqp://guest:guest@taskqueue:5672/'
+
+
+REST_FRAMEWORK = {
+    # Use Django's standard `django.contrib.auth` permissions,
+    # or allow read-only access for unauthenticated users.
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAdminUser',
+        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly',
+    ],
+    'PAGE_SIZE': 10,
+}
