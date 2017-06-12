@@ -107,7 +107,7 @@ class DefinitionContainer():
             self.reverse[rev_lookup].append(prefered_name)
             self.definitions[prefered_name] = definition
             return prefered_name
-        # print("could not create definition with prefered name {!r}. Clashes with {!r}".format(prefered_name, rev_names))
+        print("could not create definition with prefered name {!r}. Clashes with {!r}".format(prefered_name, rev_names))
         attempts = 0
         while attempts < 10:
             new_name = prefered_name + str(attempts)
@@ -117,8 +117,6 @@ class DefinitionContainer():
                 self.reverse[rev_lookup].append(new_name)
                 self.definitions[new_name] = definition
                 return new_name
-            else:
-                new_name += '_'
             attempts += 1
         raise Exception('Failed to generate unique name for'
                         ' model {}.{}'.format(prefered_name))
@@ -130,6 +128,7 @@ def iter_heading_contents(children):
     last_table = None
     last_paragraphs = []
     expanded_children = []
+    is_private = False
     for child in children:
         if child.name == 'div':
             div_children = child.contents
@@ -144,9 +143,11 @@ def iter_heading_contents(children):
                 yield last_heading, last_table, last_paragraphs
             last_heading = child
             last_paragraphs = []
+            is_private = False
+        elif is_private or '[/tm_private]' in text(child):
+            is_private = True
         elif not child.name:
-            if last_paragraphs is not None:
-                last_paragraphs.append(child)
+            last_paragraphs.append(child)
         elif child.name == 'table':
             last_table = child
         elif child.find('table'):
@@ -493,8 +494,12 @@ async def iter_api_index(session):
     async with session.get(url) as o:
         soup = BeautifulSoup(await o.text(), 'lxml')
     x = []
-    for link in soup.select('div.generated-content a'):
-        if 'href' in link.attrs:
+    for item in soup.select('.content tr'):
+        if '(deprecated)' in text(item):
+            continue
+        link = item.find('a')
+        print(link, link and 'href' in link.attrs)
+        if link and 'href' in link.attrs:
             href = urljoin(url, link.attrs['href'])
             if '/api-reference/' in href:
                 x.append(href)
@@ -526,16 +531,13 @@ async def main():
         cache_strategy=aioutils.aiohttp.OnDiskCachingStrategy(
             cache_folder='./.cache')
     ) as session:
-        # urls = await iter_apis(session)
-        urls = await iter_api_methods_page(session, 'catalogue-methods')
-        # urls = [
-        #     'https://developer.trademe.co.nz/api-reference/listing-methods/retrieve-the-details-of-a-single-listing/',
-        #     'https://developer.trademe.co.nz/api-reference/search-methods/rental-search/',
-        #     'https://developer.trademe.co.nz/api-reference/search-methods/flatmate-search/',
-        #     'https://developer.trademe.co.nz/api-reference/selling-methods/create-a-draft-listing/'
-        # ]
-        async with SizeBoundedTaskList(5) as tl:
+        urls = await iter_api_index(session)
+        # Set your own definition pages here.
+
+        urls = sorted(set(urls))
+        async with SizeBoundedTaskList(1) as tl:
             for url in urls:
+                print(url)
                 await generate_swagger_from_docs(
                     session,
                     url,
@@ -561,6 +563,16 @@ async def main():
 
     with open('swagger.json', 'w') as f:
         json.dump(swagger, f, sort_keys=True, indent=2, cls=TypesEncoder)
+    with open('swagger.json') as f:
+        names = set()
+        for line in f:
+            if '#/definitions/' in line:
+                pos = line.index('#/definitions/') + len('#/definitions/')
+                name = line[pos:-3]
+                names.add(name)
+        for name in sorted(names):
+            if name not in definitions.definitions:
+                print(name)
 
 
 if __name__ == '__main__':

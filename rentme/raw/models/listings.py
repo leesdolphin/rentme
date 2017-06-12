@@ -4,49 +4,6 @@ from django.db import models
 import multidict
 
 
-class AdditionalDataBulletPoints(models.Model):
-
-    expect_single_value = 'value'
-    swagger_types = types.MappingProxyType({
-        'value': 'str',
-    })
-    attribute_map = multidict.MultiDictProxy(multidict.MultiDict([
-        ('value', 'value'),
-    ]))
-
-    value = models.TextField(
-        null=True,
-    )
-
-    class Meta:
-
-        unique_together = (
-            (
-                'value',
-            ),
-        )
-
-
-class AdditionalData(models.Model):
-
-    swagger_types = types.MappingProxyType({
-        'bullet_points': 'list[AdditionalDataBulletPoints]',
-    })
-    attribute_map = multidict.MultiDictProxy(multidict.MultiDict([
-        ('bullet_points', 'BulletPoints'),
-    ]))
-
-    bullet_points = models.ManyToManyField(
-        'AdditionalDataBulletPoints',
-        related_name='additional_data_reverse_bullet_points',
-        help_text='The bullet points for display in the search results',
-    )
-
-    class Meta:
-
-        pass
-
-
 class Address(models.Model):
 
     swagger_types = types.MappingProxyType({
@@ -647,141 +604,6 @@ class Attribute(models.Model):
         )
 
 
-class Attribute0(models.Model):
-
-    swagger_types = types.MappingProxyType({
-        'display_name': 'str',
-        'display_value': 'str',
-        'group_name': 'str',
-        'is_required_for_sell': 'bool',
-        'max_string_length': 'int',
-        'name': 'str',
-        'options': 'list[AttributeOption0]',
-        'range': 'AttributeRange',
-        'type': 'int',
-        'unit': 'str',
-        'units': 'list[AttributeUnit]',
-        'value': 'str',
-    })
-    attribute_map = multidict.MultiDictProxy(multidict.MultiDict([
-        ('display_name', 'DisplayName'),
-        ('display_value', 'DisplayValue'),
-        ('group_name', 'GroupName'),
-        ('is_required_for_sell', 'IsRequiredForSell'),
-        ('max_string_length', 'MaxStringLength'),
-        ('name', 'Name'),
-        ('options', 'Options'),
-        ('range', 'Range'),
-        ('type', 'Type'),
-        ('unit', 'Unit'),
-        ('units', 'Units'),
-        ('value', 'Value'),
-    ]))
-
-    display_name = models.TextField(
-        null=True,
-        help_text='The name of the attribute, in a form suitable for '
-                  'displaying to users. Not required when selling or editing.',
-    )
-    display_value = models.TextField(
-        null=True,
-        help_text='The value of the attribute as it needs to be displayed to '
-                  'the end users',
-    )
-    group_name = models.TextField(
-        null=True,
-        help_text='Suggests the category name for the attribute grouping on '
-                  'the UI level.',
-    )
-    is_required_for_sell = models.NullBooleanField(
-        null=True,
-        help_text='Indicates whether the attribute must be present when '
-                  'selling an item.',
-    )
-    max_string_length = models.IntegerField(
-        null=True,
-        help_text='The maximum allowed length of the attribute value, in '
-                  'characters. Only applies to string attributes. Some string'
-                  ' attributes do not have a maximum length because they are '
-                  'restricted to a fixed list of options, or because any '
-                  'length is acceptable. Not required when selling or '
-                  'editing.',
-    )
-    name = models.TextField(
-        null=True,
-        help_text='A name which uniquely identifies the attribute. Required '
-                  'when selling or editing.',
-    )
-    options = models.ManyToManyField(
-        'AttributeOption0',
-        related_name='attribute0_reverse_options',
-        help_text='A list of options, if the attribute is restricted to a '
-                  'fixed set of values. Not required when selling or editing.',
-    )
-    range = models.ForeignKey(
-        'AttributeRange',
-        on_delete=models.CASCADE,
-        null=True,
-        related_name='attribute0_reverse_range',
-        blank=True,
-        help_text='The allowed range of the attribute. Only applies to '
-                  'numeric attributes. Not required when selling or editing.',
-    )
-    type = models.IntegerField(
-        null=True,
-        choices=(
-            (0, 'None'),
-            (1, 'Boolean'),
-            (2, 'Integer'),
-            (3, 'Decimal'),
-            (4, 'String'),
-            (5, 'DateTime'),
-        ),
-        help_text='The type of the attribute, which determines the range of '
-                  'acceptable values. Not required when selling or editing.',
-    )
-    unit = models.TextField(
-        null=True,
-        help_text='The selected unit. Only applicable to attributes that have'
-                  ' at least one associated unit. This field is optional, but'
-                  ' if supplied, will be saved along with the value. The list'
-                  ' of valid units can be retrieved from the category details'
-                  ' API .',
-    )
-    units = models.ManyToManyField(
-        'AttributeUnit',
-        related_name='attribute0_reverse_units',
-        help_text='A list of units that apply (MHz, hectares, etc). Only '
-                  'applies to numeric attributes. Not required when selling '
-                  'or editing.',
-    )
-    value = models.TextField(
-        null=True,
-        help_text='The string value of the attribute. When listing, the valid'
-                  ' values for the attribute can be determined using the '
-                  '“Retrieve attributes for a category” API. Use “false” or '
-                  '“true” for boolean attributes. Required when selling or '
-                  'editing.',
-    )
-
-    class Meta:
-
-        unique_together = (
-            (
-                'display_name',
-                'display_value',
-                'group_name',
-                'is_required_for_sell',
-                'max_string_length',
-                'name',
-                'range',
-                'type',
-                'unit',
-                'value',
-            ),
-        )
-
-
 class AttributeOption(models.Model):
 
     swagger_types = types.MappingProxyType({
@@ -806,43 +628,6 @@ class AttributeOption(models.Model):
 
         unique_together = (
             (
-                'display',
-                'value',
-            ),
-        )
-
-
-class AttributeOption0(models.Model):
-
-    swagger_types = types.MappingProxyType({
-        'count': 'int',
-        'display': 'str',
-        'value': 'str',
-    })
-    attribute_map = multidict.MultiDictProxy(multidict.MultiDict([
-        ('count', 'Count'),
-        ('display', 'Display'),
-        ('value', 'Value'),
-    ]))
-
-    count = models.IntegerField(
-        null=True,
-        help_text='How many child elements are available.',
-    )
-    display = models.TextField(
-        null=True,
-        help_text='What should be displayed for this value (often the same).',
-    )
-    value = models.TextField(
-        null=True,
-        help_text='The value of the item as a string.',
-    )
-
-    class Meta:
-
-        unique_together = (
-            (
-                'count',
                 'display',
                 'value',
             ),
@@ -875,38 +660,6 @@ class AttributeRange(models.Model):
             (
                 'lower',
                 'upper',
-            ),
-        )
-
-
-class AttributeUnit(models.Model):
-
-    swagger_types = types.MappingProxyType({
-        'display': 'str',
-        'multiplier': 'float',
-    })
-    attribute_map = multidict.MultiDictProxy(multidict.MultiDict([
-        ('display', 'Display'),
-        ('multiplier', 'Multiplier'),
-    ]))
-
-    display = models.TextField(
-        null=True,
-        help_text='The unit name, in a format suitable for displaying to a '
-                  'user (e.g. “MHz”).',
-    )
-    multiplier = models.FloatField(
-        null=True,
-        help_text='The multiplier to apply to the value the user entered to '
-                  'get a value suitable for passing to the sell API.',
-    )
-
-    class Meta:
-
-        unique_together = (
-            (
-                'display',
-                'multiplier',
             ),
         )
 
@@ -1212,70 +965,6 @@ class Charity(models.Model):
                 'description',
                 'image_source',
                 'tagline',
-            ),
-        )
-
-
-class Contact(models.Model):
-
-    swagger_types = types.MappingProxyType({
-        'agent_id': 'str',
-        'alternate_phone_number': 'str',
-        'branding_image_id': 'int',
-        'e_mail': 'str',
-        'full_name': 'str',
-        'phone_number': 'str',
-    })
-    attribute_map = multidict.MultiDictProxy(multidict.MultiDict([
-        ('agent_id', 'AgentId'),
-        ('alternate_phone_number', 'AlternatePhoneNumber'),
-        ('branding_image_id', 'BrandingImageId'),
-        ('e_mail', 'EMail'),
-        ('full_name', 'FullName'),
-        ('phone_number', 'PhoneNumber'),
-    ]))
-
-    agent_id = models.TextField(
-        null=True,
-        help_text='The REAA number of the agent, used to connect this listing'
-                  ' to an agent',
-    )
-    alternate_phone_number = models.TextField(
-        null=True,
-        help_text='The secondary phone number of the contact. Can be either a'
-                  ' mobile or landline number. Optional.',
-    )
-    branding_image_id = models.IntegerField(
-        null=True,
-        help_text='The ID of the branding image to display an agent photo on '
-                  'this listing. See the upload branding image API . '
-                  'Optional.',
-    )
-    e_mail = models.TextField(
-        null=True,
-        help_text='The email address of the contact to be used for email '
-                  'enquiries. Optional.',
-    )
-    full_name = models.TextField(
-        null=True,
-        help_text='The full name of the contact person or agent. Mandatory.',
-    )
-    phone_number = models.TextField(
-        null=True,
-        help_text='The primary phone number of the contact. Can be either a '
-                  'mobile or landline number. Optional.',
-    )
-
-    class Meta:
-
-        unique_together = (
-            (
-                'agent_id',
-                'alternate_phone_number',
-                'branding_image_id',
-                'e_mail',
-                'full_name',
-                'phone_number',
             ),
         )
 
@@ -1676,54 +1365,6 @@ class DealershipListingCounts(models.Model):
                 'boats',
                 'cars',
                 'total',
-            ),
-        )
-
-
-class DraftListingResponse(models.Model):
-
-    swagger_types = types.MappingProxyType({
-        'description': 'str',
-        'draft_id': 'int',
-        'status_code': 'int',
-        'success': 'bool',
-    })
-    attribute_map = multidict.MultiDictProxy(multidict.MultiDict([
-        ('description', 'Description'),
-        ('draft_id', 'DraftId'),
-        ('status_code', 'StatusCode'),
-        ('success', 'Success'),
-    ]))
-
-    description = models.TextField(
-        null=True,
-        help_text='The description of the error, if the operation failed.',
-    )
-    draft_id = models.IntegerField(
-        null=True,
-        help_text='The ID of the draft.',
-    )
-    status_code = models.IntegerField(
-        null=True,
-        choices=(
-            (0, 'Success'),
-            (1, 'MaxLimitExceeded'),
-        ),
-        help_text='The draft listing request status.',
-    )
-    success = models.NullBooleanField(
-        null=True,
-        help_text='Indicates whether the operation was successful.',
-    )
-
-    class Meta:
-
-        unique_together = (
-            (
-                'description',
-                'draft_id',
-                'status_code',
-                'success',
             ),
         )
 
@@ -2952,7 +2593,8 @@ class ListedItemDetail(models.Model):
         ('note_date', 'NoteDate'),
         ('offer_status', 'OfferStatus'),
         ('open_homes', 'OpenHomes'),
-        ('over18_declaration_required_to_buy', 'Over18DeclarationRequiredToBuy'),
+        ('over18_declaration_required_to_buy',
+         'Over18DeclarationRequiredToBuy'),
         ('payment_options', 'PaymentOptions'),
         ('pending_offer', 'PendingOffer'),
         ('percentage_off', 'PercentageOff'),
@@ -4340,99 +3982,6 @@ class PhotoUrl(models.Model):
         )
 
 
-class Promotion(models.Model):
-
-    swagger_types = types.MappingProxyType({
-        'description': 'str',
-        'discount_description': 'str',
-        'discount_disclaimer': 'str',
-        'discount_end_date': 'str',
-        'discount_start_date': 'str',
-        'id': 'int',
-        'long_description': 'str',
-        'minimum_photo_count': 'int',
-        'name': 'str',
-        'original_price': 'float',
-        'price': 'float',
-        'recommended': 'bool',
-    })
-    attribute_map = multidict.MultiDictProxy(multidict.MultiDict([
-        ('description', 'Description'),
-        ('discount_description', 'DiscountDescription'),
-        ('discount_disclaimer', 'DiscountDisclaimer'),
-        ('discount_end_date', 'DiscountEndDate'),
-        ('discount_start_date', 'DiscountStartDate'),
-        ('id', 'Id'),
-        ('long_description', 'LongDescription'),
-        ('minimum_photo_count', 'MinimumPhotoCount'),
-        ('name', 'Name'),
-        ('original_price', 'OriginalPrice'),
-        ('price', 'Price'),
-        ('recommended', 'Recommended'),
-    ]))
-
-    description = models.TextField(
-        null=True,
-        help_text='A short description of the promotion.',
-    )
-    discount_description = models.TextField(
-        null=True,
-        help_text='A short description of any discount applied to this '
-                  'promotion.',
-    )
-    discount_disclaimer = models.TextField(
-        null=True,
-        help_text='The legal disclaimer of any discount applied to this '
-                  'promotion.',
-    )
-    discount_end_date = models.TextField(
-        null=True,
-        help_text='The end date of any discount applied to this promotion.',
-    )
-    discount_start_date = models.TextField(
-        null=True,
-        help_text='The start date of any discount applied to this promotion.',
-    )
-    id = models.IntegerField(
-        help_text='The unique identifier of the promotion.',
-        primary_key=True,
-    )
-    long_description = models.TextField(
-        null=True,
-        help_text='A long description of the promotion.',
-    )
-    minimum_photo_count = models.IntegerField(
-        null=True,
-        help_text='The minimum number of photos required for the promotion.',
-    )
-    name = models.TextField(
-        null=True,
-        help_text='The name of the promotion.',
-    )
-    original_price = models.FloatField(
-        null=True,
-        help_text='The price of the promotion before any discounts have been '
-                  'applied.',
-    )
-    price = models.FloatField(
-        null=True,
-        help_text='The current price of the promotion. This price should '
-                  'include any discounts currently applied.',
-    )
-    recommended = models.NullBooleanField(
-        null=True,
-        help_text='Whether this promotion is currently being recommended.',
-    )
-
-    class Meta:
-
-        unique_together = (
-            (
-                'id',
-            ),
-        )
-
-
 class Properties(models.Model):
 
     swagger_types = types.MappingProxyType({
@@ -5764,50 +5313,6 @@ class ShippingOption(models.Model):
         )
 
 
-class SimpleGeographicLocation(models.Model):
-
-    swagger_types = types.MappingProxyType({
-        'accuracy': 'int',
-        'latitude': 'float',
-        'longitude': 'float',
-    })
-    attribute_map = multidict.MultiDictProxy(multidict.MultiDict([
-        ('accuracy', 'Accuracy'),
-        ('latitude', 'Latitude'),
-        ('longitude', 'Longitude'),
-    ]))
-
-    accuracy = models.IntegerField(
-        null=True,
-        choices=(
-            (0, 'None'),
-            (1, 'Address'),
-            (3, 'Street'),
-            (2, 'Suburb'),
-        ),
-        help_text='The accuracy of the geographic location (address, street '
-                  'or suburb).',
-    )
-    latitude = models.FloatField(
-        null=True,
-        help_text='The latitude of the location, in degrees (WGS84).',
-    )
-    longitude = models.FloatField(
-        null=True,
-        help_text='The longitude of the location, in degrees (WGS84).',
-    )
-
-    class Meta:
-
-        unique_together = (
-            (
-                'accuracy',
-                'latitude',
-                'longitude',
-            ),
-        )
-
-
 class SimpleMemberProfile(models.Model):
 
     swagger_types = types.MappingProxyType({
@@ -6011,112 +5516,6 @@ class StorePromotion(models.Model):
         unique_together = (
             (
                 'image_uri',
-            ),
-        )
-
-
-class TmShippingCalculatorInputs(models.Model):
-
-    swagger_types = types.MappingProxyType({
-        'depth': 'float',
-        'filter_option': 'int',
-        'height': 'float',
-        'is_box_type': 'bool',
-        'is_rural': 'bool',
-        'is_signature_required': 'bool',
-        'packaging_option': 'int',
-        'pickup_locality_id': 'int',
-        'weight_option': 'int',
-        'width': 'float',
-    })
-    attribute_map = multidict.MultiDictProxy(multidict.MultiDict([
-        ('depth', 'Depth'),
-        ('filter_option', 'FilterOption'),
-        ('height', 'Height'),
-        ('is_box_type', 'IsBoxType'),
-        ('is_rural', 'IsRural'),
-        ('is_signature_required', 'IsSignatureRequired'),
-        ('packaging_option', 'PackagingOption'),
-        ('pickup_locality_id', 'PickupLocalityId'),
-        ('weight_option', 'WeightOption'),
-        ('width', 'Width'),
-    ]))
-
-    depth = models.FloatField(
-        null=True,
-        help_text='Depth value for box package type',
-    )
-    filter_option = models.IntegerField(
-        null=True,
-        choices=(
-            (0, 'BestPrice'),
-            (1, 'CourierPost'),
-            (2, 'Fastway'),
-        ),
-        help_text='Courier filter for calculation',
-    )
-    height = models.FloatField(
-        null=True,
-        help_text='Height value for box package type',
-    )
-    is_box_type = models.NullBooleanField(
-        null=True,
-        help_text='Indicator if package type is bag or box',
-    )
-    is_rural = models.NullBooleanField(
-        null=True,
-        help_text='Indicator on if pickup location is rural area',
-    )
-    is_signature_required = models.NullBooleanField(
-        null=True,
-        help_text='Inidicator if shipping requires signature',
-    )
-    packaging_option = models.IntegerField(
-        null=True,
-        choices=(
-            (1, 'Box'),
-            (2, 'DLE'),
-            (3, 'A4'),
-            (4, 'A3'),
-            (5, 'A5'),
-        ),
-        help_text='Packaging type indicating bag sizes or box',
-    )
-    pickup_locality_id = models.IntegerField(
-        null=True,
-        help_text='Pickup location id',
-    )
-    weight_option = models.IntegerField(
-        null=True,
-        choices=(
-            (1, 'Kg0To3'),
-            (2, 'Kg3To5'),
-            (3, 'Kg5To10'),
-            (4, 'Kg10To15'),
-            (5, 'Kg15To20'),
-            (6, 'Kg20To25'),
-        ),
-        help_text='Weight range option for calculation',
-    )
-    width = models.FloatField(
-        null=True,
-        help_text='Width value for box package type',
-    )
-
-    class Meta:
-
-        unique_together = (
-            (
-                'depth',
-                'filter_option',
-                'height',
-                'is_box_type',
-                'is_rural',
-                'is_signature_required',
-                'packaging_option',
-                'pickup_locality_id',
-                'weight_option',
-                'width',
             ),
         )
 
