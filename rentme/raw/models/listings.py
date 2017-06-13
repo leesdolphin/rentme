@@ -29,37 +29,37 @@ class Address(models.Model):
 
     address1 = models.TextField(
         null=True,
-        help_text='The first line of the address.',
+        help_text='The first line of the address.'
     )
     address2 = models.TextField(
         null=True,
-        help_text='The second line of the address (optional).',
+        help_text='The second line of the address (optional).'
     )
     city = models.TextField(
         null=True,
-        help_text='The city.',
+        help_text='The city.'
     )
     country = models.TextField(
         null=True,
         help_text='The country (currently restricted to “New Zealand” or '
-                  '“Australia”).',
+                  '“Australia”).'
     )
     name = models.TextField(
         null=True,
         help_text='The name of the person whom the item is being delivered '
-                  'to.',
+                  'to.'
     )
     phone_number = models.TextField(
         null=True,
-        help_text='The contact phone number (optional).',
+        help_text='The contact phone number (optional).'
     )
     postcode = models.TextField(
         null=True,
-        help_text='The postcode (optional).',
+        help_text='The postcode (optional).'
     )
     suburb = models.TextField(
         null=True,
-        help_text='The suburb (optional).',
+        help_text='The suburb (optional).'
     )
 
     class Meta:
@@ -119,218 +119,74 @@ class Agency(models.Model):
 
     address = models.TextField(
         null=True,
-        help_text='The address of the company HQ.',
+        help_text='The address of the company HQ.'
     )
     agents = models.ManyToManyField(
         'Agent',
         related_name='agency_reverse_agents',
-        help_text='The contact details of contacts within the agency.',
+        help_text='The contact details of contacts within the agency.'
     )
     branding = models.ForeignKey(
         'Branding',
-        on_delete=models.CASCADE,
+        blank=True,
         null=True,
+        on_delete=models.CASCADE,
         related_name='agency_reverse_branding',
-        blank=True,
-        help_text='The branding object for the company.',
+        help_text='The branding object for the company.'
     )
     city = models.TextField(
         null=True,
-        help_text='The city where the company HQ is located.',
+        help_text='The city where the company HQ is located.'
     )
     e_mail = models.TextField(
         null=True,
-        help_text='A contact email address for the company.',
+        help_text='A contact email address for the company.'
     )
     fax_number = models.TextField(
         null=True,
-        help_text='A fax number for the company.',
+        help_text='A fax number for the company.'
     )
     id = models.IntegerField(
-        help_text='The ID of the company.',
         primary_key=True,
+        help_text='The ID of the company.'
     )
     is_job_agency = models.NullBooleanField(
         null=True,
-        help_text='Indicates whether the agency does job listings.',
+        help_text='Indicates whether the agency does job listings.'
     )
     is_licensed_property_agency = models.NullBooleanField(
         null=True,
         help_text='Indicates whether the agency is an REAA licensed property '
-                  'agency',
+                  'agency'
     )
     is_real_estate_agency = models.NullBooleanField(
         null=True,
-        help_text='Indicates whether the agency does real estate.',
+        help_text='Indicates whether the agency does real estate.'
     )
     logo = models.TextField(
         null=True,
-        help_text='A URL for the company logo.',
+        help_text='A URL for the company logo.'
     )
     logo2 = models.TextField(
         null=True,
-        help_text='A URL for the second company logo.',
+        help_text='A URL for the second company logo.'
     )
     name = models.TextField(
         null=True,
-        help_text='The name of the company.',
+        help_text='The name of the company.'
     )
     phone_number = models.TextField(
         null=True,
         help_text='A contact phone number for the company. For Motors '
-                  'Dealership please use the PhoneNumbers collection instead',
+                  'Dealership please use the PhoneNumbers collection instead'
     )
     suburb = models.TextField(
         null=True,
-        help_text='The suburb where the company HQ is located.',
+        help_text='The suburb where the company HQ is located.'
     )
     website = models.TextField(
         null=True,
-        help_text='The URL of the company website.',
-    )
-
-    class Meta:
-
-        unique_together = (
-            (
-                'id',
-            ),
-        )
-
-
-class Agency0(models.Model):
-
-    swagger_types = types.MappingProxyType({
-        'address': 'str',
-        'agents': 'list[Agent0]',
-        'billing_type': 'int',
-        'branding': 'Branding',
-        'city': 'str',
-        'e_mail': 'str',
-        'fax_number': 'str',
-        'id': 'int',
-        'is_job_agency': 'bool',
-        'is_licensed_property_agency': 'bool',
-        'is_real_estate_agency': 'bool',
-        'logo': 'str',
-        'logo2': 'str',
-        'name': 'str',
-        'phone_number': 'str',
-        'suburb': 'str',
-        'type': 'int',
-        'website': 'str',
-    })
-    attribute_map = multidict.MultiDictProxy(multidict.MultiDict([
-        ('address', 'Address'),
-        ('agents', 'Agents'),
-        ('billing_type', 'BillingType'),
-        ('branding', 'Branding'),
-        ('city', 'City'),
-        ('e_mail', 'EMail'),
-        ('fax_number', 'FaxNumber'),
-        ('id', 'Id'),
-        ('is_job_agency', 'IsJobAgency'),
-        ('is_licensed_property_agency', 'IsLicensedPropertyAgency'),
-        ('is_real_estate_agency', 'IsRealEstateAgency'),
-        ('logo', 'Logo'),
-        ('logo2', 'Logo2'),
-        ('name', 'Name'),
-        ('phone_number', 'PhoneNumber'),
-        ('suburb', 'Suburb'),
-        ('type', 'Type'),
-        ('website', 'Website'),
-    ]))
-
-    address = models.TextField(
-        null=True,
-        help_text='The address of the company HQ.',
-    )
-    agents = models.ManyToManyField(
-        'Agent0',
-        related_name='agency0_reverse_agents',
-        help_text='The contact details of contacts within the agency.',
-    )
-    billing_type = models.IntegerField(
-        null=True,
-        help_text='The billing type for the company.',
-    )
-    branding = models.ForeignKey(
-        'Branding',
-        on_delete=models.CASCADE,
-        null=True,
-        related_name='agency0_reverse_branding',
-        blank=True,
-        help_text='The branding object for the company.',
-    )
-    city = models.TextField(
-        null=True,
-        help_text='The city where the company HQ is located.',
-    )
-    e_mail = models.TextField(
-        null=True,
-        help_text='A contact email address for the company.',
-    )
-    fax_number = models.TextField(
-        null=True,
-        help_text='A fax number for the company.',
-    )
-    id = models.IntegerField(
-        help_text='The ID of the company.',
-        primary_key=True,
-    )
-    is_job_agency = models.NullBooleanField(
-        null=True,
-        help_text='Indicates whether the agency does job listings.',
-    )
-    is_licensed_property_agency = models.NullBooleanField(
-        null=True,
-        help_text='Indicates whether the agency is an REAA licensed property '
-                  'agency',
-    )
-    is_real_estate_agency = models.NullBooleanField(
-        null=True,
-        help_text='Indicates whether the agency does real estate.',
-    )
-    logo = models.TextField(
-        null=True,
-        help_text='A URL for the company logo.',
-    )
-    logo2 = models.TextField(
-        null=True,
-        help_text='A URL for the second company logo.',
-    )
-    name = models.TextField(
-        null=True,
-        help_text='The name of the company.',
-    )
-    phone_number = models.TextField(
-        null=True,
-        help_text='A contact phone number for the company. For Motors '
-                  'Dealership please use the PhoneNumbers collection instead',
-    )
-    suburb = models.TextField(
-        null=True,
-        help_text='The suburb where the company HQ is located.',
-    )
-    type = models.IntegerField(
-        null=True,
-        help_text='The type of company. The following values are currently '
-                  'defined: None = 0 PropertyIndependant = 1 '
-                  'PropertyAggregator = 2 PropertyRealEstateAgency = 3 '
-                  'PropertyRvaSubscription = 4 PropertyRvaDirect = 5 '
-                  'PropertyBusinessAggregator = 6 '
-                  'PropertyIndependantWithRentals = 17 '
-                  'PropertyAggregatorWithRentals = 18 '
-                  'PropertyRealEstateAgencyWithRentals = 19 '
-                  'PropertyRvaSubscriptionWithRentals = 20 '
-                  'PropertyRvaDirectWithRentals = 21 '
-                  'PropertyBusinessAggregatorWithRentals = 22 '
-                  'JobAgentEmployer = 256 JobAgentAggregator = 512 '
-                  'JobsAgentRecruitmentAgency = 768 JobsAgentPrepaid = 1024',
-    )
-    website = models.TextField(
-        null=True,
-        help_text='The URL of the company website.',
+        help_text='The URL of the company website.'
     )
 
     class Meta:
@@ -369,40 +225,40 @@ class Agent(models.Model):
 
     e_mail = models.TextField(
         null=True,
-        help_text='Gets the email of the dealer',
+        help_text='Gets the email of the dealer'
     )
     fax_number = models.TextField(
         null=True,
-        help_text='Get the fax number of a contact',
+        help_text='Get the fax number of a contact'
     )
     full_name = models.TextField(
         null=True,
-        help_text='Get the name of a contact',
+        help_text='Get the name of a contact'
     )
     home_phone_number = models.TextField(
         null=True,
-        help_text='Get the home phone number of a contact',
+        help_text='Get the home phone number of a contact'
     )
     mobile_phone_number = models.TextField(
         null=True,
-        help_text='Get the mobile phone number of a contact',
+        help_text='Get the mobile phone number of a contact'
     )
     office_phone_number = models.TextField(
         null=True,
-        help_text='Get the office phone number of a contact',
+        help_text='Get the office phone number of a contact'
     )
     photo = models.TextField(
         null=True,
-        help_text='The Url to agents profile photo',
+        help_text='The Url to agents profile photo'
     )
     position = models.TextField(
         null=True,
-        help_text='Get the position of a contact',
+        help_text='Get the position of a contact'
     )
     url_slug = models.TextField(
         null=True,
         help_text='The property agent profile url identifier used to know '
-                  'which agent profile to display',
+                  'which agent profile to display'
     )
 
     class Meta:
@@ -411,93 +267,6 @@ class Agent(models.Model):
             (
                 'e_mail',
                 'fax_number',
-                'full_name',
-                'home_phone_number',
-                'mobile_phone_number',
-                'office_phone_number',
-                'photo',
-                'position',
-                'url_slug',
-            ),
-        )
-
-
-class Agent0(models.Model):
-
-    swagger_types = types.MappingProxyType({
-        'e_mail': 'str',
-        'fax_number': 'str',
-        'first_name': 'str',
-        'full_name': 'str',
-        'home_phone_number': 'str',
-        'mobile_phone_number': 'str',
-        'office_phone_number': 'str',
-        'photo': 'str',
-        'position': 'str',
-        'url_slug': 'str',
-    })
-    attribute_map = multidict.MultiDictProxy(multidict.MultiDict([
-        ('e_mail', 'EMail'),
-        ('fax_number', 'FaxNumber'),
-        ('first_name', 'FirstName'),
-        ('full_name', 'FullName'),
-        ('home_phone_number', 'HomePhoneNumber'),
-        ('mobile_phone_number', 'MobilePhoneNumber'),
-        ('office_phone_number', 'OfficePhoneNumber'),
-        ('photo', 'Photo'),
-        ('position', 'Position'),
-        ('url_slug', 'UrlSlug'),
-    ]))
-
-    e_mail = models.TextField(
-        null=True,
-        help_text='Gets the email of the dealer',
-    )
-    fax_number = models.TextField(
-        null=True,
-        help_text='Get the fax number of a contact',
-    )
-    first_name = models.TextField(
-        null=True,
-        help_text='The agent’s first name.',
-    )
-    full_name = models.TextField(
-        null=True,
-        help_text='Get the name of a contact',
-    )
-    home_phone_number = models.TextField(
-        null=True,
-        help_text='Get the home phone number of a contact',
-    )
-    mobile_phone_number = models.TextField(
-        null=True,
-        help_text='Get the mobile phone number of a contact',
-    )
-    office_phone_number = models.TextField(
-        null=True,
-        help_text='Get the office phone number of a contact',
-    )
-    photo = models.TextField(
-        null=True,
-        help_text='The Url to agents profile photo',
-    )
-    position = models.TextField(
-        null=True,
-        help_text='Get the position of a contact',
-    )
-    url_slug = models.TextField(
-        null=True,
-        help_text='The property agent profile url identifier used to know '
-                  'which agent profile to display',
-    )
-
-    class Meta:
-
-        unique_together = (
-            (
-                'e_mail',
-                'fax_number',
-                'first_name',
                 'full_name',
                 'home_phone_number',
                 'mobile_phone_number',
@@ -535,40 +304,39 @@ class Attribute(models.Model):
     display_name = models.TextField(
         null=True,
         help_text='The name of the attribute, in a form suitable for '
-                  'displaying to users. Not required when selling or editing.',
+                  'displaying to users. Not required when selling or editing.'
     )
     display_value = models.TextField(
         null=True,
         help_text='The value of the attribute as it needs to be displayed to '
-                  'the end users',
+                  'the end users'
     )
     is_required_for_sell = models.NullBooleanField(
         null=True,
         help_text='Indicates whether the attribute must be present when '
-                  'selling an item.',
+                  'selling an item.'
     )
     name = models.TextField(
         null=True,
         help_text='A name which uniquely identifies the attribute. Required '
-                  'when selling or editing.',
+                  'when selling or editing.'
     )
     options = models.ManyToManyField(
         'AttributeOption',
         related_name='attribute_reverse_options',
         help_text='A list of options, if the attribute is restricted to a '
-                  'fixed set of values. Not required when selling or editing.',
+                  'fixed set of values. Not required when selling or editing.'
     )
     range = models.ForeignKey(
         'AttributeRange',
-        on_delete=models.CASCADE,
-        null=True,
-        related_name='attribute_reverse_range',
         blank=True,
+        null=True,
+        on_delete=models.CASCADE,
+        related_name='attribute_reverse_range',
         help_text='The allowed range of the attribute. Only applies to '
-                  'numeric attributes. Not required when selling or editing.',
+                  'numeric attributes. Not required when selling or editing.'
     )
     type = models.IntegerField(
-        null=True,
         choices=(
             (0, 'None'),
             (1, 'Boolean'),
@@ -577,8 +345,9 @@ class Attribute(models.Model):
             (4, 'String'),
             (5, 'DateTime'),
         ),
+        null=True,
         help_text='The type of the attribute, which determines the range of '
-                  'acceptable values. Not required when selling or editing.',
+                  'acceptable values. Not required when selling or editing.'
     )
     value = models.TextField(
         null=True,
@@ -586,7 +355,7 @@ class Attribute(models.Model):
                   ' values for the attribute can be determined using the '
                   '“Retrieve attributes for a category” API. Use “false” or '
                   '“true” for boolean attributes. Required when selling or '
-                  'editing.',
+                  'editing.'
     )
 
     class Meta:
@@ -607,27 +376,34 @@ class Attribute(models.Model):
 class AttributeOption(models.Model):
 
     swagger_types = types.MappingProxyType({
+        'count': 'int',
         'display': 'str',
         'value': 'str',
     })
     attribute_map = multidict.MultiDictProxy(multidict.MultiDict([
+        ('count', 'Count'),
         ('display', 'Display'),
         ('value', 'Value'),
     ]))
 
+    count = models.IntegerField(
+        null=True,
+        help_text='How many child elements are available.'
+    )
     display = models.TextField(
         null=True,
-        help_text='What should be displayed for this value (often the same).',
+        help_text='What should be displayed for this value (often the same).'
     )
     value = models.TextField(
         null=True,
-        help_text='The value of the item as a string.',
+        help_text='The value of the item as a string.'
     )
 
     class Meta:
 
         unique_together = (
             (
+                'count',
                 'display',
                 'value',
             ),
@@ -647,11 +423,11 @@ class AttributeRange(models.Model):
 
     lower = models.TextField(
         null=True,
-        help_text='The lowest allowed value of the attribute.',
+        help_text='The lowest allowed value of the attribute.'
     )
     upper = models.TextField(
         null=True,
-        help_text='The highest allowed value of the attribute.',
+        help_text='The highest allowed value of the attribute.'
     )
 
     class Meta:
@@ -687,35 +463,35 @@ class Bid(models.Model):
 
     account = models.TextField(
         null=True,
-        help_text='The account the bid came from.',
+        help_text='The account the bid came from.'
     )
     bid_amount = models.FloatField(
         null=True,
-        help_text='The amount of money the bid represents, in NZD.',
+        help_text='The amount of money the bid represents, in NZD.'
     )
     bid_date = models.DateTimeField(
         null=True,
-        help_text='The date and time the bid was placed.',
+        help_text='The date and time the bid was placed.'
     )
     bidder = models.ForeignKey(
         'Member',
-        on_delete=models.CASCADE,
-        null=True,
-        related_name='bid_reverse_bidder',
         blank=True,
-        help_text='The member who placed the bid.',
+        null=True,
+        on_delete=models.CASCADE,
+        related_name='bid_reverse_bidder',
+        help_text='The member who placed the bid.'
     )
     is_buy_now = models.NullBooleanField(
         null=True,
-        help_text='Indicates whether the bid was a Buy Now bid.',
+        help_text='Indicates whether the bid was a Buy Now bid.'
     )
     is_by_mobile = models.NullBooleanField(
         null=True,
-        help_text='Indicates whether the bid came from a mobile phone.',
+        help_text='Indicates whether the bid came from a mobile phone.'
     )
     is_by_proxy = models.NullBooleanField(
         null=True,
-        help_text='Indicates whether the bid was by proxy.',
+        help_text='Indicates whether the bid was by proxy.'
     )
 
     class Meta:
@@ -751,20 +527,20 @@ class BidCollection(models.Model):
     list = models.ManyToManyField(
         'Bid',
         related_name='bid_collection_reverse_list',
-        help_text='A list of the results in the current page.',
+        help_text='A list of the results in the current page.'
     )
     page = models.IntegerField(
         null=True,
-        help_text='The index of the current page of results (starts at 1).',
+        help_text='The index of the current page of results (starts at 1).'
     )
     page_size = models.IntegerField(
         null=True,
-        help_text='The number of results in the current page.',
+        help_text='The number of results in the current page.'
     )
     total_count = models.IntegerField(
         null=True,
         help_text='The total number of results in the collection. Can be '
-                  'larger than the number of returned results.',
+                  'larger than the number of returned results.'
     )
 
     class Meta:
@@ -804,39 +580,39 @@ class Branding(models.Model):
     background_color = models.TextField(
         null=True,
         help_text='Banner outline/stroke colour, tick the checkbox before '
-                  'saving to apply the new colour',
+                  'saving to apply the new colour'
     )
     disable_banner = models.NullBooleanField(
         null=True,
         help_text='Disable the agent branding regardless of Super Feature '
-                  'status',
+                  'status'
     )
     large_banner_url = models.TextField(
         null=True,
-        help_text='The url of a larger version of the logo',
+        help_text='The url of a larger version of the logo'
     )
     large_square_logo = models.TextField(
         null=True,
-        help_text='A large square branding image with dimensions of 480×480.',
+        help_text='A large square branding image with dimensions of 480×480.'
     )
     large_wide_logo = models.TextField(
         null=True,
         help_text='A large rectangular branding image with dimensions of '
-                  '480×200.',
+                  '480×200.'
     )
     office_location = models.TextField(
         null=True,
-        help_text='The name of the office location',
+        help_text='The name of the office location'
     )
     stroke_color = models.TextField(
         null=True,
         help_text='Banner text colour, tick the checkbox before saving to '
-                  'apply the new colour',
+                  'apply the new colour'
     )
     text_color = models.TextField(
         null=True,
         help_text='Banner background colour, tick the checkbox before saving '
-                  'to apply the new colour',
+                  'to apply the new colour'
     )
 
     class Meta:
@@ -878,32 +654,32 @@ class BroadbandTechnology(models.Model):
 
     availability = models.TextField(
         null=True,
-        help_text='The availability of the broadband technology.',
+        help_text='The availability of the broadband technology.'
     )
     completion = models.TextField(
         null=True,
         help_text='The estimated completion date of planned or underway '
-                  'connections.',
+                  'connections.'
     )
     max_down = models.FloatField(
         null=True,
-        help_text='The maxiumum download speed (in megabits per second).',
+        help_text='The maxiumum download speed (in megabits per second).'
     )
     max_up = models.FloatField(
         null=True,
-        help_text='The maximum upload speed (in megabits per second).',
+        help_text='The maximum upload speed (in megabits per second).'
     )
     min_down = models.FloatField(
         null=True,
-        help_text='The minimum download speed (in megabits per second).',
+        help_text='The minimum download speed (in megabits per second).'
     )
     min_up = models.FloatField(
         null=True,
-        help_text='The minimup upload speed (in megabits per second).',
+        help_text='The minimup upload speed (in megabits per second).'
     )
     name = models.TextField(
         null=True,
-        help_text='The technology name.',
+        help_text='The technology name.'
     )
 
     class Meta:
@@ -937,24 +713,24 @@ class Charity(models.Model):
     ]))
 
     charity_type = models.IntegerField(
-        null=True,
         choices=(
             (1, 'ForestAndBird'),
             (2, 'Plunket'),
         ),
-        help_text='The unique identifier of the charity.',
+        null=True,
+        help_text='The unique identifier of the charity.'
     )
     description = models.TextField(
         null=True,
-        help_text='The name of the charity e.g. “Plunket”, “Kiwis for kiwi”.',
+        help_text='The name of the charity e.g. “Plunket”, “Kiwis for kiwi”.'
     )
     image_source = models.TextField(
         null=True,
-        help_text='The url source location for this charity’s brand image.',
+        help_text='The url source location for this charity’s brand image.'
     )
     tagline = models.TextField(
         null=True,
-        help_text='A short description of what the charity does.',
+        help_text='A short description of what the charity does.'
     )
 
     class Meta:
@@ -988,23 +764,23 @@ class ContactDetails(models.Model):
 
     best_contact_time = models.TextField(
         null=True,
-        help_text='The best time to contact the seller.',
+        help_text='The best time to contact the seller.'
     )
     contact_name = models.TextField(
         null=True,
-        help_text='The name of the service provider.',
+        help_text='The name of the service provider.'
     )
     mobile_phone_number = models.TextField(
         null=True,
-        help_text='The seller’s mobile phone number.',
+        help_text='The seller’s mobile phone number.'
     )
     phone_number = models.TextField(
         null=True,
-        help_text='The seller’s contact phone number (landline).',
+        help_text='The seller’s contact phone number (landline).'
     )
     website = models.TextField(
         null=True,
-        help_text='The service provider’s website.',
+        help_text='The service provider’s website.'
     )
 
     class Meta:
@@ -1034,15 +810,15 @@ class CurrentShippingPromotion(models.Model):
     threshold = models.IntegerField(
         null=True,
         help_text='The threshold a buyer needs to reach to qualify for this '
-                  'promotional shipping offer.',
+                  'promotional shipping offer.'
     )
     threshold_type = models.IntegerField(
-        null=True,
         choices=(
             (1, 'Price'),
             (2, 'Item'),
         ),
-        help_text='The type of threshold.',
+        null=True,
+        help_text='The type of threshold.'
     )
 
     class Meta:
@@ -1078,31 +854,31 @@ class Dealer(models.Model):
 
     e_mail = models.TextField(
         null=True,
-        help_text='Gets the email of the dealer',
+        help_text='Gets the email of the dealer'
     )
     fax_number = models.TextField(
         null=True,
-        help_text='Get the fax number of a contact',
+        help_text='Get the fax number of a contact'
     )
     full_name = models.TextField(
         null=True,
-        help_text='Get the name of a contact',
+        help_text='Get the name of a contact'
     )
     home_phone_number = models.TextField(
         null=True,
-        help_text='Get the home phone number of a contact',
+        help_text='Get the home phone number of a contact'
     )
     mobile_phone_number = models.TextField(
         null=True,
-        help_text='Get the mobile phone number of a contact',
+        help_text='Get the mobile phone number of a contact'
     )
     office_phone_number = models.TextField(
         null=True,
-        help_text='Get the office phone number of a contact',
+        help_text='Get the office phone number of a contact'
     )
     position = models.TextField(
         null=True,
-        help_text='Get the position of a contact',
+        help_text='Get the position of a contact'
     )
 
     class Meta:
@@ -1116,76 +892,6 @@ class Dealer(models.Model):
                 'mobile_phone_number',
                 'office_phone_number',
                 'position',
-            ),
-        )
-
-
-class DealerShowroom(models.Model):
-
-    swagger_types = types.MappingProxyType({
-        'background_colour': 'str',
-        'banner': 'str',
-        'id': 'int',
-        'logo': 'str',
-        'url': 'str',
-    })
-    attribute_map = multidict.MultiDictProxy(multidict.MultiDict([
-        ('background_colour', 'BackgroundColour'),
-        ('banner', 'Banner'),
-        ('id', 'Id'),
-        ('logo', 'Logo'),
-        ('url', 'Url'),
-    ]))
-
-    background_colour = models.TextField(
-        null=True,
-        help_text='Background colour of the Showroom banner / logo',
-    )
-    banner = models.TextField(
-        null=True,
-        help_text='Banner of the Showroom',
-    )
-    id = models.IntegerField(
-        help_text='ID of the Showroom',
-        primary_key=True,
-    )
-    logo = models.TextField(
-        null=True,
-        help_text='Logo of the Showroom',
-    )
-    url = models.TextField(
-        null=True,
-        help_text='Url of the Showroom',
-    )
-
-    class Meta:
-
-        unique_together = (
-            (
-                'id',
-            ),
-        )
-
-
-class DealershipPhoneNumbers(models.Model):
-
-    expect_single_value = 'value'
-    swagger_types = types.MappingProxyType({
-        'value': 'str',
-    })
-    attribute_map = multidict.MultiDictProxy(multidict.MultiDict([
-        ('value', 'value'),
-    ]))
-
-    value = models.TextField(
-        null=True,
-    )
-
-    class Meta:
-
-        unique_together = (
-            (
-                'value',
             ),
         )
 
@@ -1233,87 +939,87 @@ class Dealership(models.Model):
 
     about_us = models.TextField(
         null=True,
-        help_text='Description of the Dealership',
+        help_text='Description of the Dealership'
     )
     address = models.TextField(
         null=True,
-        help_text='The address of the company HQ.',
+        help_text='The address of the company HQ.'
     )
     branding = models.ForeignKey(
         'Branding',
-        on_delete=models.CASCADE,
-        null=True,
-        related_name='dealership_reverse_branding',
         blank=True,
-        help_text='The branding object for the company.',
+        null=True,
+        on_delete=models.CASCADE,
+        related_name='dealership_reverse_branding',
+        help_text='The branding object for the company.'
     )
     city = models.TextField(
         null=True,
-        help_text='The city where the company HQ is located.',
+        help_text='The city where the company HQ is located.'
     )
     dealers = models.ManyToManyField(
         'Dealer',
         related_name='dealership_reverse_dealers',
-        help_text='Gets the contact details of contacts within the dealership',
+        help_text='Gets the contact details of contacts within the dealership'
     )
     e_mail = models.TextField(
         null=True,
-        help_text='A contact email address for the company.',
+        help_text='A contact email address for the company.'
     )
     fax_number = models.TextField(
         null=True,
-        help_text='A fax number for the company.',
+        help_text='A fax number for the company.'
     )
     id = models.IntegerField(
-        help_text='The ID of the company.',
         primary_key=True,
+        help_text='The ID of the company.'
     )
     listing_counts = models.ForeignKey(
         'DealershipListingCounts',
-        on_delete=models.CASCADE,
-        null=True,
-        related_name='dealership_reverse_listing_counts',
         blank=True,
-        help_text='Count of listings of dealership',
+        null=True,
+        on_delete=models.CASCADE,
+        related_name='dealership_reverse_listing_counts',
+        help_text='Count of listings of dealership'
     )
     logo = models.TextField(
         null=True,
-        help_text='A URL for the company logo.',
+        help_text='A URL for the company logo.'
     )
     logo2 = models.TextField(
         null=True,
-        help_text='A URL for the second company logo.',
+        help_text='A URL for the second company logo.'
     )
     name = models.TextField(
         null=True,
-        help_text='The name of the company.',
+        help_text='The name of the company.'
     )
     phone_number = models.TextField(
         null=True,
         help_text='A contact phone number for the company. For Motors '
-                  'Dealership please use the PhoneNumbers collection instead',
+                  'Dealership please use the PhoneNumbers collection instead'
     )
     phone_numbers = models.ManyToManyField(
         'DealershipPhoneNumbers',
         related_name='dealership_reverse_phone_numbers',
         help_text='Array of up to two phone numbers which can be used to '
-                  'reach the dealership',
+                  'reach the dealership'
     )
     showroom = models.ForeignKey(
         'DealerShowroom',
-        on_delete=models.CASCADE,
-        null=True,
-        related_name='dealership_reverse_showroom',
         blank=True,
-        help_text='The show room of the Dealership',
+        null=True,
+        on_delete=models.CASCADE,
+        related_name='dealership_reverse_showroom',
+        help_text='The show room of the Dealership'
     )
     suburb = models.TextField(
         null=True,
-        help_text='The suburb where the company HQ is located.',
+        help_text='The suburb where the company HQ is located.'
     )
     website = models.TextField(
         null=True,
-        help_text='The URL of the company website.',
+        help_text='The URL of the company website.'
     )
 
     class Meta:
@@ -1342,19 +1048,19 @@ class DealershipListingCounts(models.Model):
 
     bikes = models.IntegerField(
         null=True,
-        help_text='Count of motorbike listings',
+        help_text='Count of motorbike listings'
     )
     boats = models.IntegerField(
         null=True,
-        help_text='Count of motorboat listings',
+        help_text='Count of motorboat listings'
     )
     cars = models.IntegerField(
         null=True,
-        help_text='Count of car listings',
+        help_text='Count of car listings'
     )
     total = models.IntegerField(
         null=True,
-        help_text='Total of listings',
+        help_text='Total of listings'
     )
 
     class Meta:
@@ -1365,6 +1071,76 @@ class DealershipListingCounts(models.Model):
                 'boats',
                 'cars',
                 'total',
+            ),
+        )
+
+
+class DealershipPhoneNumbers(models.Model):
+
+    expect_single_value = 'value'
+    swagger_types = types.MappingProxyType({
+        'value': 'str',
+    })
+    attribute_map = multidict.MultiDictProxy(multidict.MultiDict([
+        ('value', 'value'),
+    ]))
+
+    value = models.TextField(
+        null=True,
+    )
+
+    class Meta:
+
+        unique_together = (
+            (
+                'value',
+            ),
+        )
+
+
+class DealerShowroom(models.Model):
+
+    swagger_types = types.MappingProxyType({
+        'background_colour': 'str',
+        'banner': 'str',
+        'id': 'int',
+        'logo': 'str',
+        'url': 'str',
+    })
+    attribute_map = multidict.MultiDictProxy(multidict.MultiDict([
+        ('background_colour', 'BackgroundColour'),
+        ('banner', 'Banner'),
+        ('id', 'Id'),
+        ('logo', 'Logo'),
+        ('url', 'Url'),
+    ]))
+
+    background_colour = models.TextField(
+        null=True,
+        help_text='Background colour of the Showroom banner / logo'
+    )
+    banner = models.TextField(
+        null=True,
+        help_text='Banner of the Showroom'
+    )
+    id = models.IntegerField(
+        primary_key=True,
+        help_text='ID of the Showroom'
+    )
+    logo = models.TextField(
+        null=True,
+        help_text='Logo of the Showroom'
+    )
+    url = models.TextField(
+        null=True,
+        help_text='Url of the Showroom'
+    )
+
+    class Meta:
+
+        unique_together = (
+            (
+                'id',
             ),
         )
 
@@ -1383,11 +1159,11 @@ class EmbeddedContent(models.Model):
     matterport_key = models.TextField(
         null=True,
         help_text='The Matterport video key for the listing’s InsideView '
-                  'content.',
+                  'content.'
     )
     you_tube_video_key = models.TextField(
         null=True,
-        help_text='The YouTube video key for the listing.',
+        help_text='The YouTube video key for the listing.'
     )
 
     class Meta:
@@ -1417,25 +1193,25 @@ class FixedPriceOfferDetails(models.Model):
 
     offer_expiry_date = models.DateTimeField(
         null=True,
-        help_text='The date and time the fixed price offer expires.',
+        help_text='The date and time the fixed price offer expires.'
     )
     offer_price = models.FloatField(
         null=True,
         help_text='The offer price of the item on offer. For offers with more'
                   ' than one available item, this is the price per item. The '
-                  'price for shipping is not included.',
+                  'price for shipping is not included.'
     )
     quantity = models.IntegerField(
         null=True,
         help_text='The number of items that are available. Buyers are able to'
                   ' purchase one or more of this item until the stock runs '
-                  'out or the offer ends.',
+                  'out or the offer ends.'
     )
     recipients = models.ManyToManyField(
         'FixedPriceOfferRecipient',
         related_name='fixed_price_offer_details_reverse_recipients',
         help_text='A list of recipients for the offer. Only available if you '
-                  'are the seller.',
+                  'are the seller.'
     )
 
     class Meta:
@@ -1461,21 +1237,21 @@ class FixedPriceOfferRecipient(models.Model):
     ]))
 
     decision = models.IntegerField(
-        null=True,
         choices=(
             (0, 'NoDecision'),
             (1, 'Declined'),
             (2, 'Accepted'),
         ),
-        help_text='The response of the member to the offer.',
+        null=True,
+        help_text='The response of the member to the offer.'
     )
     member = models.ForeignKey(
         'Member',
-        on_delete=models.CASCADE,
-        null=True,
-        related_name='fixed_price_offer_recipient_reverse_member',
         blank=True,
-        help_text='Member details for the recipient of the offer.',
+        null=True,
+        on_delete=models.CASCADE,
+        related_name='fixed_price_offer_recipient_reverse_member',
+        help_text='Member details for the recipient of the offer.'
     )
 
     class Meta:
@@ -1484,831 +1260,6 @@ class FixedPriceOfferRecipient(models.Model):
             (
                 'decision',
                 'member',
-            ),
-        )
-
-
-class FlatmateAdjacentSuburbIds(models.Model):
-
-    expect_single_value = 'value'
-    swagger_types = types.MappingProxyType({
-        'value': 'int',
-    })
-    attribute_map = multidict.MultiDictProxy(multidict.MultiDict([
-        ('value', 'value'),
-    ]))
-
-    value = models.IntegerField(
-        null=True,
-    )
-
-    class Meta:
-
-        unique_together = (
-            (
-                'value',
-            ),
-        )
-
-
-class FlatmateAdjacentSuburbNames(models.Model):
-
-    expect_single_value = 'value'
-    swagger_types = types.MappingProxyType({
-        'value': 'str',
-    })
-    attribute_map = multidict.MultiDictProxy(multidict.MultiDict([
-        ('value', 'value'),
-    ]))
-
-    value = models.TextField(
-        null=True,
-    )
-
-    class Meta:
-
-        unique_together = (
-            (
-                'value',
-            ),
-        )
-
-
-class FlatmatePhotoUrls(models.Model):
-
-    expect_single_value = 'value'
-    swagger_types = types.MappingProxyType({
-        'value': 'str',
-    })
-    attribute_map = multidict.MultiDictProxy(multidict.MultiDict([
-        ('value', 'value'),
-    ]))
-
-    value = models.TextField(
-        null=True,
-    )
-
-    class Meta:
-
-        unique_together = (
-            (
-                'value',
-            ),
-        )
-
-
-class Flatmate(models.Model):
-
-    swagger_types = types.MappingProxyType({
-        'address': 'str',
-        'adjacent_suburb_ids': 'list[FlatmateAdjacentSuburbIds]',
-        'adjacent_suburb_names': 'list[FlatmateAdjacentSuburbNames]',
-        'agency': 'Agency0',
-        'agency_reference': 'str',
-        'amenities': 'str',
-        'area': 'int',
-        'area_range_max': 'int',
-        'as_at': 'datetime',
-        'available_from': 'str',
-        'bathrooms': 'int',
-        'bedrooms': 'int',
-        'best_contact_time': 'str',
-        'bid_count': 'int',
-        'branding': 'Branding',
-        'buy_now_price': 'float',
-        'category': 'str',
-        'category_path': 'str',
-        'current_flatmates': 'str',
-        'district': 'str',
-        'district_id': 'int',
-        'end_date': 'datetime',
-        'flatmates': 'int',
-        'geographic_location': 'GeographicLocation',
-        'has_buy_now': 'bool',
-        'has_embedded_video': 'bool',
-        'has_free_shipping': 'bool',
-        'has_gallery': 'bool',
-        'has_home_page_feature': 'bool',
-        'has_pay_now': 'bool',
-        'has_reserve': 'bool',
-        'ideal_tenant': 'str',
-        'is_bold': 'bool',
-        'is_boosted': 'bool',
-        'is_buy_now_only': 'bool',
-        'is_classified': 'bool',
-        'is_clearance': 'bool',
-        'is_featured': 'bool',
-        'is_highlighted': 'bool',
-        'is_new': 'bool',
-        'is_on_watch_list': 'bool',
-        'is_reserve_met': 'bool',
-        'is_super_featured': 'bool',
-        'land_area': 'int',
-        'listing_group': 'str',
-        'listing_id': 'int',
-        'max_bid_amount': 'float',
-        'max_tenants': 'int',
-        'note_date': 'datetime',
-        'open_homes': 'list[OpenHome]',
-        'parking': 'str',
-        'percentage_off': 'int',
-        'pets_okay': 'int',
-        'photo_urls': 'list[FlatmatePhotoUrls]',
-        'picture_href': 'str',
-        'positive_review_count': 'int',
-        'price_display': 'str',
-        'promotion_id': 'int',
-        'property_id': 'str',
-        'property_type': 'str',
-        'rateable_value': 'int',
-        'region': 'str',
-        'region_id': 'int',
-        'remaining_gallery_plus_relists': 'int',
-        'rent_per_week': 'float',
-        'reserve_state': 'int',
-        'short_description': 'str',
-        'smokers_okay': 'int',
-        'start_date': 'datetime',
-        'start_price': 'float',
-        'subtitle': 'str',
-        'suburb': 'str',
-        'suburb_id': 'int',
-        'title': 'str',
-        'total_review_count': 'int',
-        'variant_definition_summary': 'VariantDefinitionSummary',
-        'viewing_instructions': 'str',
-        'was_price': 'float',
-        'whiteware': 'str',
-    })
-    attribute_map = multidict.MultiDictProxy(multidict.MultiDict([
-        ('address', 'Address'),
-        ('adjacent_suburb_ids', 'AdjacentSuburbIds'),
-        ('adjacent_suburb_names', 'AdjacentSuburbNames'),
-        ('agency', 'Agency'),
-        ('agency_reference', 'AgencyReference'),
-        ('amenities', 'Amenities'),
-        ('area', 'Area'),
-        ('area_range_max', 'AreaRangeMax'),
-        ('as_at', 'AsAt'),
-        ('available_from', 'AvailableFrom'),
-        ('bathrooms', 'Bathrooms'),
-        ('bedrooms', 'Bedrooms'),
-        ('best_contact_time', 'BestContactTime'),
-        ('bid_count', 'BidCount'),
-        ('branding', 'Branding'),
-        ('buy_now_price', 'BuyNowPrice'),
-        ('category', 'Category'),
-        ('category_path', 'CategoryPath'),
-        ('current_flatmates', 'CurrentFlatmates'),
-        ('district', 'District'),
-        ('district_id', 'DistrictId'),
-        ('end_date', 'EndDate'),
-        ('flatmates', 'Flatmates'),
-        ('geographic_location', 'GeographicLocation'),
-        ('has_buy_now', 'HasBuyNow'),
-        ('has_embedded_video', 'HasEmbeddedVideo'),
-        ('has_free_shipping', 'HasFreeShipping'),
-        ('has_gallery', 'HasGallery'),
-        ('has_home_page_feature', 'HasHomePageFeature'),
-        ('has_pay_now', 'HasPayNow'),
-        ('has_reserve', 'HasReserve'),
-        ('ideal_tenant', 'IdealTenant'),
-        ('is_bold', 'IsBold'),
-        ('is_boosted', 'IsBoosted'),
-        ('is_buy_now_only', 'IsBuyNowOnly'),
-        ('is_classified', 'IsClassified'),
-        ('is_clearance', 'IsClearance'),
-        ('is_featured', 'IsFeatured'),
-        ('is_highlighted', 'IsHighlighted'),
-        ('is_new', 'IsNew'),
-        ('is_on_watch_list', 'IsOnWatchList'),
-        ('is_reserve_met', 'IsReserveMet'),
-        ('is_super_featured', 'IsSuperFeatured'),
-        ('land_area', 'LandArea'),
-        ('listing_group', 'ListingGroup'),
-        ('listing_id', 'ListingId'),
-        ('max_bid_amount', 'MaxBidAmount'),
-        ('max_tenants', 'MaxTenants'),
-        ('note_date', 'NoteDate'),
-        ('open_homes', 'OpenHomes'),
-        ('parking', 'Parking'),
-        ('percentage_off', 'PercentageOff'),
-        ('pets_okay', 'PetsOkay'),
-        ('photo_urls', 'PhotoUrls'),
-        ('picture_href', 'PictureHref'),
-        ('positive_review_count', 'PositiveReviewCount'),
-        ('price_display', 'PriceDisplay'),
-        ('promotion_id', 'PromotionId'),
-        ('property_id', 'PropertyId'),
-        ('property_type', 'PropertyType'),
-        ('rateable_value', 'RateableValue'),
-        ('region', 'Region'),
-        ('region_id', 'RegionId'),
-        ('remaining_gallery_plus_relists', 'RemainingGalleryPlusRelists'),
-        ('rent_per_week', 'RentPerWeek'),
-        ('reserve_state', 'ReserveState'),
-        ('short_description', 'ShortDescription'),
-        ('smokers_okay', 'SmokersOkay'),
-        ('start_date', 'StartDate'),
-        ('start_price', 'StartPrice'),
-        ('subtitle', 'Subtitle'),
-        ('suburb', 'Suburb'),
-        ('suburb_id', 'SuburbId'),
-        ('title', 'Title'),
-        ('total_review_count', 'TotalReviewCount'),
-        ('variant_definition_summary', 'VariantDefinitionSummary'),
-        ('viewing_instructions', 'ViewingInstructions'),
-        ('was_price', 'WasPrice'),
-        ('whiteware', 'Whiteware'),
-    ]))
-
-    address = models.TextField(
-        null=True,
-        help_text='The address to display.',
-    )
-    adjacent_suburb_ids = models.ManyToManyField(
-        'FlatmateAdjacentSuburbIds',
-        related_name='flatmate_reverse_adjacent_suburb_ids',
-        help_text='The IDs of any adjacent suburbs.',
-    )
-    adjacent_suburb_names = models.ManyToManyField(
-        'FlatmateAdjacentSuburbNames',
-        related_name='flatmate_reverse_adjacent_suburb_names',
-        help_text='The names of any adjacent suburbs.',
-    )
-    agency = models.ForeignKey(
-        'Agency0',
-        on_delete=models.CASCADE,
-        null=True,
-        related_name='flatmate_reverse_agency',
-        blank=True,
-        help_text='Details of the agency this property was listed by.',
-    )
-    agency_reference = models.TextField(
-        null=True,
-        help_text='The reference to the agency.',
-    )
-    amenities = models.TextField(
-        null=True,
-        help_text='A list of the amenities in the area.',
-    )
-    area = models.IntegerField(
-        null=True,
-        help_text='The area of the house, in square metres.',
-    )
-    area_range_max = models.IntegerField(
-        null=True,
-        help_text='The maximum area of the house, in square metres.',
-    )
-    as_at = models.DateTimeField(
-        null=True,
-        help_text='The date and time the response was generated on the '
-                  'server.',
-    )
-    available_from = models.TextField(
-        null=True,
-        help_text='The date the property is available from.',
-    )
-    bathrooms = models.IntegerField(
-        null=True,
-        help_text='The number of bedrooms in the property.',
-    )
-    bedrooms = models.IntegerField(
-        null=True,
-        help_text='The number of bathrooms in the property.',
-    )
-    best_contact_time = models.TextField(
-        null=True,
-        help_text='The best time to contact the seller.',
-    )
-    bid_count = models.IntegerField(
-        null=True,
-        help_text='The number of bids on the item.',
-    )
-    branding = models.ForeignKey(
-        'Branding',
-        on_delete=models.CASCADE,
-        null=True,
-        related_name='flatmate_reverse_branding',
-        blank=True,
-        help_text='A list of branding images associated with this listing.',
-    )
-    buy_now_price = models.FloatField(
-        null=True,
-        help_text='The Buy Now price.',
-    )
-    category = models.TextField(
-        null=True,
-        help_text='The listing category.',
-    )
-    category_path = models.TextField(
-        null=True,
-        help_text='The category path.',
-    )
-    current_flatmates = models.TextField(
-        null=True,
-        help_text='A description of the current flatmates.',
-    )
-    district = models.TextField(
-        null=True,
-        help_text='The name of the district the property is located in.',
-    )
-    district_id = models.IntegerField(
-        null=True,
-        help_text='The ID of the district where this property is located.',
-    )
-    end_date = models.DateTimeField(
-        null=True,
-        help_text='The date the listing will end.',
-    )
-    flatmates = models.IntegerField(
-        null=True,
-        help_text='The number of current flatmates.',
-    )
-    geographic_location = models.ForeignKey(
-        'GeographicLocation',
-        on_delete=models.CASCADE,
-        null=True,
-        related_name='flatmate_reverse_geographic_location',
-        blank=True,
-        help_text='The geographic location (latitude and longitude) of a '
-                  'property.',
-    )
-    has_buy_now = models.NullBooleanField(
-        null=True,
-        help_text='Indicates whether the item has Buy Now.',
-    )
-    has_embedded_video = models.NullBooleanField(
-        null=True,
-        help_text='Indicates whether the listing has an embedded video',
-    )
-    has_free_shipping = models.NullBooleanField(
-        null=True,
-        help_text='Indicates if the listing offers free shipping as an option',
-    )
-    has_gallery = models.NullBooleanField(
-        null=True,
-        help_text='Is this a gallery listing?',
-    )
-    has_home_page_feature = models.NullBooleanField(
-        null=True,
-        help_text='Is this a homepage feature listing?',
-    )
-    has_pay_now = models.NullBooleanField(
-        null=True,
-        help_text='Indicates whether the item has Pay Now.',
-    )
-    has_reserve = models.NullBooleanField(
-        null=True,
-        help_text='Indicates whether the item has a reserve.',
-    )
-    ideal_tenant = models.TextField(
-        null=True,
-        help_text='A description of the ideal tenant (are they tidy, a '
-                  'professional couple, etc).',
-    )
-    is_bold = models.NullBooleanField(
-        null=True,
-        help_text='Is this a bold listing?',
-    )
-    is_boosted = models.NullBooleanField(
-        null=True,
-        help_text='If the listing has been boosted or not',
-    )
-    is_buy_now_only = models.NullBooleanField(
-        null=True,
-        help_text='Indicates whether or not this is a Buy Now Only listing.',
-    )
-    is_classified = models.NullBooleanField(
-        null=True,
-        help_text='Indicates whether the item is a classified.',
-    )
-    is_clearance = models.NullBooleanField(
-        null=True,
-        help_text='This indicates that the listing is a clearance item. '
-                  'Clearance listings include listings with was/now pricing '
-                  'and general clearance stock.',
-    )
-    is_featured = models.NullBooleanField(
-        null=True,
-        help_text='Is this a featured listing?',
-    )
-    is_highlighted = models.NullBooleanField(
-        null=True,
-        help_text='Is this a highlighted listing?',
-    )
-    is_new = models.NullBooleanField(
-        null=True,
-        help_text='Indicates whether the item is marked as new.',
-    )
-    is_on_watch_list = models.NullBooleanField(
-        null=True,
-        help_text='Indicates whether the item is on the authenticated '
-                  'member’s watchlist.',
-    )
-    is_reserve_met = models.NullBooleanField(
-        null=True,
-        help_text='Indicates whether the item’s reserve has been met.',
-    )
-    is_super_featured = models.NullBooleanField(
-        null=True,
-        help_text='Is this a super featured listing?',
-    )
-    land_area = models.IntegerField(
-        null=True,
-        help_text='The area of the land, in square metres.',
-    )
-    listing_group = models.TextField(
-        null=True,
-        help_text='The listing group.',
-    )
-    listing_id = models.IntegerField(
-        help_text='The ID of the listing.',
-        primary_key=True,
-    )
-    max_bid_amount = models.FloatField(
-        null=True,
-        help_text='The current leading bid amount.',
-    )
-    max_tenants = models.IntegerField(
-        null=True,
-        help_text='The maximum number of tenents.',
-    )
-    note_date = models.DateTimeField(
-        null=True,
-        help_text='The date of the note on an item.',
-    )
-    open_homes = models.ManyToManyField(
-        'OpenHome',
-        related_name='flatmate_reverse_open_homes',
-        help_text='A collection of open home times for this listing. Only '
-                  'applies to open home listings.',
-    )
-    parking = models.TextField(
-        null=True,
-        help_text='Information on the availability of parking.',
-    )
-    percentage_off = models.IntegerField(
-        null=True,
-        help_text='The percentage that a product has been discounted. This '
-                  'has been rounded for display purposes. This field will '
-                  'only be populated if IsClearance is true .',
-    )
-    pets_okay = models.IntegerField(
-        null=True,
-        choices=(
-            (0, 'NotSpecified'),
-            (1, 'No'),
-            (2, 'Yes'),
-            (3, 'Negotiable'),
-        ),
-        help_text='Indicates whether pets are allowed by the landlord. This '
-                  'information is available for flatmates wanted and '
-                  'residential to rent listings.',
-    )
-    photo_urls = models.ManyToManyField(
-        'FlatmatePhotoUrls',
-        related_name='flatmate_reverse_photo_urls',
-        help_text='A collection of photo urls for the listing',
-    )
-    picture_href = models.TextField(
-        null=True,
-        help_text='The URL of the primary photo for the listing (if the '
-                  'listing has a photo). By default you’ll get a thumbnail-'
-                  'sized photo, but you can control the size of the photo '
-                  'using the photo_size parameter.',
-    )
-    positive_review_count = models.IntegerField(
-        null=True,
-        help_text='The number of user-submitted reviews which are positive '
-                  '(i.e. the user selected the thumbs up graphic when '
-                  'submitting a review). Currently only applies to services '
-                  'listings.',
-    )
-    price_display = models.TextField(
-        null=True,
-        help_text='The price, in a format suitable for displaying to the '
-                  'user. Some categories may have special pricing rules, e.g.'
-                  ' properties may have “Price by negotiation”.',
-    )
-    promotion_id = models.IntegerField(
-        null=True,
-        help_text='The ID of the promotion applied to this listing.',
-    )
-    property_id = models.TextField(
-        null=True,
-        help_text='The property ID. This is different from the listing ID.',
-    )
-    property_type = models.TextField(
-        null=True,
-        help_text='The type of property. Currently valid values are: '
-                  '“Apartment”, “Bare land”, “Car Park”, “Development site”, '
-                  '“Dwelling”, “Hotel/Leisure”, “House”, “Industrial”, '
-                  '“Lifestyle block”, “Office”, “Retail”, “Section”, '
-                  '“Townhouse”, “Unit”, “Villa”.',
-    )
-    rateable_value = models.IntegerField(
-        null=True,
-        help_text='The rateable value of the property.',
-    )
-    region = models.TextField(
-        null=True,
-        help_text='The name of the region where this item is located.',
-    )
-    region_id = models.IntegerField(
-        null=True,
-        help_text='The ID of the region where this item is located. In the '
-                  'general search, listing details and watchlist APIs this is'
-                  ' the ID of the seller’s region (using the two-tier '
-                  'region/suburb system), which means it might be '
-                  'inconsistent with the region name. In the property search '
-                  'API this is the ID of the property region, using the '
-                  'three-tier region/district/suburb system. This field '
-                  'cannot cope with the two main geographical classification '
-                  'systems. Except for the property search API, it should not'
-                  ' be used.',
-    )
-    remaining_gallery_plus_relists = models.IntegerField(
-        null=True,
-        help_text='The number of times the item can be relisted and get the '
-                  'gallery promotion for free. This value is only present if '
-                  'you are the seller and the listing had the gallery '
-                  'promotion applied due to the gallery plus promotion. Note '
-                  'that for this field, a value of zero is not the same as if'
-                  ' the field is missing (a value of zero means gallery plus '
-                  'is in effect whereas if the field is missing it means that'
-                  ' you are not the seller or gallery plus is not in effect).',
-    )
-    rent_per_week = models.FloatField(
-        null=True,
-        help_text='The rent payable per week, in NZD.',
-    )
-    reserve_state = models.IntegerField(
-        null=True,
-        choices=(
-            (0, 'None'),
-            (1, 'Met'),
-            (2, 'NotMet'),
-            (3, 'NotApplicable'),
-        ),
-        help_text='The flag to display on an item.',
-    )
-    short_description = models.TextField(
-        null=True,
-        help_text='Short description of a listing. This is Jobs and Services '
-                  'specfic.',
-    )
-    smokers_okay = models.IntegerField(
-        null=True,
-        choices=(
-            (0, 'NotSpecified'),
-            (1, 'No'),
-            (2, 'Yes'),
-        ),
-        help_text='Indicates whether smokers are allowed by the landlord. '
-                  'This information is available for flatmates wanted and '
-                  'residential to rent listings.',
-    )
-    start_date = models.DateTimeField(
-        null=True,
-        help_text='The date the listing was created.',
-    )
-    start_price = models.FloatField(
-        null=True,
-        help_text='The start price.',
-    )
-    subtitle = models.TextField(
-        null=True,
-        help_text='The subtitle, if present.',
-    )
-    suburb = models.TextField(
-        null=True,
-        help_text='The name of the suburb where this item is located.',
-    )
-    suburb_id = models.IntegerField(
-        null=True,
-        help_text='The ID of the suburb where this item is located. Only '
-                  'populated by the property search API, which means it uses '
-                  'the three-tier region/district/suburb system.',
-    )
-    title = models.TextField(
-        null=True,
-        help_text='The listing title.',
-    )
-    total_review_count = models.IntegerField(
-        null=True,
-        help_text='The total number of user-submitted reviews. Currently only'
-                  ' applies to services listings.',
-    )
-    variant_definition_summary = models.ForeignKey(
-        'VariantDefinitionSummary',
-        on_delete=models.CASCADE,
-        null=True,
-        related_name='flatmate_reverse_variant_definition_summary',
-        blank=True,
-        help_text='A summary of the variant information.',
-    )
-    viewing_instructions = models.TextField(
-        null=True,
-        help_text='Instructions on how to view the property.',
-    )
-    was_price = models.FloatField(
-        null=True,
-        help_text='The usual price that a product is sold at, or the price '
-                  'before it was marked down. This is always more than the '
-                  'Buy Now price. This field will only be populated if '
-                  'IsClearance is true .',
-    )
-    whiteware = models.TextField(
-        null=True,
-        help_text='A description of what is included in the rent (if '
-                  'furnished).',
-    )
-
-    class Meta:
-
-        unique_together = (
-            (
-                'listing_id',
-            ),
-        )
-
-
-class Flatmates(models.Model):
-
-    swagger_types = types.MappingProxyType({
-        'did_you_mean': 'str',
-        'favourite_id': 'int',
-        'favourite_type': 'int',
-        'found_categories': 'list[FoundCategory]',
-        'list': 'list[Flatmate]',
-        'member_profile': 'MemberProfile',
-        'page': 'int',
-        'page_size': 'int',
-        'parameters': 'list[SearchParameter]',
-        'sort_orders': 'list[AttributeOption]',
-        'super_features': 'list[Flatmate]',
-        'total_count': 'int',
-    })
-    attribute_map = multidict.MultiDictProxy(multidict.MultiDict([
-        ('did_you_mean', 'DidYouMean'),
-        ('favourite_id', 'FavouriteId'),
-        ('favourite_type', 'FavouriteType'),
-        ('found_categories', 'FoundCategories'),
-        ('list', 'List'),
-        ('member_profile', 'MemberProfile'),
-        ('page', 'Page'),
-        ('page_size', 'PageSize'),
-        ('parameters', 'Parameters'),
-        ('sort_orders', 'SortOrders'),
-        ('super_features', 'SuperFeatures'),
-        ('total_count', 'TotalCount'),
-    ]))
-
-    did_you_mean = models.TextField(
-        null=True,
-        help_text='The suggestion string, if the search produced no results '
-                  'and there is a popular search term that is lexigraphically'
-                  ' close to the search string.',
-    )
-    favourite_id = models.IntegerField(
-        null=True,
-        help_text='The ID of a favourite search that corresponds to the '
-                  'current search, if the call is authenticated and the '
-                  'authenticated member has a favourite search that matches.',
-    )
-    favourite_type = models.IntegerField(
-        null=True,
-        choices=(
-            (0, 'None'),
-            (1, 'Category'),
-            (3, 'Search'),
-            (4, 'AttributeSearch'),
-            (6, 'Seller'),
-        ),
-        help_text='The type of favourite (e.g. “Category”, “Search”, '
-                  '“Seller”) that the FavouriteId property refers to. Only '
-                  'applicable for searches that match one of the '
-                  'authenticated user’s favourites.',
-    )
-    found_categories = models.ManyToManyField(
-        'FoundCategory',
-        related_name='flatmates_reverse_found_categories',
-        help_text='A collection of suggested categories and the number of '
-                  'search results in each category.',
-    )
-    list = models.ManyToManyField(
-        'Flatmate',
-        related_name='flatmates_reverse_list',
-        help_text='A list of the results in the current page.',
-    )
-    member_profile = models.ForeignKey(
-        'MemberProfile',
-        on_delete=models.CASCADE,
-        null=True,
-        related_name='flatmates_reverse_member_profile',
-        blank=True,
-        help_text='Details of the member that is being filtered on. Not '
-                  'returned unless member_listing is non-zero and '
-                  'return_metadata is true.',
-    )
-    page = models.IntegerField(
-        null=True,
-        help_text='The index of the current page of results (starts at 1).',
-    )
-    page_size = models.IntegerField(
-        null=True,
-        help_text='The number of results in the current page.',
-    )
-    parameters = models.ManyToManyField(
-        'SearchParameter',
-        related_name='flatmates_reverse_parameters',
-        help_text='A list of search parameters which are applicable to the '
-                  'searched category. Not returned unless return_metadata is '
-                  'true.',
-    )
-    sort_orders = models.ManyToManyField(
-        'AttributeOption',
-        related_name='flatmates_reverse_sort_orders',
-        help_text='A list of sort orders which are applicable to the searched'
-                  ' category. Not returned unless return_metadata is true.',
-    )
-    super_features = models.ManyToManyField(
-        'Flatmate',
-        related_name='flatmates_reverse_super_features',
-        help_text='A randomised collection of super features matching the '
-                  'current search',
-    )
-    total_count = models.IntegerField(
-        null=True,
-        help_text='The total number of results in the collection. Can be '
-                  'larger than the number of returned results.',
-    )
-
-    class Meta:
-
-        unique_together = (
-            (
-                'did_you_mean',
-                'favourite_id',
-                'favourite_type',
-                'member_profile',
-                'page',
-                'page_size',
-                'total_count',
-            ),
-        )
-
-
-class FoundCategory(models.Model):
-
-    swagger_types = types.MappingProxyType({
-        'category': 'str',
-        'category_id': 'int',
-        'count': 'int',
-        'is_restricted': 'bool',
-        'name': 'str',
-    })
-    attribute_map = multidict.MultiDictProxy(multidict.MultiDict([
-        ('category', 'Category'),
-        ('category_id', 'CategoryId'),
-        ('count', 'Count'),
-        ('is_restricted', 'IsRestricted'),
-        ('name', 'Name'),
-    ]))
-
-    category = models.TextField(
-        null=True,
-        help_text='The category identifier string in the form nnnn- (e.g. '
-                  '“0344-3357-6420-“).',
-    )
-    category_id = models.IntegerField(
-        null=True,
-        help_text='The category id (e.g. 6420).',
-    )
-    count = models.IntegerField(
-        null=True,
-        help_text='The number of results that were found in this category.',
-    )
-    is_restricted = models.NullBooleanField(
-        null=True,
-        help_text='True if the category is restricted. All R18 categories are'
-                  ' restricted by default.',
-    )
-    name = models.TextField(
-        null=True,
-        help_text='The name of the category (e.g. “Blackberry”).',
-    )
-
-    class Meta:
-
-        unique_together = (
-            (
-                'category',
-                'category_id',
-                'count',
-                'is_restricted',
-                'name',
             ),
         )
 
@@ -2331,31 +1282,31 @@ class GeographicLocation(models.Model):
     ]))
 
     accuracy = models.IntegerField(
-        null=True,
         choices=(
             (0, 'None'),
             (1, 'Address'),
             (3, 'Street'),
             (2, 'Suburb'),
         ),
+        null=True,
         help_text='The accuracy of the geographic location (address, street '
-                  'or suburb).',
+                  'or suburb).'
     )
     easting = models.IntegerField(
         null=True,
-        help_text='The easting of the location, in metres (NZTM).',
+        help_text='The easting of the location, in metres (NZTM).'
     )
     latitude = models.FloatField(
         null=True,
-        help_text='The latitude of the location, in degrees (WGS84).',
+        help_text='The latitude of the location, in degrees (WGS84).'
     )
     longitude = models.FloatField(
         null=True,
-        help_text='The longitude of the location, in degrees (WGS84).',
+        help_text='The longitude of the location, in degrees (WGS84).'
     )
     northing = models.IntegerField(
         null=True,
-        help_text='The northing of the location, in metres (NZTM).',
+        help_text='The northing of the location, in metres (NZTM).'
     )
 
     class Meta:
@@ -2388,20 +1339,20 @@ class LargeBannerImage(models.Model):
 
     large = models.TextField(
         null=True,
-        help_text='The URL of the promotional image in large size 1024×576.',
+        help_text='The URL of the promotional image in large size 1024×576.'
     )
     medium = models.TextField(
         null=True,
-        help_text='The URL of the promotional image in medium size 768×432.',
+        help_text='The URL of the promotional image in medium size 768×432.'
     )
     small = models.TextField(
         null=True,
-        help_text='The URL of the promotional image in small size 320×180',
+        help_text='The URL of the promotional image in small size 320×180'
     )
     x_large = models.TextField(
         null=True,
         help_text='The URL of the promotional image in extra large size '
-                  '1440×810.',
+                  '1440×810.'
     )
 
     class Meta:
@@ -2454,6 +1405,7 @@ class ListedItemDetail(models.Model):
         'formatted_start_date': 'str',
         'geographic_location': 'GeographicLocation',
         'has_buy_now': 'bool',
+        'has_contact_details': 'bool',
         'has_gallery': 'bool',
         'has_home_page_feature': 'bool',
         'has_multiple': 'bool',
@@ -2464,6 +1416,8 @@ class ListedItemDetail(models.Model):
         'is_buy_now_only': 'bool',
         'is_classified': 'bool',
         'is_clearance': 'bool',
+        'is_eligible_for_bidding': 'bool',
+        'is_eligible_for_buy_now': 'bool',
         'is_eligible_for_buyer_protection': 'bool',
         'is_featured': 'bool',
         'is_flat_shipping_charge': 'bool',
@@ -2485,9 +1439,13 @@ class ListedItemDetail(models.Model):
         'minimum_next_bid_amount': 'float',
         'motor_web_basic_report': 'MotorWebBasicReport',
         'note_date': 'datetime',
+        'number_of_payments': 'int',
         'offer_status': 'int',
         'open_homes': 'list[OpenHome]',
         'over18_declaration_required_to_buy': 'bool',
+        'payment_amount': 'float',
+        'payment_interval': 'str',
+        'payment_method_fee': 'float',
         'payment_options': 'str',
         'pending_offer': 'FixedPriceOfferDetails',
         'percentage_off': 'int',
@@ -2497,16 +1455,17 @@ class ListedItemDetail(models.Model):
         'price_display': 'str',
         'quantity': 'int',
         'questions': 'Questions',
+        'refund_collection': 'list[RefundDetails]',
         'region': 'str',
         'region_id': 'int',
         'relisted_item_id': 'int',
         'remaining_gallery_plus_relists': 'int',
         'reserve_price': 'float',
         'reserve_state': 'int',
-        'sku': 'str',
         'sales': 'list[Sale]',
         'send_payment_instructions': 'bool',
         'shipping_options': 'list[ShippingOption]',
+        'sku': 'str',
         'sponsor_links': 'list[SponsorLink]',
         'start_date': 'datetime',
         'start_price': 'float',
@@ -2560,6 +1519,7 @@ class ListedItemDetail(models.Model):
         ('formatted_start_date', 'FormattedStartDate'),
         ('geographic_location', 'GeographicLocation'),
         ('has_buy_now', 'HasBuyNow'),
+        ('has_contact_details', 'HasContactDetails'),
         ('has_gallery', 'HasGallery'),
         ('has_home_page_feature', 'HasHomePageFeature'),
         ('has_multiple', 'HasMultiple'),
@@ -2570,6 +1530,8 @@ class ListedItemDetail(models.Model):
         ('is_buy_now_only', 'IsBuyNowOnly'),
         ('is_classified', 'IsClassified'),
         ('is_clearance', 'IsClearance'),
+        ('is_eligible_for_bidding', 'IsEligibleForBidding'),
+        ('is_eligible_for_buy_now', 'IsEligibleForBuyNow'),
         ('is_eligible_for_buyer_protection', 'IsEligibleForBuyerProtection'),
         ('is_featured', 'IsFeatured'),
         ('is_flat_shipping_charge', 'IsFlatShippingCharge'),
@@ -2591,10 +1553,13 @@ class ListedItemDetail(models.Model):
         ('minimum_next_bid_amount', 'MinimumNextBidAmount'),
         ('motor_web_basic_report', 'MotorWebBasicReport'),
         ('note_date', 'NoteDate'),
+        ('number_of_payments', 'NumberOfPayments'),
         ('offer_status', 'OfferStatus'),
         ('open_homes', 'OpenHomes'),
-        ('over18_declaration_required_to_buy',
-         'Over18DeclarationRequiredToBuy'),
+        ('over18_declaration_required_to_buy', 'Over18DeclarationRequiredToBuy'),
+        ('payment_amount', 'PaymentAmount'),
+        ('payment_interval', 'PaymentInterval'),
+        ('payment_method_fee', 'PaymentMethodFee'),
         ('payment_options', 'PaymentOptions'),
         ('pending_offer', 'PendingOffer'),
         ('percentage_off', 'PercentageOff'),
@@ -2604,6 +1569,7 @@ class ListedItemDetail(models.Model):
         ('price_display', 'PriceDisplay'),
         ('quantity', 'Quantity'),
         ('questions', 'Questions'),
+        ('refund_collection', 'RefundCollection'),
         ('region', 'Region'),
         ('region_id', 'RegionId'),
         ('relisted_item_id', 'RelistedItemId'),
@@ -2634,32 +1600,32 @@ class ListedItemDetail(models.Model):
 
     agency = models.ForeignKey(
         'Agency',
-        on_delete=models.CASCADE,
-        null=True,
-        related_name='listed_item_detail_reverse_agency',
         blank=True,
-        help_text='The agency details if this is a job or property listing.',
+        null=True,
+        on_delete=models.CASCADE,
+        related_name='listed_item_detail_reverse_agency',
+        help_text='The agency details if this is a job or property listing.'
     )
     allows_pickups = models.IntegerField(
-        null=True,
         choices=(
             (0, 'None'),
             (1, 'Allow'),
             (2, 'Demand'),
             (3, 'Forbid'),
         ),
-        help_text='Indicates whether the seller allows pickup.',
+        null=True,
+        help_text='Indicates whether the seller allows pickup.'
     )
     as_at = models.DateTimeField(
         null=True,
         help_text='The date and time the response was generated on the '
-                  'server.',
+                  'server.'
     )
     attributes = models.ManyToManyField(
         'Attribute',
         related_name='listed_item_detail_reverse_attributes',
         help_text='The attributes for the item that are intended to be '
-                  'displayed on the UI.',
+                  'displayed on the UI.'
     )
     authenticated_members_only = models.NullBooleanField(
         null=True,
@@ -2667,54 +1633,54 @@ class ListedItemDetail(models.Model):
                   ' authenticated members. Note that there are many '
                   'restrictions on non-authenticated users. For more '
                   'information, see the help article on becoming '
-                  'authenticated .',
+                  'authenticated .'
     )
     available_to_buy = models.TextField(
         null=True,
         help_text='The amount of listings available for purchase. If greater '
-                  'than 10, 10+ will be displayed.',
+                  'than 10, 10+ will be displayed.'
     )
     bid_count = models.IntegerField(
         null=True,
-        help_text='The number of bids on the item.',
+        help_text='The number of bids on the item.'
     )
     bidder_and_watchers = models.IntegerField(
         null=True,
-        help_text='The number of bidders and watcher for this listing.',
+        help_text='The number of bidders and watcher for this listing.'
     )
     bids = models.ForeignKey(
         'BidCollection',
-        on_delete=models.CASCADE,
-        null=True,
-        related_name='listed_item_detail_reverse_bids',
         blank=True,
-        help_text='A list of the last 10 bids for the listing.',
+        null=True,
+        on_delete=models.CASCADE,
+        related_name='listed_item_detail_reverse_bids',
+        help_text='A list of the last 10 bids for the listing.'
     )
     body = models.TextField(
         null=True,
-        help_text='The text used as the body of the item.',
+        help_text='The text used as the body of the item.'
     )
     branding = models.ForeignKey(
         'Branding',
-        on_delete=models.CASCADE,
-        null=True,
-        related_name='listed_item_detail_reverse_branding',
         blank=True,
-        help_text='A list of branding images associated with this listing.',
+        null=True,
+        on_delete=models.CASCADE,
+        related_name='listed_item_detail_reverse_branding',
+        help_text='A list of branding images associated with this listing.'
     )
     broadband_technologies = models.ManyToManyField(
         'BroadbandTechnology',
         related_name='listed_item_detail_reverse_broadband_technologies',
         help_text='A list of broadband technology availability for property '
-                  'listings.',
+                  'listings.'
     )
     buy_now_price = models.FloatField(
         null=True,
-        help_text='The Buy Now price.',
+        help_text='The Buy Now price.'
     )
     can_add_to_cart = models.NullBooleanField(
         null=True,
-        help_text='Indicates if the item can be added to members cart.',
+        help_text='Indicates if the item can be added to members cart.'
     )
     can_offer = models.NullBooleanField(
         null=True,
@@ -2722,7 +1688,7 @@ class ListedItemDetail(models.Model):
                   'the listing. You can use this flag to hide the FPO button '
                   'in your UI or to avoid a useless FPO API call. Note that '
                   'if this flag is true it does not guarantee that a '
-                  'subsequent FPO operation will succeed.',
+                  'subsequent FPO operation will succeed.'
     )
     can_relist = models.NullBooleanField(
         null=True,
@@ -2731,267 +1697,281 @@ class ListedItemDetail(models.Model):
                   'hide the relist button in your UI or to avoid a useless '
                   'relist API call. Note that if this flag is true it does '
                   'not guarantee that a subsequent relist operation will '
-                  'succeed.',
+                  'succeed.'
     )
     can_use_pay_now_instant = models.NullBooleanField(
         null=True,
         help_text='Indicates whether the PayNowInstant is available for this '
-                  'listing.',
+                  'listing.'
     )
     cart_item_id = models.IntegerField(
         null=True,
-        help_text='the cartItemId if the item is already in the members cart.',
+        help_text='the cartItemId if the item is already in the members cart.'
     )
     category = models.TextField(
         null=True,
-        help_text='The listing category.',
+        help_text='The listing category.'
     )
     category_name = models.TextField(
         null=True,
-        help_text='The display name of the category.',
+        help_text='The display name of the category.'
     )
     category_path = models.TextField(
         null=True,
-        help_text='The category path.',
+        help_text='The category path.'
     )
     closed_offer = models.ForeignKey(
         'FixedPriceOfferDetails',
-        on_delete=models.CASCADE,
-        null=True,
-        related_name='listed_item_detail_reverse_closed_offer',
         blank=True,
+        null=True,
+        on_delete=models.CASCADE,
+        related_name='listed_item_detail_reverse_closed_offer',
         help_text='Contains details of a fixed price offer that was made, but'
                   ' is no longer available, either because it was accepted, '
                   'it expired or all recipients declined the offer. Only '
                   'available if you are the seller or a recipient of the '
-                  'offer.',
+                  'offer.'
     )
     contact_count = models.IntegerField(
         null=True,
         help_text='The number of contacts received for this listing, either '
                   'emails, applications, or clicks-to-apply. Only available '
-                  'if you are the seller.',
+                  'if you are the seller.'
     )
     contact_details = models.ForeignKey(
         'ContactDetails',
-        on_delete=models.CASCADE,
-        null=True,
-        related_name='listed_item_detail_reverse_contact_details',
         blank=True,
-        help_text='The contact details for a personal listing.',
+        null=True,
+        on_delete=models.CASCADE,
+        related_name='listed_item_detail_reverse_contact_details',
+        help_text='The contact details for a personal listing.'
     )
     current_auto_bid = models.FloatField(
         null=True,
         help_text='If you are the bidder then the highest AutoBid value is '
-                  'returned',
+                  'returned'
     )
     current_shipping_promotion = models.ForeignKey(
         'CurrentShippingPromotion',
-        on_delete=models.CASCADE,
-        null=True,
-        related_name='listed_item_detail_reverse_current_shipping_promotion',
         blank=True,
+        null=True,
+        on_delete=models.CASCADE,
+        related_name='listed_item_detail_reverse_current_shipping_promotion',
         help_text='A list of shipping promotions that are currently active '
-                  'for this listing',
+                  'for this listing'
     )
     dealership = models.ForeignKey(
         'Dealership',
-        on_delete=models.CASCADE,
-        null=True,
-        related_name='listed_item_detail_reverse_dealership',
         blank=True,
-        help_text='The dealership details if this is a car dealer listing.',
+        null=True,
+        on_delete=models.CASCADE,
+        related_name='listed_item_detail_reverse_dealership',
+        help_text='The dealership details if this is a car dealer listing.'
     )
     donation_recipient = models.ForeignKey(
         'Charity',
-        on_delete=models.CASCADE,
-        null=True,
-        related_name='listed_item_detail_reverse_donation_recipient',
         blank=True,
+        null=True,
+        on_delete=models.CASCADE,
+        related_name='listed_item_detail_reverse_donation_recipient',
         help_text='Indicates the seller will round up their success fees to '
                   'the nearest dollar and donate the difference to the '
-                  'selected charity.',
+                  'selected charity.'
     )
     embedded_content = models.ForeignKey(
         'EmbeddedContent',
-        on_delete=models.CASCADE,
-        null=True,
-        related_name='listed_item_detail_reverse_embedded_content',
         blank=True,
+        null=True,
+        on_delete=models.CASCADE,
+        related_name='listed_item_detail_reverse_embedded_content',
         help_text='The content keys that are embedded in the listing page '
-                  '(e.g. YouTube Video Key).',
+                  '(e.g. YouTube Video Key).'
     )
     end_date = models.DateTimeField(
         null=True,
-        help_text='The date the listing will end.',
+        help_text='The date the listing will end.'
     )
     external_reference_id = models.TextField(
         null=True,
         help_text='The external reference ID, if one exists. Only available '
-                  'to the seller of a listing.',
+                  'to the seller of a listing.'
     )
     firearms_license_required_to_buy = models.NullBooleanField(
         null=True,
         help_text='Indicates whether a buyer is required to enter their '
                   'firearms license number. Applies to firearms listings '
-                  '(e.g. Sports > Hunting & shooting > Rifles).',
+                  '(e.g. Sports > Hunting & shooting > Rifles).'
     )
     formatted_start_date = models.TextField(
         null=True,
         help_text='Listing start date, displayed as a string. Currently '
-                  'applies to Motors Classified listings only.',
+                  'applies to Motors Classified listings only.'
     )
     geographic_location = models.ForeignKey(
         'GeographicLocation',
-        on_delete=models.CASCADE,
-        null=True,
-        related_name='listed_item_detail_reverse_geographic_location',
         blank=True,
+        null=True,
+        on_delete=models.CASCADE,
+        related_name='listed_item_detail_reverse_geographic_location',
         help_text='The geographic location (latitude and longitude) of a '
-                  'property.',
+                  'property.'
     )
     has_buy_now = models.NullBooleanField(
         null=True,
-        help_text='Indicates whether the item has Buy Now.',
+        help_text='Indicates whether the item has Buy Now.'
+    )
+    has_contact_details = models.NullBooleanField(
+        null=True,
+        help_text='Indicates whether the listing has contact details'
     )
     has_gallery = models.NullBooleanField(
         null=True,
-        help_text='Is this a gallery listing?',
+        help_text='Is this a gallery listing?'
     )
     has_home_page_feature = models.NullBooleanField(
         null=True,
-        help_text='Is this a homepage feature listing?',
+        help_text='Is this a homepage feature listing?'
     )
     has_multiple = models.NullBooleanField(
         null=True,
         help_text='Indicates whether there is more than one item available. '
-                  'Only applicable for Buy Now Only listings.',
+                  'Only applicable for Buy Now Only listings.'
     )
     has_pay_now = models.NullBooleanField(
         null=True,
-        help_text='Indicates whether the item has Pay Now.',
+        help_text='Indicates whether the item has Pay Now.'
     )
     has_reserve = models.NullBooleanField(
         null=True,
-        help_text='Indicates whether the item has a reserve.',
+        help_text='Indicates whether the item has a reserve.'
     )
     hidden_attributes = models.ManyToManyField(
         'Attribute',
         related_name='listed_item_detail_reverse_hidden_attributes',
         help_text='The attributes for the item that are not intended to be '
-                  'displayed on the UI.',
+                  'displayed on the UI.'
     )
     is_bold = models.NullBooleanField(
         null=True,
-        help_text='Is this a bold listing?',
+        help_text='Is this a bold listing?'
     )
     is_buy_now_only = models.NullBooleanField(
         null=True,
-        help_text='Indicates whether or not this is a Buy Now Only listing.',
+        help_text='Indicates whether or not this is a Buy Now Only listing.'
     )
     is_classified = models.NullBooleanField(
         null=True,
-        help_text='Indicates whether the item is a classified.',
+        help_text='Indicates whether the item is a classified.'
     )
     is_clearance = models.NullBooleanField(
         null=True,
         help_text='This indicates that the listing is a clearance item. '
                   'Clearance listings include listings with was/now pricing '
-                  'and general clearance stock.',
+                  'and general clearance stock.'
+    )
+    is_eligible_for_bidding = models.NullBooleanField(
+        null=True,
+        help_text='Indicates whether afterpay is an eligible payment method '
+                  'for Buy Now'
+    )
+    is_eligible_for_buy_now = models.NullBooleanField(
+        null=True,
+        help_text='Indicates whether afterpay is an eligible payment method '
+                  'for Buy Now'
     )
     is_eligible_for_buyer_protection = models.NullBooleanField(
         null=True,
         help_text='Indicates whether the listing is eligible for buyer '
-                  'protection',
+                  'protection'
     )
     is_featured = models.NullBooleanField(
         null=True,
-        help_text='Is this a featured listing?',
+        help_text='Is this a featured listing?'
     )
     is_flat_shipping_charge = models.NullBooleanField(
         null=True,
         help_text='Indicates whether one flat shipping fee will be charged if'
                   ' more than one of this item is purchased. Only applicable '
-                  'for Buy Now Only listings.',
+                  'for Buy Now Only listings.'
     )
     is_highlighted = models.NullBooleanField(
         null=True,
-        help_text='Is this a highlighted listing?',
+        help_text='Is this a highlighted listing?'
     )
     is_in_cart = models.NullBooleanField(
         null=True,
-        help_text='Indicates if the item is also in the members cart.',
+        help_text='Indicates if the item is also in the members cart.'
     )
     is_in_trade_protected = models.NullBooleanField(
         null=True,
         help_text='Indicates whether the listing is protected by the Consumer'
-                  ' Guarantees Act',
+                  ' Guarantees Act'
     )
     is_leading = models.NullBooleanField(
         null=True,
         help_text='Indicates whether the authenticated user is leading the '
-                  'bidding.',
+                  'bidding.'
     )
     is_new = models.NullBooleanField(
         null=True,
-        help_text='Indicates whether the item is marked as new.',
+        help_text='Indicates whether the item is marked as new.'
     )
     is_on_watch_list = models.NullBooleanField(
         null=True,
         help_text='Indicates whether the item is on the authenticated '
-                  'member’s watchlist.',
+                  'member’s watchlist.'
     )
     is_or_near_offer = models.NullBooleanField(
         null=True,
-        help_text='Indicates whether a near offer is accepted.',
+        help_text='Indicates whether a near offer is accepted.'
     )
     is_outbid = models.NullBooleanField(
         null=True,
         help_text='Indicates whether the authenticated user has been outbid. '
                   'This will be false if the authenticated user has not made '
-                  'any bids.',
+                  'any bids.'
     )
     is_reserve_met = models.NullBooleanField(
         null=True,
-        help_text='Indicates whether the item’s reserve has been met.',
+        help_text='Indicates whether the item’s reserve has been met.'
     )
     is_super_featured = models.NullBooleanField(
         null=True,
-        help_text='Is this a super featured listing?',
+        help_text='Is this a super featured listing?'
     )
     listing_id = models.IntegerField(
-        help_text='The ID of the listing.',
         primary_key=True,
+        help_text='The ID of the listing.'
     )
     max_bid_amount = models.FloatField(
         null=True,
-        help_text='The current leading bid amount.',
+        help_text='The current leading bid amount.'
     )
     member = models.ForeignKey(
         'Member',
-        on_delete=models.CASCADE,
-        null=True,
-        related_name='listed_item_detail_reverse_member',
         blank=True,
-        help_text='The seller of the listing.',
+        null=True,
+        on_delete=models.CASCADE,
+        related_name='listed_item_detail_reverse_member',
+        help_text='The seller of the listing.'
     )
     member_profile = models.ForeignKey(
         'SimpleMemberProfile',
-        on_delete=models.CASCADE,
-        null=True,
-        related_name='listed_item_detail_reverse_member_profile',
         blank=True,
-        help_text='This listing member’s public profile information.',
+        null=True,
+        on_delete=models.CASCADE,
+        related_name='listed_item_detail_reverse_member_profile',
+        help_text='This listing member’s public profile information.'
     )
     member_request_information = models.ForeignKey(
         'MemberRequestInformation',
-        on_delete=models.CASCADE,
-        null=True,
-        related_name='listed_item_detail_reverse_member_request_information',
         blank=True,
+        null=True,
+        on_delete=models.CASCADE,
+        related_name='listed_item_detail_reverse_member_request_information',
         help_text='Provides information relating to the member regarding '
                   'their ability to request a relist or offer and the status '
-                  'of any request.',
+                  'of any request.'
     )
     minimum_next_bid_amount = models.FloatField(
         null=True,
@@ -3000,23 +1980,26 @@ class ListedItemDetail(models.Model):
                   ' not classifieds and not Buy Now Only auctions). You must '
                   'still check for the “bid too small” error when using this '
                   'value, as someone may make a bid after you have checked '
-                  'this value but before you have finished placing your bid.',
+                  'this value but before you have finished placing your bid.'
     )
     motor_web_basic_report = models.ForeignKey(
         'MotorWebBasicReport',
-        on_delete=models.CASCADE,
-        null=True,
-        related_name='listed_item_detail_reverse_motor_web_basic_report',
         blank=True,
+        null=True,
+        on_delete=models.CASCADE,
+        related_name='listed_item_detail_reverse_motor_web_basic_report',
         help_text='MotorWeb basic report for car listings if purchased by the'
-                  ' seller.',
+                  ' seller.'
     )
     note_date = models.DateTimeField(
         null=True,
-        help_text='The date of the note on an item.',
+        help_text='The date of the note on an item.'
+    )
+    number_of_payments = models.IntegerField(
+        null=True,
+        help_text='Indicates the number of payments'
     )
     offer_status = models.IntegerField(
-        null=True,
         choices=(
             (0, 'None'),
             (1, 'Active'),
@@ -3025,65 +2008,78 @@ class ListedItemDetail(models.Model):
             (4, 'Declined'),
             (5, 'Accepted'),
         ),
+        null=True,
         help_text='The status of the fixed price offer for this listing (if '
                   'there is one). Only available if you are the seller or a '
-                  'recipient of the offer.',
+                  'recipient of the offer.'
     )
     open_homes = models.ManyToManyField(
         'OpenHome',
         related_name='listed_item_detail_reverse_open_homes',
         help_text='A collection of open home times for this listing. Only '
-                  'applies to open home listings.',
+                  'applies to open home listings.'
     )
     over18_declaration_required_to_buy = models.NullBooleanField(
         null=True,
         help_text='Indicates whether a buyer is required to confirm that they'
                   ' are over 18. Applies to wine listings (e.g. Home & living'
-                  ' > Wine > Red > Pinot noir).',
+                  ' > Wine > Red > Pinot noir).'
+    )
+    payment_amount = models.FloatField(
+        null=True,
+        help_text='The total amount of this payment'
+    )
+    payment_interval = models.TextField(
+        null=True,
+        help_text='Indicates the payment interval, eg. Fortnightly'
+    )
+    payment_method_fee = models.FloatField(
+        null=True,
+        help_text='The fee amount paid as part of this payment'
     )
     payment_options = models.TextField(
         null=True,
         help_text='A comma-separated list of the available payment options '
-                  'e.g. “NZ Bank Deposit, Cash, Pay Now”.',
+                  'e.g. “NZ Bank Deposit, Cash, Pay Now”.'
     )
     pending_offer = models.ForeignKey(
         'FixedPriceOfferDetails',
-        on_delete=models.CASCADE,
-        null=True,
-        related_name='listed_item_detail_reverse_pending_offer',
         blank=True,
+        null=True,
+        on_delete=models.CASCADE,
+        related_name='listed_item_detail_reverse_pending_offer',
         help_text='Contains details of a fixed price offer that is pending '
                   'for this auction. Only available if you are the seller or '
-                  'a recipient of the offer.',
+                  'a recipient of the offer.'
     )
     percentage_off = models.IntegerField(
         null=True,
         help_text='The percentage that a product has been discounted. This '
                   'has been rounded for display purposes. This field will '
-                  'only be populated if IsClearance is true .',
+                  'only be populated if IsClearance is true .'
     )
     photo_id = models.IntegerField(
         null=True,
         help_text='The ID of the primary photo for the listing (if the '
-                  'listing has a photo).',
+                  'listing has a photo).'
     )
     photos = models.ManyToManyField(
         'Photo',
         related_name='listed_item_detail_reverse_photos',
-        help_text='A collection of photos for the listing.',
+        help_text='A collection of photos for the listing.'
     )
     positive_review_count = models.IntegerField(
         null=True,
         help_text='The number of user-submitted reviews which are positive '
                   '(i.e. the user selected the thumbs up graphic when '
                   'submitting a review). Currently only applies to services '
-                  'listings.',
+                  'listings.'
     )
     price_display = models.TextField(
         null=True,
         help_text='The price, in a format suitable for displaying to the '
                   'user. Some categories may have special pricing rules, e.g.'
-                  ' properties may have “Price by negotiation”.',
+                  ' properties may have “Price by negotiation”.'
     )
     quantity = models.IntegerField(
         null=True,
@@ -3092,19 +2088,25 @@ class ListedItemDetail(models.Model):
                   'value represents the number sold, not the total quantity. '
                   'When retrieving sold items, this value is not present (use'
                   ' QuantitySold instead). When retrieving listing details, '
-                  'this value is only present if you are the seller.',
+                  'this value is only present if you are the seller.'
     )
     questions = models.ForeignKey(
         'Questions',
-        on_delete=models.CASCADE,
-        null=True,
-        related_name='listed_item_detail_reverse_questions',
         blank=True,
-        help_text='A list of questions and answers for the listing.',
+        null=True,
+        on_delete=models.CASCADE,
+        related_name='listed_item_detail_reverse_questions',
+        help_text='A list of questions and answers for the listing.'
+    )
+    refund_collection = models.ManyToManyField(
+        'RefundDetails',
+        related_name='listed_item_detail_reverse_refund_collection',
+        help_text='A collection of refunds that have been made against this '
+                  'payment'
     )
     region = models.TextField(
         null=True,
-        help_text='The name of the region where this item is located.',
+        help_text='The name of the region where this item is located.'
     )
     region_id = models.IntegerField(
         null=True,
@@ -3117,11 +2119,11 @@ class ListedItemDetail(models.Model):
                   'three-tier region/district/suburb system. This field '
                   'cannot cope with the two main geographical classification '
                   'systems. Except for the property search API, it should not'
-                  ' be used.',
+                  ' be used.'
     )
     relisted_item_id = models.IntegerField(
         null=True,
-        help_text='The ID of the new listing if this listing was relisted.',
+        help_text='The ID of the new listing if this listing was relisted.'
     )
     remaining_gallery_plus_relists = models.IntegerField(
         null=True,
@@ -3132,28 +2134,28 @@ class ListedItemDetail(models.Model):
                   'that for this field, a value of zero is not the same as if'
                   ' the field is missing (a value of zero means gallery plus '
                   'is in effect whereas if the field is missing it means that'
-                  ' you are not the seller or gallery plus is not in effect).',
+                  ' you are not the seller or gallery plus is not in effect).'
     )
     reserve_price = models.FloatField(
         null=True,
         help_text='The reserve price for the auction. This is available in '
                   'the sold/unsold items APIs and, if you are the seller, the'
-                  ' listing details API.',
+                  ' listing details API.'
     )
     reserve_state = models.IntegerField(
-        null=True,
         choices=(
             (0, 'None'),
             (1, 'Met'),
             (2, 'NotMet'),
             (3, 'NotApplicable'),
         ),
-        help_text='The flag to display on an item.',
+        null=True,
+        help_text='The flag to display on an item.'
     )
     sku = models.TextField(
         null=True,
         help_text='SKU or Stock Keeping Unit. Used to uniquely identify an '
-                  'auction’s product line.',
+                  'auction’s product line.'
     )
     sales = models.ManyToManyField(
         'Sale',
@@ -3163,98 +2165,98 @@ class ListedItemDetail(models.Model):
                   'winning bid. If you are the seller of this listing, this '
                   'field contains information on all sales. If you are the '
                   'buyer, then it contains information about your purchases '
-                  'only.',
+                  'only.'
     )
     send_payment_instructions = models.NullBooleanField(
         null=True,
         help_text='Indicates whether payment instructions are automatically '
                   'sent to buyers. This value is only present if you are the '
-                  'seller.',
+                  'seller.'
     )
     shipping_options = models.ManyToManyField(
         'ShippingOption',
         related_name='listed_item_detail_reverse_shipping_options',
-        help_text='A list of shipping options.',
+        help_text='A list of shipping options.'
     )
     sponsor_links = models.ManyToManyField(
         'SponsorLink',
         related_name='listed_item_detail_reverse_sponsor_links',
-        help_text='A collection of sponsored links for the listing.',
+        help_text='A collection of sponsored links for the listing.'
     )
     start_date = models.DateTimeField(
         null=True,
-        help_text='The date the listing was created.',
+        help_text='The date the listing was created.'
     )
     start_price = models.FloatField(
         null=True,
-        help_text='The start price.',
+        help_text='The start price.'
     )
     store = models.ForeignKey(
         'Store',
-        on_delete=models.CASCADE,
-        null=True,
-        related_name='listed_item_detail_reverse_store',
         blank=True,
-        help_text='The store details, if the seller has a Trade Me store.',
+        null=True,
+        on_delete=models.CASCADE,
+        related_name='listed_item_detail_reverse_store',
+        help_text='The store details, if the seller has a Trade Me store.'
     )
     subtitle = models.TextField(
         null=True,
-        help_text='The subtitle, if present.',
+        help_text='The subtitle, if present.'
     )
     suburb = models.TextField(
         null=True,
-        help_text='The name of the suburb where this item is located.',
+        help_text='The name of the suburb where this item is located.'
     )
     suburb_id = models.IntegerField(
         null=True,
         help_text='The ID of the suburb where this item is located. Only '
                   'populated by the property search API, which means it uses '
-                  'the three-tier region/district/suburb system.',
+                  'the three-tier region/district/suburb system.'
     )
     super_feature_end_date = models.DateTimeField(
         null=True,
-        help_text='End date of a super feature for a listing.',
+        help_text='End date of a super feature for a listing.'
     )
     supports_questions_and_answers = models.NullBooleanField(
         null=True,
         help_text='Indicates if questions and answers can be shown on the '
-                  'listing',
+                  'listing'
     )
     title = models.TextField(
         null=True,
-        help_text='The listing title.',
+        help_text='The listing title.'
     )
     total_review_count = models.IntegerField(
         null=True,
         help_text='The total number of user-submitted reviews. Currently only'
-                  ' applies to services listings.',
+                  ' applies to services listings.'
     )
     unanswered_question_count = models.IntegerField(
         null=True,
-        help_text='The number of unanswered questions for this listing.',
+        help_text='The number of unanswered questions for this listing.'
     )
     variant_definition = models.ForeignKey(
         'VariantDefinition',
-        on_delete=models.CASCADE,
-        null=True,
-        related_name='listed_item_detail_reverse_variant_definition',
         blank=True,
-        help_text='The variants.',
+        null=True,
+        on_delete=models.CASCADE,
+        related_name='listed_item_detail_reverse_variant_definition',
+        help_text='The variants.'
     )
     view_count = models.IntegerField(
         null=True,
-        help_text='The number of times the listing has been viewed.',
+        help_text='The number of times the listing has been viewed.'
     )
     was_price = models.FloatField(
         null=True,
         help_text='The usual price that a product is sold at, or the price '
                   'before it was marked down. This is always more than the '
                   'Buy Now price. This field will only be populated if '
-                  'IsClearance is true .',
+                  'IsClearance is true .'
     )
     withdrawn_by_seller = models.NullBooleanField(
         null=True,
-        help_text='Indicates whether the listing was withdrawn by the seller.',
+        help_text='Indicates whether the listing was withdrawn by the seller.'
     )
 
     class Meta:
@@ -3309,78 +2311,78 @@ class Member(models.Model):
 
     date_address_verified = models.DateTimeField(
         null=True,
-        help_text='The date the member was address verified.',
+        help_text='The date the member was address verified.'
     )
     date_joined = models.DateTimeField(
         null=True,
-        help_text='The date the member joined.',
+        help_text='The date the member joined.'
     )
     email = models.TextField(
         null=True,
-        help_text='The member’s email address.',
+        help_text='The member’s email address.'
     )
     feedback_count = models.IntegerField(
         null=True,
         help_text='The member’s total feedback (UniquePositive minus '
-                  'UniqueNegative).',
+                  'UniqueNegative).'
     )
     import_charges_may_apply = models.NullBooleanField(
         null=True,
         help_text='Indicates that the trader is an international seller, and '
-                  'therefore customs import charges may apply.',
+                  'therefore customs import charges may apply.'
     )
     is_address_verified = models.NullBooleanField(
         null=True,
-        help_text='Indicates whether the member has been address verified.',
+        help_text='Indicates whether the member has been address verified.'
     )
     is_authenticated = models.NullBooleanField(
         null=True,
-        help_text='Indicates whether the member is authenticated.',
+        help_text='Indicates whether the member is authenticated.'
     )
     is_dealer = models.NullBooleanField(
         null=True,
-        help_text='Indicates whether the member is a car dealer.',
+        help_text='Indicates whether the member is a car dealer.'
     )
     is_in_trade = models.NullBooleanField(
         null=True,
-        help_text='Indicates whether the member is a professional trader.',
+        help_text='Indicates whether the member is a professional trader.'
     )
     is_top_seller = models.NullBooleanField(
         null=True,
-        help_text='Indicates whether the member is currently a Top Seller',
+        help_text='Indicates whether the member is currently a Top Seller'
     )
     member_id = models.IntegerField(
-        help_text='The ID of the member. This may be 0 , if we determine it '
-                  'is necessary to protect the member’s privacy.',
         primary_key=True,
+        help_text='The ID of the member. This may be 0 , if we determine it '
+                  'is necessary to protect the member’s privacy.'
     )
     nickname = models.TextField(
         null=True,
         help_text='The nickname of the member. Some characters may be '
                   'changed, if we determine it is necessary to protect the '
-                  'member’s privacy.',
+                  'member’s privacy.'
     )
     photo = models.TextField(
         null=True,
-        help_text='The profile photo URL of the member',
+        help_text='The profile photo URL of the member'
     )
     region = models.TextField(
         null=True,
-        help_text='The name of the member’s region.',
+        help_text='The name of the member’s region.'
     )
     suburb = models.TextField(
         null=True,
-        help_text='The name of the member’s suburb.',
+        help_text='The name of the member’s suburb.'
     )
     unique_negative = models.IntegerField(
         null=True,
         help_text='The number of distinct members who have placed negative '
-                  'feedback against this member.',
+                  'feedback against this member.'
     )
     unique_positive = models.IntegerField(
         null=True,
         help_text='The number of distinct members who have placed positive '
-                  'feedback against this member.',
+                  'feedback against this member.'
     )
 
     class Meta:
@@ -3388,225 +2390,6 @@ class Member(models.Model):
         unique_together = (
             (
                 'member_id',
-            ),
-        )
-
-
-class Member0(models.Model):
-
-    swagger_types = types.MappingProxyType({
-        'date_address_verified': 'datetime',
-        'date_joined': 'datetime',
-        'feedback_count': 'int',
-        'import_charges_may_apply': 'bool',
-        'is_address_verified': 'bool',
-        'is_authenticated': 'bool',
-        'is_dealer': 'bool',
-        'is_in_trade': 'bool',
-        'is_top_seller': 'bool',
-        'member_id': 'int',
-        'nickname': 'str',
-        'suburb': 'str',
-        'unique_negative': 'int',
-        'unique_positive': 'int',
-    })
-    attribute_map = multidict.MultiDictProxy(multidict.MultiDict([
-        ('date_address_verified', 'DateAddressVerified'),
-        ('date_joined', 'DateJoined'),
-        ('feedback_count', 'FeedbackCount'),
-        ('import_charges_may_apply', 'ImportChargesMayApply'),
-        ('is_address_verified', 'IsAddressVerified'),
-        ('is_authenticated', 'IsAuthenticated'),
-        ('is_dealer', 'IsDealer'),
-        ('is_in_trade', 'IsInTrade'),
-        ('is_top_seller', 'IsTopSeller'),
-        ('member_id', 'MemberId'),
-        ('nickname', 'Nickname'),
-        ('suburb', 'Suburb'),
-        ('unique_negative', 'UniqueNegative'),
-        ('unique_positive', 'UniquePositive'),
-    ]))
-
-    date_address_verified = models.DateTimeField(
-        null=True,
-        help_text='The date the member was address verified.',
-    )
-    date_joined = models.DateTimeField(
-        null=True,
-        help_text='The date the member joined.',
-    )
-    feedback_count = models.IntegerField(
-        null=True,
-        help_text='The member’s total feedback (UniquePositive minus '
-                  'UniqueNegative).',
-    )
-    import_charges_may_apply = models.NullBooleanField(
-        null=True,
-        help_text='Indicates that the trader is an international seller, and '
-                  'therefore customs import charges may apply.',
-    )
-    is_address_verified = models.NullBooleanField(
-        null=True,
-        help_text='Indicates whether the member has been address verified.',
-    )
-    is_authenticated = models.NullBooleanField(
-        null=True,
-        help_text='Indicates whether the member is authenticated.',
-    )
-    is_dealer = models.NullBooleanField(
-        null=True,
-        help_text='Indicates whether the member is a car dealer.',
-    )
-    is_in_trade = models.NullBooleanField(
-        null=True,
-        help_text='Indicates whether the member is a professional trader.',
-    )
-    is_top_seller = models.NullBooleanField(
-        null=True,
-        help_text='Indicates whether the member is currently a Top Seller',
-    )
-    member_id = models.IntegerField(
-        null=True,
-        help_text='The ID of the member. This may be 0 , if we determine it '
-                  'is necessary to protect the member’s privacy.',
-    )
-    nickname = models.TextField(
-        null=True,
-        help_text='The nickname of the member. Some characters may be '
-                  'changed, if we determine it is necessary to protect the '
-                  'member’s privacy.',
-    )
-    suburb = models.TextField(
-        null=True,
-        help_text='The name of the member’s suburb.',
-    )
-    unique_negative = models.IntegerField(
-        null=True,
-        help_text='The number of distinct members who have placed negative '
-                  'feedback against this member.',
-    )
-    unique_positive = models.IntegerField(
-        null=True,
-        help_text='The number of distinct members who have placed positive '
-                  'feedback against this member.',
-    )
-
-    class Meta:
-
-        unique_together = (
-            (
-                'date_address_verified',
-                'date_joined',
-                'feedback_count',
-                'import_charges_may_apply',
-                'is_address_verified',
-                'is_authenticated',
-                'is_dealer',
-                'is_in_trade',
-                'is_top_seller',
-                'member_id',
-                'nickname',
-                'suburb',
-                'unique_negative',
-                'unique_positive',
-            ),
-        )
-
-
-class MemberProfile(models.Model):
-
-    swagger_types = types.MappingProxyType({
-        'biography': 'str',
-        'date_removed': 'datetime',
-        'favourite_id': 'int',
-        'first_name': 'str',
-        'is_enabled': 'bool',
-        'member': 'Member0',
-        'occupation': 'str',
-        'photo': 'str',
-        'quote': 'str',
-        'store': 'Store',
-    })
-    attribute_map = multidict.MultiDictProxy(multidict.MultiDict([
-        ('biography', 'Biography'),
-        ('date_removed', 'DateRemoved'),
-        ('favourite_id', 'FavouriteId'),
-        ('first_name', 'FirstName'),
-        ('is_enabled', 'IsEnabled'),
-        ('member', 'Member'),
-        ('occupation', 'Occupation'),
-        ('photo', 'Photo'),
-        ('quote', 'Quote'),
-        ('store', 'Store'),
-    ]))
-
-    biography = models.TextField(
-        null=True,
-        help_text='The member’s bio.',
-    )
-    date_removed = models.DateTimeField(
-        null=True,
-        help_text='The date the member was disabled (assuming it has been '
-                  'disabled).',
-    )
-    favourite_id = models.IntegerField(
-        null=True,
-        help_text='The ID of a favourite seller, if the call is authenticated'
-                  ' and this member is a favourite seller for the '
-                  'authenticated caller.',
-    )
-    first_name = models.TextField(
-        null=True,
-        help_text='The first name of the member.',
-    )
-    is_enabled = models.NullBooleanField(
-        null=True,
-        help_text='Indicates whether the member account is enabled.',
-    )
-    member = models.ForeignKey(
-        'Member0',
-        on_delete=models.CASCADE,
-        null=True,
-        related_name='member_profile_reverse_member',
-        blank=True,
-        help_text='Basic information about the member.',
-    )
-    occupation = models.TextField(
-        null=True,
-        help_text='The occupation of the member.',
-    )
-    photo = models.TextField(
-        null=True,
-        help_text='A URL representing the member’s photo.',
-    )
-    quote = models.TextField(
-        null=True,
-        help_text='The member’s favourite quote.',
-    )
-    store = models.ForeignKey(
-        'Store',
-        on_delete=models.CASCADE,
-        null=True,
-        related_name='member_profile_reverse_store',
-        blank=True,
-        help_text='Store details, if the seller has been set up as a Trade Me'
-                  ' store.',
-    )
-
-    class Meta:
-
-        unique_together = (
-            (
-                'biography',
-                'date_removed',
-                'favourite_id',
-                'first_name',
-                'is_enabled',
-                'member',
-                'occupation',
-                'photo',
-                'quote',
-                'store',
             ),
         )
 
@@ -3623,7 +2406,6 @@ class MemberRequestInformation(models.Model):
     ]))
 
     request_offer_status = models.IntegerField(
-        null=True,
         choices=(
             (0, 'MemberCanRequest'),
             (1, 'SoldAlready'),
@@ -3633,11 +2415,11 @@ class MemberRequestInformation(models.Model):
             (5, 'RelistedAlready'),
             (6, 'MemberIsNotAValidOfferee'),
         ),
+        null=True,
         help_text='Indicates whether the member can request an offer and the '
-                  'status of any request.',
+                  'status of any request.'
     )
     request_relist_status = models.IntegerField(
-        null=True,
         choices=(
             (0, 'MemberCanRequest'),
             (1, 'SoldAlready'),
@@ -3647,8 +2429,9 @@ class MemberRequestInformation(models.Model):
             (5, 'RelistedAlready'),
             (6, 'MemberIsNotAValidOfferee'),
         ),
+        null=True,
         help_text='Indicates whether the member can request a relist and the '
-                  'status of any request.',
+                  'status of any request.'
     )
 
     class Meta:
@@ -3687,12 +2470,12 @@ class MotorWebBasicReport(models.Model):
         help_text='Returns “YES” if the car was reported to be damaged during'
                   ' the import. Returns “NO” if the car was not reported to '
                   'be damaged during the import. Returns “N/A” if value '
-                  'cannot be reliably read from the database.',
+                  'cannot be reliably read from the database.'
     )
     generated_at = models.DateTimeField(
         null=True,
         help_text='Returns the time stamp of the date and time when report '
-                  'has been generated.',
+                  'has been generated.'
     )
     money_owing = models.TextField(
         null=True,
@@ -3702,27 +2485,27 @@ class MotorWebBasicReport(models.Model):
                   ' or company has not registered a security against the '
                   'vehicle indicating they have a financial interest in the '
                   'vehicle. Returns “N/A” if value cannot be reliably read '
-                  'from the database.',
+                  'from the database.'
     )
     partial_report_url = models.TextField(
         null=True,
-        help_text='Returns the URL to the partial MotorWebReport',
+        help_text='Returns the URL to the partial MotorWebReport'
     )
     rego_or_vin = models.TextField(
         null=True,
         help_text='Returns the registration or VIN number which has been used'
-                  ' to purchase the Motor Web Basic Report.',
+                  ' to purchase the Motor Web Basic Report.'
     )
     reported_stolen = models.TextField(
         null=True,
         help_text='Returns “YES” if the car was reported to be stolen. '
                   'Returns “NO” if the car was not reported to be stolen. '
                   'Returns “N/A” if value cannot be reliably read from the '
-                  'database.',
+                  'database.'
     )
     title = models.TextField(
         null=True,
-        help_text='Returns the vehicle title',
+        help_text='Returns the vehicle title'
     )
 
     class Meta:
@@ -3754,14 +2537,14 @@ class OpenHome(models.Model):
     end = models.DateTimeField(
         null=True,
         help_text='The date and time the open home is no longer open for '
-                  'viewing. Must be the same day as Start .',
+                  'viewing. Must be the same day as Start .'
     )
     start = models.DateTimeField(
         null=True,
         help_text='The date and time the open home is open for viewing. The '
                   'date must be in the future and it must be less than 56 '
                   'days from the current date. Specify dates in the UTC time '
-                  'zone.',
+                  'zone.'
     )
 
     class Meta:
@@ -3789,13 +2572,13 @@ class Option(models.Model):
         null=True,
         help_text='The name used to identify the group of option values, e.g.'
                   ' “size” or “colour”. This name must match an entry in the '
-                  'option set collection.',
+                  'option set collection.'
     )
     value = models.TextField(
         null=True,
         help_text='The choice that this variant has for the option, e.g. '
                   '“red”, “blue”. This name must match an entry in the option'
-                  ' set.',
+                  ' set.'
     )
 
     class Meta:
@@ -3804,6 +2587,40 @@ class Option(models.Model):
             (
                 'name',
                 'value',
+            ),
+        )
+
+
+class OptionSet(models.Model):
+
+    swagger_types = types.MappingProxyType({
+        'name': 'str',
+        'values': 'list[OptionSetValues]',
+    })
+    attribute_map = multidict.MultiDictProxy(multidict.MultiDict([
+        ('name', 'Name'),
+        ('values', 'Values'),
+    ]))
+
+    name = models.TextField(
+        null=True,
+        help_text='The name used to identify the group of option values, e.g.'
+                  ' “size” or “colour”.'
+    )
+    values = models.ManyToManyField(
+        'OptionSetValues',
+        related_name='option_set_reverse_values',
+        help_text='The choices available for this option set, e.g. “red”, '
+                  '“blue”. The sequence in which values are supplied is '
+                  'reflected in the sequence of user-interface elements on '
+                  'listings.'
+    )
+
+    class Meta:
+
+        unique_together = (
+            (
+                'name',
             ),
         )
 
@@ -3831,40 +2648,6 @@ class OptionSetValues(models.Model):
         )
 
 
-class OptionSet(models.Model):
-
-    swagger_types = types.MappingProxyType({
-        'name': 'str',
-        'values': 'list[OptionSetValues]',
-    })
-    attribute_map = multidict.MultiDictProxy(multidict.MultiDict([
-        ('name', 'Name'),
-        ('values', 'Values'),
-    ]))
-
-    name = models.TextField(
-        null=True,
-        help_text='The name used to identify the group of option values, e.g.'
-                  ' “size” or “colour”.',
-    )
-    values = models.ManyToManyField(
-        'OptionSetValues',
-        related_name='option_set_reverse_values',
-        help_text='The choices available for this option set, e.g. “red”, '
-                  '“blue”. The sequence in which values are supplied is '
-                  'reflected in the sequence of user-interface elements on '
-                  'listings.',
-    )
-
-    class Meta:
-
-        unique_together = (
-            (
-                'name',
-            ),
-        )
-
-
 class Photo(models.Model):
 
     swagger_types = types.MappingProxyType({
@@ -3878,16 +2661,16 @@ class Photo(models.Model):
     ]))
 
     photo_id = models.IntegerField(
-        help_text='',
         primary_key=True,
+        help_text=''
     )
     value = models.ForeignKey(
         'PhotoUrl',
-        on_delete=models.CASCADE,
-        null=True,
-        related_name='photo_reverse_value',
         blank=True,
-        help_text='',
+        null=True,
+        on_delete=models.CASCADE,
+        related_name='photo_reverse_value',
+        help_text=''
     )
 
     class Meta:
@@ -3929,48 +2712,48 @@ class PhotoUrl(models.Model):
     full_size = models.TextField(
         null=True,
         help_text='The URL for the full sized photo (scaled down to fit '
-                  '670×502).',
+                  '670×502).'
     )
     gallery = models.TextField(
         null=True,
         help_text='The URL for the gallery sized photo (scaled down to fit '
-                  '233×176).',
+                  '233×176).'
     )
     large = models.TextField(
         null=True,
         help_text='The URL for the large sized photo (scaled down to fit '
-                  '352×264).',
+                  '352×264).'
     )
     list = models.TextField(
         null=True,
         help_text='The URL for the list view sized photo (scaled down to fit '
-                  '160×120).',
+                  '160×120).'
     )
     medium = models.TextField(
         null=True,
         help_text='The URL for the medium sized photo (scaled down to fit '
-                  '175×175).',
+                  '175×175).'
     )
     original_height = models.IntegerField(
         null=True,
-        help_text='The original height of the photo.',
+        help_text='The original height of the photo.'
     )
     original_width = models.IntegerField(
         null=True,
-        help_text='The original width of the photo.',
+        help_text='The original width of the photo.'
     )
     photo_id = models.IntegerField(
-        help_text='The ID of the photo.',
         primary_key=True,
+        help_text='The ID of the photo.'
     )
     plus_size = models.TextField(
         null=True,
-        help_text='The URL for the plus sized photo (scaled down to fit).',
+        help_text='The URL for the plus sized photo (scaled down to fit).'
     )
     thumbnail = models.TextField(
         null=True,
         help_text='The URL for the thumbnail sized photo (always 85×64, with '
-                  'white borders).',
+                  'white borders).'
     )
 
     class Meta:
@@ -3978,766 +2761,6 @@ class PhotoUrl(models.Model):
         unique_together = (
             (
                 'photo_id',
-            ),
-        )
-
-
-class Properties(models.Model):
-
-    swagger_types = types.MappingProxyType({
-        'did_you_mean': 'str',
-        'favourite_id': 'int',
-        'favourite_type': 'int',
-        'found_categories': 'list[FoundCategory]',
-        'list': 'list[Property]',
-        'member_profile': 'MemberProfile',
-        'page': 'int',
-        'page_size': 'int',
-        'parameters': 'list[SearchParameter]',
-        'sort_orders': 'list[AttributeOption]',
-        'super_features': 'list[Property]',
-        'total_count': 'int',
-    })
-    attribute_map = multidict.MultiDictProxy(multidict.MultiDict([
-        ('did_you_mean', 'DidYouMean'),
-        ('favourite_id', 'FavouriteId'),
-        ('favourite_type', 'FavouriteType'),
-        ('found_categories', 'FoundCategories'),
-        ('list', 'List'),
-        ('member_profile', 'MemberProfile'),
-        ('page', 'Page'),
-        ('page_size', 'PageSize'),
-        ('parameters', 'Parameters'),
-        ('sort_orders', 'SortOrders'),
-        ('super_features', 'SuperFeatures'),
-        ('total_count', 'TotalCount'),
-    ]))
-
-    did_you_mean = models.TextField(
-        null=True,
-        help_text='The suggestion string, if the search produced no results '
-                  'and there is a popular search term that is lexigraphically'
-                  ' close to the search string.',
-    )
-    favourite_id = models.IntegerField(
-        null=True,
-        help_text='The ID of a favourite search that corresponds to the '
-                  'current search, if the call is authenticated and the '
-                  'authenticated member has a favourite search that matches.',
-    )
-    favourite_type = models.IntegerField(
-        null=True,
-        choices=(
-            (0, 'None'),
-            (1, 'Category'),
-            (3, 'Search'),
-            (4, 'AttributeSearch'),
-            (6, 'Seller'),
-        ),
-        help_text='The type of favourite (e.g. “Category”, “Search”, '
-                  '“Seller”) that the FavouriteId property refers to. Only '
-                  'applicable for searches that match one of the '
-                  'authenticated user’s favourites.',
-    )
-    found_categories = models.ManyToManyField(
-        'FoundCategory',
-        related_name='properties_reverse_found_categories',
-        help_text='A collection of suggested categories and the number of '
-                  'search results in each category.',
-    )
-    list = models.ManyToManyField(
-        'Property',
-        related_name='properties_reverse_list',
-        help_text='A list of the results in the current page.',
-    )
-    member_profile = models.ForeignKey(
-        'MemberProfile',
-        on_delete=models.CASCADE,
-        null=True,
-        related_name='properties_reverse_member_profile',
-        blank=True,
-        help_text='Details of the member that is being filtered on. Not '
-                  'returned unless member_listing is non-zero and '
-                  'return_metadata is true.',
-    )
-    page = models.IntegerField(
-        null=True,
-        help_text='The index of the current page of results (starts at 1).',
-    )
-    page_size = models.IntegerField(
-        null=True,
-        help_text='The number of results in the current page.',
-    )
-    parameters = models.ManyToManyField(
-        'SearchParameter',
-        related_name='properties_reverse_parameters',
-        help_text='A list of search parameters which are applicable to the '
-                  'searched category. Not returned unless return_metadata is '
-                  'true.',
-    )
-    sort_orders = models.ManyToManyField(
-        'AttributeOption',
-        related_name='properties_reverse_sort_orders',
-        help_text='A list of sort orders which are applicable to the searched'
-                  ' category. Not returned unless return_metadata is true.',
-    )
-    super_features = models.ManyToManyField(
-        'Property',
-        related_name='properties_reverse_super_features',
-        help_text='A randomised collection of super features matching the '
-                  'current search',
-    )
-    total_count = models.IntegerField(
-        null=True,
-        help_text='The total number of results in the collection. Can be '
-                  'larger than the number of returned results.',
-    )
-
-    class Meta:
-
-        unique_together = (
-            (
-                'did_you_mean',
-                'favourite_id',
-                'favourite_type',
-                'member_profile',
-                'page',
-                'page_size',
-                'total_count',
-            ),
-        )
-
-
-class PropertyAdjacentSuburbIds(models.Model):
-
-    expect_single_value = 'value'
-    swagger_types = types.MappingProxyType({
-        'value': 'int',
-    })
-    attribute_map = multidict.MultiDictProxy(multidict.MultiDict([
-        ('value', 'value'),
-    ]))
-
-    value = models.IntegerField(
-        null=True,
-    )
-
-    class Meta:
-
-        unique_together = (
-            (
-                'value',
-            ),
-        )
-
-
-class PropertyAdjacentSuburbNames(models.Model):
-
-    expect_single_value = 'value'
-    swagger_types = types.MappingProxyType({
-        'value': 'str',
-    })
-    attribute_map = multidict.MultiDictProxy(multidict.MultiDict([
-        ('value', 'value'),
-    ]))
-
-    value = models.TextField(
-        null=True,
-    )
-
-    class Meta:
-
-        unique_together = (
-            (
-                'value',
-            ),
-        )
-
-
-class PropertyPhotoUrls(models.Model):
-
-    expect_single_value = 'value'
-    swagger_types = types.MappingProxyType({
-        'value': 'str',
-    })
-    attribute_map = multidict.MultiDictProxy(multidict.MultiDict([
-        ('value', 'value'),
-    ]))
-
-    value = models.TextField(
-        null=True,
-    )
-
-    class Meta:
-
-        unique_together = (
-            (
-                'value',
-            ),
-        )
-
-
-class Property(models.Model):
-
-    swagger_types = types.MappingProxyType({
-        'address': 'str',
-        'adjacent_suburb_ids': 'list[PropertyAdjacentSuburbIds]',
-        'adjacent_suburb_names': 'list[PropertyAdjacentSuburbNames]',
-        'agency': 'Agency0',
-        'agency_reference': 'str',
-        'amenities': 'str',
-        'area': 'int',
-        'area_range_max': 'int',
-        'as_at': 'datetime',
-        'available_from': 'str',
-        'bathrooms': 'int',
-        'bedrooms': 'int',
-        'best_contact_time': 'str',
-        'bid_count': 'int',
-        'branding': 'Branding',
-        'buy_now_price': 'float',
-        'category': 'str',
-        'category_path': 'str',
-        'district': 'str',
-        'district_id': 'int',
-        'end_date': 'datetime',
-        'geographic_location': 'GeographicLocation',
-        'has_buy_now': 'bool',
-        'has_embedded_video': 'bool',
-        'has_free_shipping': 'bool',
-        'has_gallery': 'bool',
-        'has_home_page_feature': 'bool',
-        'has_pay_now': 'bool',
-        'has_reserve': 'bool',
-        'ideal_tenant': 'str',
-        'is_bold': 'bool',
-        'is_boosted': 'bool',
-        'is_buy_now_only': 'bool',
-        'is_classified': 'bool',
-        'is_clearance': 'bool',
-        'is_featured': 'bool',
-        'is_highlighted': 'bool',
-        'is_new': 'bool',
-        'is_on_watch_list': 'bool',
-        'is_reserve_met': 'bool',
-        'is_super_featured': 'bool',
-        'land_area': 'int',
-        'listing_group': 'str',
-        'listing_id': 'int',
-        'max_bid_amount': 'float',
-        'max_tenants': 'int',
-        'note_date': 'datetime',
-        'open_homes': 'list[OpenHome]',
-        'parking': 'str',
-        'percentage_off': 'int',
-        'pets_okay': 'int',
-        'photo_urls': 'list[PropertyPhotoUrls]',
-        'picture_href': 'str',
-        'positive_review_count': 'int',
-        'price_display': 'str',
-        'promotion_id': 'int',
-        'property_id': 'str',
-        'property_type': 'str',
-        'rateable_value': 'int',
-        'region': 'str',
-        'region_id': 'int',
-        'remaining_gallery_plus_relists': 'int',
-        'rent_per_week': 'float',
-        'reserve_state': 'int',
-        'short_description': 'str',
-        'smokers_okay': 'int',
-        'start_date': 'datetime',
-        'start_price': 'float',
-        'subtitle': 'str',
-        'suburb': 'str',
-        'suburb_id': 'int',
-        'title': 'str',
-        'total_review_count': 'int',
-        'variant_definition_summary': 'VariantDefinitionSummary',
-        'viewing_instructions': 'str',
-        'was_price': 'float',
-        'whiteware': 'str',
-    })
-    attribute_map = multidict.MultiDictProxy(multidict.MultiDict([
-        ('address', 'Address'),
-        ('adjacent_suburb_ids', 'AdjacentSuburbIds'),
-        ('adjacent_suburb_names', 'AdjacentSuburbNames'),
-        ('agency', 'Agency'),
-        ('agency_reference', 'AgencyReference'),
-        ('amenities', 'Amenities'),
-        ('area', 'Area'),
-        ('area_range_max', 'AreaRangeMax'),
-        ('as_at', 'AsAt'),
-        ('available_from', 'AvailableFrom'),
-        ('bathrooms', 'Bathrooms'),
-        ('bedrooms', 'Bedrooms'),
-        ('best_contact_time', 'BestContactTime'),
-        ('bid_count', 'BidCount'),
-        ('branding', 'Branding'),
-        ('buy_now_price', 'BuyNowPrice'),
-        ('category', 'Category'),
-        ('category_path', 'CategoryPath'),
-        ('district', 'District'),
-        ('district_id', 'DistrictId'),
-        ('end_date', 'EndDate'),
-        ('geographic_location', 'GeographicLocation'),
-        ('has_buy_now', 'HasBuyNow'),
-        ('has_embedded_video', 'HasEmbeddedVideo'),
-        ('has_free_shipping', 'HasFreeShipping'),
-        ('has_gallery', 'HasGallery'),
-        ('has_home_page_feature', 'HasHomePageFeature'),
-        ('has_pay_now', 'HasPayNow'),
-        ('has_reserve', 'HasReserve'),
-        ('ideal_tenant', 'IdealTenant'),
-        ('is_bold', 'IsBold'),
-        ('is_boosted', 'IsBoosted'),
-        ('is_buy_now_only', 'IsBuyNowOnly'),
-        ('is_classified', 'IsClassified'),
-        ('is_clearance', 'IsClearance'),
-        ('is_featured', 'IsFeatured'),
-        ('is_highlighted', 'IsHighlighted'),
-        ('is_new', 'IsNew'),
-        ('is_on_watch_list', 'IsOnWatchList'),
-        ('is_reserve_met', 'IsReserveMet'),
-        ('is_super_featured', 'IsSuperFeatured'),
-        ('land_area', 'LandArea'),
-        ('listing_group', 'ListingGroup'),
-        ('listing_id', 'ListingId'),
-        ('max_bid_amount', 'MaxBidAmount'),
-        ('max_tenants', 'MaxTenants'),
-        ('note_date', 'NoteDate'),
-        ('open_homes', 'OpenHomes'),
-        ('parking', 'Parking'),
-        ('percentage_off', 'PercentageOff'),
-        ('pets_okay', 'PetsOkay'),
-        ('photo_urls', 'PhotoUrls'),
-        ('picture_href', 'PictureHref'),
-        ('positive_review_count', 'PositiveReviewCount'),
-        ('price_display', 'PriceDisplay'),
-        ('promotion_id', 'PromotionId'),
-        ('property_id', 'PropertyId'),
-        ('property_type', 'PropertyType'),
-        ('rateable_value', 'RateableValue'),
-        ('region', 'Region'),
-        ('region_id', 'RegionId'),
-        ('remaining_gallery_plus_relists', 'RemainingGalleryPlusRelists'),
-        ('rent_per_week', 'RentPerWeek'),
-        ('reserve_state', 'ReserveState'),
-        ('short_description', 'ShortDescription'),
-        ('smokers_okay', 'SmokersOkay'),
-        ('start_date', 'StartDate'),
-        ('start_price', 'StartPrice'),
-        ('subtitle', 'Subtitle'),
-        ('suburb', 'Suburb'),
-        ('suburb_id', 'SuburbId'),
-        ('title', 'Title'),
-        ('total_review_count', 'TotalReviewCount'),
-        ('variant_definition_summary', 'VariantDefinitionSummary'),
-        ('viewing_instructions', 'ViewingInstructions'),
-        ('was_price', 'WasPrice'),
-        ('whiteware', 'Whiteware'),
-    ]))
-
-    address = models.TextField(
-        null=True,
-        help_text='The address to display.',
-    )
-    adjacent_suburb_ids = models.ManyToManyField(
-        'PropertyAdjacentSuburbIds',
-        related_name='property_reverse_adjacent_suburb_ids',
-        help_text='The IDs of any adjacent suburbs.',
-    )
-    adjacent_suburb_names = models.ManyToManyField(
-        'PropertyAdjacentSuburbNames',
-        related_name='property_reverse_adjacent_suburb_names',
-        help_text='The names of any adjacent suburbs.',
-    )
-    agency = models.ForeignKey(
-        'Agency0',
-        on_delete=models.CASCADE,
-        null=True,
-        related_name='property_reverse_agency',
-        blank=True,
-        help_text='Details of the agency this property was listed by.',
-    )
-    agency_reference = models.TextField(
-        null=True,
-        help_text='The reference to the agency.',
-    )
-    amenities = models.TextField(
-        null=True,
-        help_text='A list of the amenities in the area.',
-    )
-    area = models.IntegerField(
-        null=True,
-        help_text='The area of the house, in square metres.',
-    )
-    area_range_max = models.IntegerField(
-        null=True,
-        help_text='The maximum area of the house, in square metres.',
-    )
-    as_at = models.DateTimeField(
-        null=True,
-        help_text='The date and time the response was generated on the '
-                  'server.',
-    )
-    available_from = models.TextField(
-        null=True,
-        help_text='The date the property is available from.',
-    )
-    bathrooms = models.IntegerField(
-        null=True,
-        help_text='The number of bedrooms in the property.',
-    )
-    bedrooms = models.IntegerField(
-        null=True,
-        help_text='The number of bathrooms in the property.',
-    )
-    best_contact_time = models.TextField(
-        null=True,
-        help_text='The best time to contact the seller.',
-    )
-    bid_count = models.IntegerField(
-        null=True,
-        help_text='The number of bids on the item.',
-    )
-    branding = models.ForeignKey(
-        'Branding',
-        on_delete=models.CASCADE,
-        null=True,
-        related_name='property_reverse_branding',
-        blank=True,
-        help_text='A list of branding images associated with this listing.',
-    )
-    buy_now_price = models.FloatField(
-        null=True,
-        help_text='The Buy Now price.',
-    )
-    category = models.TextField(
-        null=True,
-        help_text='The listing category.',
-    )
-    category_path = models.TextField(
-        null=True,
-        help_text='The category path.',
-    )
-    district = models.TextField(
-        null=True,
-        help_text='The name of the district the property is located in.',
-    )
-    district_id = models.IntegerField(
-        null=True,
-        help_text='The ID of the district where this property is located.',
-    )
-    end_date = models.DateTimeField(
-        null=True,
-        help_text='The date the listing will end.',
-    )
-    geographic_location = models.ForeignKey(
-        'GeographicLocation',
-        on_delete=models.CASCADE,
-        null=True,
-        related_name='property_reverse_geographic_location',
-        blank=True,
-        help_text='The geographic location (latitude and longitude) of a '
-                  'property.',
-    )
-    has_buy_now = models.NullBooleanField(
-        null=True,
-        help_text='Indicates whether the item has Buy Now.',
-    )
-    has_embedded_video = models.NullBooleanField(
-        null=True,
-        help_text='Indicates whether the listing has an embedded video',
-    )
-    has_free_shipping = models.NullBooleanField(
-        null=True,
-        help_text='Indicates if the listing offers free shipping as an option',
-    )
-    has_gallery = models.NullBooleanField(
-        null=True,
-        help_text='Is this a gallery listing?',
-    )
-    has_home_page_feature = models.NullBooleanField(
-        null=True,
-        help_text='Is this a homepage feature listing?',
-    )
-    has_pay_now = models.NullBooleanField(
-        null=True,
-        help_text='Indicates whether the item has Pay Now.',
-    )
-    has_reserve = models.NullBooleanField(
-        null=True,
-        help_text='Indicates whether the item has a reserve.',
-    )
-    ideal_tenant = models.TextField(
-        null=True,
-        help_text='A description of the ideal tenant (are they tidy, a '
-                  'professional couple, etc).',
-    )
-    is_bold = models.NullBooleanField(
-        null=True,
-        help_text='Is this a bold listing?',
-    )
-    is_boosted = models.NullBooleanField(
-        null=True,
-        help_text='If the listing has been boosted or not',
-    )
-    is_buy_now_only = models.NullBooleanField(
-        null=True,
-        help_text='Indicates whether or not this is a Buy Now Only listing.',
-    )
-    is_classified = models.NullBooleanField(
-        null=True,
-        help_text='Indicates whether the item is a classified.',
-    )
-    is_clearance = models.NullBooleanField(
-        null=True,
-        help_text='This indicates that the listing is a clearance item. '
-                  'Clearance listings include listings with was/now pricing '
-                  'and general clearance stock.',
-    )
-    is_featured = models.NullBooleanField(
-        null=True,
-        help_text='Is this a featured listing?',
-    )
-    is_highlighted = models.NullBooleanField(
-        null=True,
-        help_text='Is this a highlighted listing?',
-    )
-    is_new = models.NullBooleanField(
-        null=True,
-        help_text='Indicates whether the item is marked as new.',
-    )
-    is_on_watch_list = models.NullBooleanField(
-        null=True,
-        help_text='Indicates whether the item is on the authenticated '
-                  'member’s watchlist.',
-    )
-    is_reserve_met = models.NullBooleanField(
-        null=True,
-        help_text='Indicates whether the item’s reserve has been met.',
-    )
-    is_super_featured = models.NullBooleanField(
-        null=True,
-        help_text='Is this a super featured listing?',
-    )
-    land_area = models.IntegerField(
-        null=True,
-        help_text='The area of the land, in square metres.',
-    )
-    listing_group = models.TextField(
-        null=True,
-        help_text='The listing group.',
-    )
-    listing_id = models.IntegerField(
-        null=True,
-        help_text='The ID of the listing.',
-    )
-    max_bid_amount = models.FloatField(
-        null=True,
-        help_text='The current leading bid amount.',
-    )
-    max_tenants = models.IntegerField(
-        null=True,
-        help_text='The maximum number of tenents.',
-    )
-    note_date = models.DateTimeField(
-        null=True,
-        help_text='The date of the note on an item.',
-    )
-    open_homes = models.ManyToManyField(
-        'OpenHome',
-        related_name='property_reverse_open_homes',
-        help_text='A collection of open home times for this listing. Only '
-                  'applies to open home listings.',
-    )
-    parking = models.TextField(
-        null=True,
-        help_text='Information on the availability of parking.',
-    )
-    percentage_off = models.IntegerField(
-        null=True,
-        help_text='The percentage that a product has been discounted. This '
-                  'has been rounded for display purposes. This field will '
-                  'only be populated if IsClearance is true .',
-    )
-    pets_okay = models.IntegerField(
-        null=True,
-        choices=(
-            (0, 'NotSpecified'),
-            (1, 'No'),
-            (2, 'Yes'),
-            (3, 'Negotiable'),
-        ),
-        help_text='Indicates whether pets are allowed by the landlord. This '
-                  'information is available for flatmates wanted and '
-                  'residential to rent listings.',
-    )
-    photo_urls = models.ManyToManyField(
-        'PropertyPhotoUrls',
-        related_name='property_reverse_photo_urls',
-        help_text='A collection of photo urls for the listing',
-    )
-    picture_href = models.TextField(
-        null=True,
-        help_text='The URL of the primary photo for the listing (if the '
-                  'listing has a photo). By default you’ll get a thumbnail-'
-                  'sized photo, but you can control the size of the photo '
-                  'using the photo_size parameter.',
-    )
-    positive_review_count = models.IntegerField(
-        null=True,
-        help_text='The number of user-submitted reviews which are positive '
-                  '(i.e. the user selected the thumbs up graphic when '
-                  'submitting a review). Currently only applies to services '
-                  'listings.',
-    )
-    price_display = models.TextField(
-        null=True,
-        help_text='The price, in a format suitable for displaying to the '
-                  'user. Some categories may have special pricing rules, e.g.'
-                  ' properties may have “Price by negotiation”.',
-    )
-    promotion_id = models.IntegerField(
-        null=True,
-        help_text='The ID of the promotion applied to this listing.',
-    )
-    property_id = models.TextField(
-        help_text='The property ID. This is different from the listing ID.',
-        primary_key=True,
-    )
-    property_type = models.TextField(
-        null=True,
-        help_text='The type of property. Currently valid values are: '
-                  '“Apartment”, “Bare land”, “Car Park”, “Development site”, '
-                  '“Dwelling”, “Hotel/Leisure”, “House”, “Industrial”, '
-                  '“Lifestyle block”, “Office”, “Retail”, “Section”, '
-                  '“Townhouse”, “Unit”, “Villa”.',
-    )
-    rateable_value = models.IntegerField(
-        null=True,
-        help_text='The rateable value of the property.',
-    )
-    region = models.TextField(
-        null=True,
-        help_text='The name of the region where this item is located.',
-    )
-    region_id = models.IntegerField(
-        null=True,
-        help_text='The ID of the region where this item is located. In the '
-                  'general search, listing details and watchlist APIs this is'
-                  ' the ID of the seller’s region (using the two-tier '
-                  'region/suburb system), which means it might be '
-                  'inconsistent with the region name. In the property search '
-                  'API this is the ID of the property region, using the '
-                  'three-tier region/district/suburb system. This field '
-                  'cannot cope with the two main geographical classification '
-                  'systems. Except for the property search API, it should not'
-                  ' be used.',
-    )
-    remaining_gallery_plus_relists = models.IntegerField(
-        null=True,
-        help_text='The number of times the item can be relisted and get the '
-                  'gallery promotion for free. This value is only present if '
-                  'you are the seller and the listing had the gallery '
-                  'promotion applied due to the gallery plus promotion. Note '
-                  'that for this field, a value of zero is not the same as if'
-                  ' the field is missing (a value of zero means gallery plus '
-                  'is in effect whereas if the field is missing it means that'
-                  ' you are not the seller or gallery plus is not in effect).',
-    )
-    rent_per_week = models.FloatField(
-        null=True,
-        help_text='The rent payable per week, in NZD.',
-    )
-    reserve_state = models.IntegerField(
-        null=True,
-        choices=(
-            (0, 'None'),
-            (1, 'Met'),
-            (2, 'NotMet'),
-            (3, 'NotApplicable'),
-        ),
-        help_text='The flag to display on an item.',
-    )
-    short_description = models.TextField(
-        null=True,
-        help_text='Short description of a listing. This is Jobs and Services '
-                  'specfic.',
-    )
-    smokers_okay = models.IntegerField(
-        null=True,
-        choices=(
-            (0, 'NotSpecified'),
-            (1, 'No'),
-            (2, 'Yes'),
-        ),
-        help_text='Indicates whether smokers are allowed by the landlord. '
-                  'This information is available for flatmates wanted and '
-                  'residential to rent listings.',
-    )
-    start_date = models.DateTimeField(
-        null=True,
-        help_text='The date the listing was created.',
-    )
-    start_price = models.FloatField(
-        null=True,
-        help_text='The start price.',
-    )
-    subtitle = models.TextField(
-        null=True,
-        help_text='The subtitle, if present.',
-    )
-    suburb = models.TextField(
-        null=True,
-        help_text='The name of the suburb where this item is located.',
-    )
-    suburb_id = models.IntegerField(
-        null=True,
-        help_text='The ID of the suburb where this item is located. Only '
-                  'populated by the property search API, which means it uses '
-                  'the three-tier region/district/suburb system.',
-    )
-    title = models.TextField(
-        null=True,
-        help_text='The listing title.',
-    )
-    total_review_count = models.IntegerField(
-        null=True,
-        help_text='The total number of user-submitted reviews. Currently only'
-                  ' applies to services listings.',
-    )
-    variant_definition_summary = models.ForeignKey(
-        'VariantDefinitionSummary',
-        on_delete=models.CASCADE,
-        null=True,
-        related_name='property_reverse_variant_definition_summary',
-        blank=True,
-        help_text='A summary of the variant information.',
-    )
-    viewing_instructions = models.TextField(
-        null=True,
-        help_text='Instructions on how to view the property.',
-    )
-    was_price = models.FloatField(
-        null=True,
-        help_text='The usual price that a product is sold at, or the price '
-                  'before it was marked down. This is always more than the '
-                  'Buy Now price. This field will only be populated if '
-                  'IsClearance is true .',
-    )
-    whiteware = models.TextField(
-        null=True,
-        help_text='A description of what is included in the rent (if '
-                  'furnished).',
-    )
-
-    class Meta:
-
-        unique_together = (
-            (
-                'property_id',
             ),
         )
 
@@ -4768,40 +2791,40 @@ class Question(models.Model):
     answer = models.TextField(
         null=True,
         help_text='The answer given to the question by the owner of the '
-                  'listing.',
+                  'listing.'
     )
     answer_date = models.DateTimeField(
         null=True,
-        help_text='The date the question was answered.',
+        help_text='The date the question was answered.'
     )
     asking_member = models.ForeignKey(
         'Member',
-        on_delete=models.CASCADE,
-        null=True,
-        related_name='question_reverse_asking_member',
         blank=True,
-        help_text='The member details for the member asking the question.',
+        null=True,
+        on_delete=models.CASCADE,
+        related_name='question_reverse_asking_member',
+        help_text='The member details for the member asking the question.'
     )
     comment = models.TextField(
         null=True,
-        help_text='The text of the question.',
+        help_text='The text of the question.'
     )
     comment_date = models.DateTimeField(
         null=True,
-        help_text='The date and time the question was asked.',
+        help_text='The date and time the question was asked.'
     )
     is_seller_comment = models.NullBooleanField(
         null=True,
         help_text='Indicates whether this is a comment from the seller rather'
-                  ' than a question.',
+                  ' than a question.'
     )
     listing_id = models.IntegerField(
         null=True,
-        help_text='The ID of the listing this question belongs to.',
+        help_text='The ID of the listing this question belongs to.'
     )
     listing_question_id = models.IntegerField(
         null=True,
-        help_text='The question ID.',
+        help_text='The question ID.'
     )
 
     class Meta:
@@ -4838,20 +2861,20 @@ class Questions(models.Model):
     list = models.ManyToManyField(
         'Question',
         related_name='questions_reverse_list',
-        help_text='A list of the results in the current page.',
+        help_text='A list of the results in the current page.'
     )
     page = models.IntegerField(
         null=True,
-        help_text='The index of the current page of results (starts at 1).',
+        help_text='The index of the current page of results (starts at 1).'
     )
     page_size = models.IntegerField(
         null=True,
-        help_text='The number of results in the current page.',
+        help_text='The number of results in the current page.'
     )
     total_count = models.IntegerField(
         null=True,
         help_text='The total number of results in the collection. Can be '
-                  'larger than the number of returned results.',
+                  'larger than the number of returned results.'
     )
 
     class Meta:
@@ -4861,6 +2884,36 @@ class Questions(models.Model):
                 'page',
                 'page_size',
                 'total_count',
+            ),
+        )
+
+
+class RefundDetails(models.Model):
+
+    swagger_types = types.MappingProxyType({
+        'amount': 'float',
+        'destination': 'str',
+    })
+    attribute_map = multidict.MultiDictProxy(multidict.MultiDict([
+        ('amount', 'Amount'),
+        ('destination', 'Destination'),
+    ]))
+
+    amount = models.FloatField(
+        null=True,
+        help_text='The amount refunded'
+    )
+    destination = models.TextField(
+        null=True,
+        help_text='The destination the refund was sent to.'
+    )
+
+    class Meta:
+
+        unique_together = (
+            (
+                'amount',
+                'destination',
             ),
         )
 
@@ -4928,38 +2981,38 @@ class Sale(models.Model):
 
     buyer = models.ForeignKey(
         'Member',
-        on_delete=models.CASCADE,
-        null=True,
-        related_name='sale_reverse_buyer',
         blank=True,
+        null=True,
+        on_delete=models.CASCADE,
+        related_name='sale_reverse_buyer',
         help_text='The member who bought the item. Not available if you are '
-                  'the buyer.',
+                  'the buyer.'
     )
     credit_card_last_four_digits = models.TextField(
         null=True,
         help_text='The last four digits of the credit card used to pay for '
                   'the item. Only available if Pay Now was used to make the '
-                  'purchase and you are logged in as the buyer.',
+                  'purchase and you are logged in as the buyer.'
     )
     credit_card_payment_date = models.DateTimeField(
         null=True,
         help_text='The date and time a payment was made with a credit card '
-                  'using Pay Now. Only valid if HasPaidByCreditCard is true .',
+                  'using Pay Now. Only valid if HasPaidByCreditCard is true .'
     )
     credit_card_type = models.TextField(
         null=True,
         help_text='The type of credit card that was used to pay for the item '
                   '(“Visa”, “MasterCard”, etc). Only available if Pay Now was'
                   ' used to make the purchase and you are logged in as the '
-                  'buyer.',
+                  'buyer.'
     )
     delivery_address = models.ForeignKey(
         'Address',
-        on_delete=models.CASCADE,
-        null=True,
-        related_name='sale_reverse_delivery_address',
         blank=True,
-        help_text='The delivery address as indicated by the buyer.',
+        null=True,
+        on_delete=models.CASCADE,
+        related_name='sale_reverse_delivery_address',
+        help_text='The delivery address as indicated by the buyer.'
     )
     delivery_details_sent = models.NullBooleanField(
         null=True,
@@ -4967,24 +3020,24 @@ class Sale(models.Model):
                   'address, phone number and message) have been sent to the '
                   'seller. Because all three elements are optional, this can '
                   'be true even if the DeliveryAddress and MessageFromBuyer '
-                  'fields are missing.',
+                  'fields are missing.'
     )
     has_buyer_placed_feedback = models.NullBooleanField(
         null=True,
         help_text='Indicates whether the buyer has placed feedback on the '
-                  'seller for this sale.',
+                  'seller for this sale.'
     )
     has_paid_by_credit_card = models.NullBooleanField(
         null=True,
         help_text='Indicates whether the buyer has purchased the item using '
                   'Pay Now. For high risk payments, the value will be false '
                   'until the payment has been manually approved by the Trade '
-                  'Me customer service team.',
+                  'Me customer service team.'
     )
     has_seller_placed_feedback = models.NullBooleanField(
         null=True,
         help_text='Indicates whether the seller has placed feedback on the '
-                  'buyer for this sale.',
+                  'buyer for this sale.'
     )
     is_payment_pending = models.NullBooleanField(
         null=True,
@@ -4992,65 +3045,64 @@ class Sale(models.Model):
                   'review by the Trade Me customer service team. If this flag'
                   ' is set, you should not send payment reminder notices to '
                   'the buyer. Note: the Trade Me website uses the label '
-                  '“Payment Held” for payments in this state.',
+                  '“Payment Held” for payments in this state.'
     )
     message_from_buyer = models.TextField(
         null=True,
-        help_text='The message from the buyer to the seller, if any.',
+        help_text='The message from the buyer to the seller, if any.'
     )
     method = models.IntegerField(
-        null=True,
         choices=(
             (0, 'Auction'),
             (1, 'BuyNow'),
             (2, 'Offer'),
         ),
-        help_text='The method by which the sale was made.',
+        null=True,
+        help_text='The method by which the sale was made.'
     )
     order_id = models.IntegerField(
         null=True,
         help_text='If the item was purchased via the shopping cart, then this'
                   ' is an ID that uniquely identifies the shopping cart '
                   'transaction. All of the items that were ordered in the '
-                  'same cart transaction will have the same ID.',
+                  'same cart transaction will have the same ID.'
     )
     payment_instructions = models.TextField(
         null=True,
         help_text='The payment instructions that the seller has sent to the '
                   'buyer, containing information on how to pay. Will be '
                   'absent if the seller has not enabled payment instructions,'
-                  ' or if the seller has not yet sent them to the buyer.',
+                  ' or if the seller has not yet sent them to the buyer.'
     )
     price = models.FloatField(
         null=True,
         help_text='The price the item was sold for, excluding shipping. If '
                   'the purchase was for multiple items, this is the price of '
-                  'a single item.',
+                  'a single item.'
     )
     purchase_id = models.IntegerField(
         null=True,
-        help_text='A unique identifier for the sale.',
+        help_text='A unique identifier for the sale.'
     )
     quantity_sold = models.IntegerField(
         null=True,
-        help_text='The quantity sold.',
+        help_text='The quantity sold.'
     )
     reference_number = models.TextField(
         null=True,
         help_text='The reference number that should be used when making a '
-                  'deposit into the seller’s bank account.',
+                  'deposit into the seller’s bank account.'
     )
     selected_shipping = models.TextField(
         null=True,
         help_text='A description of the selected shipping method (e.g. '
-                  '“Nationwide courier”).',
+                  '“Nationwide courier”).'
     )
     shipping_price = models.FloatField(
         null=True,
-        help_text='The price of shipping.',
+        help_text='The price of shipping.'
     )
     shipping_type = models.IntegerField(
-        null=True,
         choices=(
             (0, 'None'),
             (1, 'Undecided'),
@@ -5059,44 +3111,45 @@ class Sale(models.Model):
             (4, 'Custom'),
             (5, 'TradeMe'),
         ),
-        help_text='The type of shipping that was selected.',
+        null=True,
+        help_text='The type of shipping that was selected.'
     )
     sold_date = models.DateTimeField(
         null=True,
-        help_text='The date and time the item was sold.',
+        help_text='The date and time the item was sold.'
     )
     status = models.IntegerField(
-        null=True,
         choices=(
             (10, 'EmailSent'),
             (20, 'PaymentReceived'),
             (30, 'GoodsShipped'),
             (40, 'SaleCompleted'),
         ),
+        null=True,
         help_text='The status of the sale. This can be set by the seller to '
                   'track the status of an order; it is never set by Trade Me.'
-                  ' Only available if you are the seller of the listing.',
+                  ' Only available if you are the seller of the listing.'
     )
     status_date = models.DateTimeField(
         null=True,
         help_text='The date the status was last changed. Only available to '
-                  'the seller.',
+                  'the seller.'
     )
     subtotal_price = models.FloatField(
         null=True,
         help_text='The price for all items, excluding shipping (i.e. equal to'
-                  ' SalePrice * QuantitySold).',
+                  ' SalePrice * QuantitySold).'
     )
     total_sale_price = models.FloatField(
         null=True,
         help_text='The total price for the entire sale, including shipping. '
                   'If the purchase was for multiple items, all items are '
-                  'included in this price.',
+                  'included in this price.'
     )
     total_shipping_price = models.FloatField(
         null=True,
         help_text='The total price for shipping. If flat shipping is not '
-                  'enabled, equal to ShippingPrice * QuantitySold.',
+                  'enabled, equal to ShippingPrice * QuantitySold.'
     )
 
     class Meta:
@@ -5134,129 +3187,6 @@ class Sale(models.Model):
         )
 
 
-class SearchParameter(models.Model):
-
-    swagger_types = types.MappingProxyType({
-        'allows_multiple_values': 'bool',
-        'dependent_on': 'str',
-        'dependent_parameter': 'SearchParameter',
-        'display_name': 'str',
-        'external_options_key': 'str',
-        'lower_bound_name': 'str',
-        'mutual_exclusion_group': 'str',
-        'name': 'str',
-        'options': 'list[AttributeOption]',
-        'type': 'int',
-        'upper_bound_name': 'str',
-    })
-    attribute_map = multidict.MultiDictProxy(multidict.MultiDict([
-        ('allows_multiple_values', 'AllowsMultipleValues'),
-        ('dependent_on', 'DependentOn'),
-        ('dependent_parameter', 'DependentParameter'),
-        ('display_name', 'DisplayName'),
-        ('external_options_key', 'ExternalOptionsKey'),
-        ('lower_bound_name', 'LowerBoundName'),
-        ('mutual_exclusion_group', 'MutualExclusionGroup'),
-        ('name', 'Name'),
-        ('options', 'Options'),
-        ('type', 'Type'),
-        ('upper_bound_name', 'UpperBoundName'),
-    ]))
-
-    allows_multiple_values = models.NullBooleanField(
-        null=True,
-        help_text='Indicates the user is allowed to select multiple values. '
-                  'Each value should be comma-separated. Currently applies '
-                  'only to String parameters.',
-    )
-    dependent_on = models.TextField(
-        null=True,
-        help_text='If present, the Name (not the DisplayName) of another '
-                  'parameter. If the user is filtering by that other '
-                  'parameter, then this filter becomes available for use. The'
-                  ' parameter that is referenced will be a single-valued '
-                  '(non-ranged).',
-    )
-    dependent_parameter = models.ForeignKey(
-        'SearchParameter',
-        on_delete=models.CASCADE,
-        null=True,
-        related_name='search_parameter_reverse_dependent_parameter',
-        blank=True,
-        help_text='Dependent parameter to display cascading structure',
-    )
-    display_name = models.TextField(
-        null=True,
-        help_text='The name of the search parameter, in a form suitable for '
-                  'displaying to the user.',
-    )
-    external_options_key = models.TextField(
-        null=True,
-        help_text='If present, indicates that the list of options is not '
-                  'immediately available, but can be retrieved from the '
-                  'SearchOptions API endpoint. The value is the key that '
-                  'should be passed to the SearchOptions API. Either the list'
-                  ' of options is really long, or the list is dependent on '
-                  'the value of another parameter (see the DependentOn '
-                  'field).',
-    )
-    lower_bound_name = models.TextField(
-        null=True,
-        help_text='If the parameter is a ranged parameter, this is the name '
-                  'of the parameter to use to specify the lower bound.',
-    )
-    mutual_exclusion_group = models.TextField(
-        null=True,
-        help_text='If present, indicates this parameter is part of a group of'
-                  ' parameters which are all mutually exclusive. The group '
-                  'name can be used as a heading name.',
-    )
-    name = models.TextField(
-        null=True,
-        help_text='The name of the search parameter.',
-    )
-    options = models.ManyToManyField(
-        'AttributeOption',
-        related_name='search_parameter_reverse_options',
-        help_text='A list of options to display to the user.',
-    )
-    type = models.IntegerField(
-        null=True,
-        choices=(
-            (0, 'Boolean'),
-            (1, 'Numeric'),
-            (2, 'String'),
-            (3, 'PropertyRegionId'),
-            (4, 'PropertyDistrictId'),
-            (5, 'PropertySuburbId'),
-            (6, 'Location'),
-        ),
-        help_text='Indicates the type of the parameter value.',
-    )
-    upper_bound_name = models.TextField(
-        null=True,
-        help_text='If the parameter is a ranged parameter, this is the name '
-                  'of the parameter to use to specify the upper bound.',
-    )
-
-    class Meta:
-
-        unique_together = (
-            (
-                'allows_multiple_values',
-                'dependent_on',
-                'dependent_parameter',
-                'display_name',
-                'external_options_key',
-                'lower_bound_name',
-                'mutual_exclusion_group',
-                'name',
-                'type',
-                'upper_bound_name',
-            ),
-        )
-
-
 class ShippingOption(models.Model):
 
     swagger_types = types.MappingProxyType({
@@ -5275,21 +3205,20 @@ class ShippingOption(models.Model):
     method = models.TextField(
         null=True,
         help_text='The name of the delivery method (e.g. “NZ Courier”, “Rural'
-                  ' Delivery”). Only applicable if ShippingType is Custom.',
+                  ' Delivery”). Only applicable if ShippingType is Custom.'
     )
     price = models.FloatField(
         null=True,
         help_text='The price of the delivery option. Only applicable if '
                   'ShippingType is Custom. Rounded up to the nearest 2 '
-                  'decimal places.',
+                  'decimal places.'
     )
     shipping_id = models.IntegerField(
         null=True,
         help_text='The ID of the shipping option (used when bidding or for '
-                  'Buy Now). Not required when listing an item.',
+                  'Buy Now). Not required when listing an item.'
     )
     type = models.IntegerField(
-        null=True,
         choices=(
             (0, 'None'),
             (1, 'Undecided'),
@@ -5298,7 +3227,8 @@ class ShippingOption(models.Model):
             (4, 'Custom'),
             (5, 'TradeMe'),
         ),
-        help_text='The type of delivery.',
+        null=True,
+        help_text='The type of delivery.'
     )
 
     class Meta:
@@ -5330,19 +3260,19 @@ class SimpleMemberProfile(models.Model):
 
     biography = models.TextField(
         null=True,
-        help_text='The member’s bio.',
+        help_text='The member’s bio.'
     )
     occupation = models.TextField(
         null=True,
-        help_text='The occupation of the member.',
+        help_text='The occupation of the member.'
     )
     photo = models.TextField(
         null=True,
-        help_text='A URL representing the member’s photo.',
+        help_text='A URL representing the member’s photo.'
     )
     quote = models.TextField(
         null=True,
-        help_text='The member’s favourite quote.',
+        help_text='The member’s favourite quote.'
     )
 
     class Meta:
@@ -5372,20 +3302,20 @@ class SponsorLink(models.Model):
 
     link = models.TextField(
         null=True,
-        help_text='The url to link to',
+        help_text='The url to link to'
     )
     name = models.TextField(
         null=True,
-        help_text='The name of the sponsor, westpac, GE, TMI etc',
+        help_text='The name of the sponsor, westpac, GE, TMI etc'
     )
     type = models.IntegerField(
-        null=True,
         choices=(
             (0, 'None'),
             (1, 'BusinessPartner'),
             (2, 'Checklist'),
         ),
-        help_text='The type of sponsor link, business partner/checklist',
+        null=True,
+        help_text='The type of sponsor link, business partner/checklist'
     )
 
     class Meta:
@@ -5431,53 +3361,53 @@ class Store(models.Model):
         help_text='The URL of a banner image. Stores extra banner images are '
                   '960×120. Store banner images are 633×75. When requesting '
                   'listing details, only stores extra listings have a banner '
-                  'image.',
+                  'image.'
     )
     large_banner_image = models.ForeignKey(
         'LargeBannerImage',
-        on_delete=models.CASCADE,
-        null=True,
-        related_name='store_reverse_large_banner_image',
         blank=True,
+        null=True,
+        on_delete=models.CASCADE,
+        related_name='store_reverse_large_banner_image',
         help_text='The URL’s of a large banner image for each breakpoint, '
                   'small, medium, large, extra large. When requesting listing'
                   ' details, only stores extra listings have a large banner '
-                  'image.',
+                  'image.'
     )
     location = models.TextField(
         null=True,
-        help_text='The location for this store',
+        help_text='The location for this store'
     )
     logo_image_uri = models.TextField(
         null=True,
-        help_text='The URL of a small logo image (180×52).',
+        help_text='The URL of a small logo image (180×52).'
     )
     name = models.TextField(
         null=True,
-        help_text='The name of the store.',
+        help_text='The name of the store.'
     )
     phone_number = models.TextField(
         null=True,
-        help_text='The phone number for this store',
+        help_text='The phone number for this store'
     )
     promotions = models.ManyToManyField(
         'StorePromotion',
         related_name='store_reverse_promotions',
         help_text='A collection of promotional images. Only applies to stores'
-                  ' extra.',
+                  ' extra.'
     )
     short_description = models.TextField(
         null=True,
         help_text='A short description of what the store sells. Only returned'
-                  ' when browsing the stores list.',
+                  ' when browsing the stores list.'
     )
     store_path = models.TextField(
         null=True,
-        help_text='A url friendly path for the store, that is unique.',
+        help_text='A url friendly path for the store, that is unique.'
     )
     website = models.TextField(
         null=True,
-        help_text='The website for this store',
+        help_text='The website for this store'
     )
 
     class Meta:
@@ -5508,7 +3438,7 @@ class StorePromotion(models.Model):
 
     image_uri = models.TextField(
         null=True,
-        help_text='The URL of the promotional image 760×240.',
+        help_text='The URL of the promotional image 760×240.'
     )
 
     class Meta:
@@ -5549,35 +3479,35 @@ class Variant(models.Model):
         'Attribute',
         related_name='variant_reverse_attributes',
         help_text='A collection of dynamic attrbutes that relate to this '
-                  'variant specifically e.g. GTIN or MPC',
+                  'variant specifically e.g. GTIN or MPC'
     )
     is_clearance = models.NullBooleanField(
         null=True,
         help_text='This indicates that the listing is a clearance item. '
                   'Clearance listings include listings with was/now pricing '
-                  'and general clearance stock.',
+                  'and general clearance stock.'
     )
     listing_id = models.IntegerField(
         null=True,
         help_text='The identifier of the listing that this variant '
-                  'represents.',
+                  'represents.'
     )
     options = models.ManyToManyField(
         'Option',
         related_name='variant_reverse_options',
         help_text='The combination of variant options that this variant '
-                  'represents.',
+                  'represents.'
     )
     photos = models.ManyToManyField(
         'Photo',
         related_name='variant_reverse_photos',
         help_text='A collection of photo URLs for the listing. Ignored when '
-                  'creating or editing a listing.',
+                  'creating or editing a listing.'
     )
     price = models.FloatField(
         null=True,
         help_text='The Buy Now price of the variant. Must be a minimum of '
-                  '50c.',
+                  '50c.'
     )
     quantity = models.IntegerField(
         null=True,
@@ -5586,16 +3516,16 @@ class Variant(models.Model):
                   'value must be less than or equal to 1000 – (quantity '
                   'sold). The quantity sold for a listing can be calculated '
                   'by adding up all the QuantitySold values from the listing '
-                  'details response.',
+                  'details response.'
     )
     sku = models.TextField(
         null=True,
         help_text='SKU or Stock Keeping Unit. Used to uniquely identify an '
-                  'auction’s product line. Maximum of 50 characters.',
+                  'auction’s product line. Maximum of 50 characters.'
     )
     was_price = models.FloatField(
         null=True,
-        help_text='The Was price of the variant. Must be a minimum of 50c.',
+        help_text='The Was price of the variant. Must be a minimum of 50c.'
     )
 
     class Meta:
@@ -5626,12 +3556,12 @@ class VariantDefinition(models.Model):
     option_sets = models.ManyToManyField(
         'OptionSet',
         related_name='variant_definition_reverse_option_sets',
-        help_text='A collection of variant options.',
+        help_text='A collection of variant options.'
     )
     variants = models.ManyToManyField(
         'Variant',
         related_name='variant_definition_reverse_variants',
-        help_text='A collection of variants.',
+        help_text='A collection of variants.'
     )
 
     class Meta:
@@ -5639,94 +3569,49 @@ class VariantDefinition(models.Model):
         pass
 
 
-class VariantDefinitionSummary(models.Model):
-
-    swagger_types = types.MappingProxyType({
-        'all_discounted': 'bool',
-        'all_on_clearance': 'bool',
-        'discount_percent': 'int',
-        'discount_percent_high': 'int',
-        'discount_percent_low': 'int',
-        'has_discount_percent_range': 'bool',
-        'has_price_range': 'bool',
-        'price': 'float',
-        'price_high': 'float',
-        'price_low': 'float',
-    })
-    attribute_map = multidict.MultiDictProxy(multidict.MultiDict([
-        ('all_discounted', 'AllDiscounted'),
-        ('all_on_clearance', 'AllOnClearance'),
-        ('discount_percent', 'DiscountPercent'),
-        ('discount_percent_high', 'DiscountPercentHigh'),
-        ('discount_percent_low', 'DiscountPercentLow'),
-        ('has_discount_percent_range', 'HasDiscountPercentRange'),
-        ('has_price_range', 'HasPriceRange'),
-        ('price', 'Price'),
-        ('price_high', 'PriceHigh'),
-        ('price_low', 'PriceLow'),
-    ]))
-
-    all_discounted = models.NullBooleanField(
-        null=True,
-        help_text='Whether or not the variants are all discounted.',
-    )
-    all_on_clearance = models.NullBooleanField(
-        null=True,
-        help_text='Whether or not the variants are all on clearance.',
-    )
-    discount_percent = models.IntegerField(
-        null=True,
-        help_text='The discount percentage of all the variants, if they are '
-                  'all the same.',
-    )
-    discount_percent_high = models.IntegerField(
-        null=True,
-        help_text='The highest discount percentage of all the variants, if '
-                  'there is a discount percentage range.',
-    )
-    discount_percent_low = models.IntegerField(
-        null=True,
-        help_text='The lowest discount percentage of all the variants, if '
-                  'there is a discount percentage range.',
-    )
-    has_discount_percent_range = models.NullBooleanField(
-        null=True,
-        help_text='Whether or not the variants have a single discount '
-                  'percentage or a discount percentage range.',
-    )
-    has_price_range = models.NullBooleanField(
-        null=True,
-        help_text='Whether or not the variants have a single price or a price'
-                  ' range.',
-    )
-    price = models.FloatField(
-        null=True,
-        help_text='The price of all the variants, if they are all the same.',
-    )
-    price_high = models.FloatField(
-        null=True,
-        help_text='The highest price of all the variants, if there is a price'
-                  ' range.',
-    )
-    price_low = models.FloatField(
-        null=True,
-        help_text='The lowest price of all the variants, if there is a price '
-                  'range.',
-    )
-
-    class Meta:
-
-        unique_together = (
-            (
-                'all_discounted',
-                'all_on_clearance',
-                'discount_percent',
-                'discount_percent_high',
-                'discount_percent_low',
-                'has_discount_percent_range',
-                'has_price_range',
-                'price',
-                'price_high',
-                'price_low',
-            ),
-        )
+__all__ = (
+    'Address',
+    'Agency',
+    'Agent',
+    'Attribute',
+    'AttributeOption',
+    'AttributeRange',
+    'Bid',
+    'BidCollection',
+    'Branding',
+    'BroadbandTechnology',
+    'Charity',
+    'ContactDetails',
+    'CurrentShippingPromotion',
+    'Dealer',
+    'DealerShowroom',
+    'DealershipPhoneNumbers',
+    'Dealership',
+    'DealershipListingCounts',
+    'EmbeddedContent',
+    'FixedPriceOfferDetails',
+    'FixedPriceOfferRecipient',
+    'GeographicLocation',
+    'LargeBannerImage',
+    'ListedItemDetail',
+    'Member',
+    'MemberRequestInformation',
+    'MotorWebBasicReport',
+    'OpenHome',
+    'Option',
+    'OptionSetValues',
+    'OptionSet',
+    'Photo',
+    'PhotoUrl',
+    'Question',
+    'Questions',
+    'RefundDetails',
+    'Sale',
+    'ShippingOption',
+    'SimpleMemberProfile',
+    'SponsorLink',
+    'Store',
+    'StorePromotion',
+    'Variant',
+    'VariantDefinition',
+)

@@ -107,7 +107,6 @@ class DefinitionContainer():
             self.reverse[rev_lookup].append(prefered_name)
             self.definitions[prefered_name] = definition
             return prefered_name
-        print("could not create definition with prefered name {!r}. Clashes with {!r}".format(prefered_name, rev_names))
         attempts = 0
         while attempts < 10:
             new_name = prefered_name + str(attempts)
@@ -128,7 +127,6 @@ def iter_heading_contents(children):
     last_table = None
     last_paragraphs = []
     expanded_children = []
-    is_private = False
     for child in children:
         if child.name == 'div':
             div_children = child.contents
@@ -143,11 +141,11 @@ def iter_heading_contents(children):
                 yield last_heading, last_table, last_paragraphs
             last_heading = child
             last_paragraphs = []
-            is_private = False
-        elif is_private or '[/tm_private]' in text(child):
-            is_private = True
+            last_table = None
         elif not child.name:
             last_paragraphs.append(child)
+        elif child.name == 'tr' and last_table:
+            last_table.append(child)
         elif child.name == 'table':
             last_table = child
         elif child.find('table'):
@@ -240,6 +238,8 @@ def text(*elms, one_line=True, strip=True, sep=' '):
             child_elms = elm.children
         for e in child_elms:
             if isinstance(e, bs4.NavigableString):
+                if isinstance(e, bs4.Comment):
+                    continue
                 txt = str(e)
                 txt = re.sub(r'[ \n\t]+', ' ', txt)
                 text_elms.append(txt)
@@ -268,16 +268,35 @@ async def generate_swagger_from_docs(session, url, definitions):
         'Example XML Response (switch to JSON)',
         'Example JSON Response (switch to XML)',
     }
-    soup = None
-    while soup is None:
+    txt = None
+    while txt is None:
         try:
             async with session.get(url) as o:
-                soup = BeautifulSoup(await o.text(), 'lxml')
+                txt = await o.text()
         except aiohttp.ServerDisconnectedError:
-            soup = None
+            txt = None
             print('Server disconnect for', url)
             continue
-    u = url.replace('https://developer.trademe.co.nz/api-reference/api-index/', '').replace('/', '-')
+
+    txt = re.sub(r"""</table>
+</td>
+</tr>
+<p>\[/tm_private\]\s*</.*>(\n\s*</table>)?""", '<!-- [/tm_private] -->', txt)
+    soup = BeautifulSoup(txt, 'html.parser')
+    for selector in ['.site-tools', '.primary-tools', '.crumbs', '.sprite', '.site-footer', '.hide', '.site-header', '.xml-message', '.json-message', '#requestBuilderForm', '#responseBody']:
+        for tag in soup.select(selector):
+            tag.decompose()
+    for tag_name in ['script', 'link', 'meta', 'style', 'pre']:
+        for tag in soup.find_all(tag_name):
+            tag.decompose()
+    txt = soup.prettify()
+    txt = re.sub(r"""   </div>
+  </div>
+ </div>
+</div>""", '', txt)
+    txt = re.sub(r'</(body|html)>', '', txt)
+    soup = BeautifulSoup(txt, 'html.parser')
+    # u = url.replace('https://developer.trademe.co.nz/api-reference/', '').replace('api-index/', '').replace('/', '-')
     content = soup.select('div.generated-content', limit=1)[0]
     content_iter = iter(iter_heading_contents(content.children))
     path = {
@@ -355,8 +374,7 @@ def convert_supported_formats_to_mime(supported_formats):
         elif fmt.upper() in format_mapping:
             mime_types.append(format_mapping[fmt.upper()])
         else:
-            print('Unsupported format', fmt)
-            raise Exception('Fmt')
+            raise ValueError('Unsupported format' + fmt)
     return mime_types
 
 
@@ -458,8 +476,6 @@ def iter_parse_nested_table(table):
             description = text(next_td)
             yield ('kv', key, value, description)
         else:
-            print('ROW:', row.prettify())
-            print('TD', td.prettify())
             raise Exception()
 
 
@@ -482,7 +498,6 @@ def iter_parse_enum_table(table):
             description = text(tds[2])
             ev = value
         else:
-            print(row)
             continue
         if ev not in enum_values:
             enum_values.add(ev)
@@ -498,7 +513,6 @@ async def iter_api_index(session):
         if '(deprecated)' in text(item):
             continue
         link = item.find('a')
-        print(link, link and 'href' in link.attrs)
         if link and 'href' in link.attrs:
             href = urljoin(url, link.attrs['href'])
             if '/api-reference/' in href:
@@ -516,7 +530,6 @@ async def iter_api_methods_page(session, url):
         if '(deprecated)' in text(item):
             continue
         link = item.find('a')
-        print(link, link and 'href' in link.attrs)
         if link and 'href' in link.attrs:
             href = urljoin(url, link.attrs['href'])
             if '/api-reference/' in href:
@@ -524,29 +537,88 @@ async def iter_api_methods_page(session, url):
     return x
 
 
+async def download_swagger_for_urls(session, urls, definitions=None):
+    if not definitions:
+        definitions = DefinitionContainer()
+    paths = {}
+    urls = sorted(set(urls))
+    async with SizeBoundedTaskList(5) as tl:
+        for url in urls:
+            await tl.add_task(generate_swagger_from_docs(
+                session,
+                url,
+                definitions
+            ))
+        for doc_task in tl.as_completed():
+            gen_path = await doc_task
+            # TODO: union paths taking into account the http method and url.
+            paths = safe_add(paths, gen_path)
+    return paths, definitions.definitions
+
+
 async def main():
     paths = {}
-    definitions = DefinitionContainer()
     async with aioutils.aiohttp.CachingClientSession(
         cache_strategy=aioutils.aiohttp.OnDiskCachingStrategy(
             cache_folder='./.cache')
     ) as session:
-        urls = await iter_api_index(session)
-        # Set your own definition pages here.
-
-        urls = sorted(set(urls))
-        async with SizeBoundedTaskList(1) as tl:
-            for url in urls:
-                print(url)
-                await generate_swagger_from_docs(
-                    session,
-                    url,
-                    definitions
-                )
-            for doc_task in tl.as_completed():
-                gen_path = await doc_task
-                # TODO: union paths taking into account the http method and url.
-                paths = safe_add(paths, gen_path)
+        # urls = await iter_api_index(session)
+        # paths, defs = await download_swagger_for_urls(session, [
+        #     'https://developer.trademe.co.nz/api-reference/listing-methods/retrieve-the-details-of-a-single-listing/'
+        # ])
+        paths, defs = await download_swagger_for_urls(session, [
+            'https://developer.trademe.co.nz/api-reference/search-methods/rental-search/',
+            'https://developer.trademe.co.nz/api-reference/search-methods/flatmate-search/'
+        ])
+        # _, extra_defs = await download_swagger_for_urls(session, ['https://developer.trademe.co.nz/api-reference/selling-methods/edit-an-item/'])
+        for existing in (
+            'Address',
+            'Agency',
+            'Agent',
+            'Attribute',
+            'AttributeOption',
+            'AttributeRange',
+            'Bid',
+            'BidCollection',
+            'Branding',
+            'BroadbandTechnology',
+            'Charity',
+            'ContactDetails',
+            'CurrentShippingPromotion',
+            'Dealer',
+            'DealerShowroom',
+            'DealershipPhoneNumbers',
+            'Dealership',
+            'DealershipListingCounts',
+            'EmbeddedContent',
+            'FixedPriceOfferDetails',
+            'FixedPriceOfferRecipient',
+            'GeographicLocation',
+            'LargeBannerImage',
+            'ListedItemDetail',
+            'Member',
+            'MemberRequestInformation',
+            'MotorWebBasicReport',
+            'OpenHome',
+            'Option',
+            'OptionSetValues',
+            'OptionSet',
+            'Photo',
+            'PhotoUrl',
+            'Question',
+            'Questions',
+            'RefundDetails',
+            'Sale',
+            'ShippingOption',
+            'SimpleMemberProfile',
+            'SponsorLink',
+            'Store',
+            'StorePromotion',
+            'Variant',
+            'VariantDefinition',
+        ):
+            defs.pop(existing, None)
+        print(list(defs))
 
     swagger = {
         'swagger': '2.0',
@@ -558,7 +630,7 @@ async def main():
         'host': 'api.trademe.co.nz',
         'basePath': '/v1/',
         'paths': paths,
-        'definitions': definitions.definitions,
+        'definitions': defs,
     }
 
     with open('swagger.json', 'w') as f:
@@ -571,7 +643,7 @@ async def main():
                 name = line[pos:-3]
                 names.add(name)
         for name in sorted(names):
-            if name not in definitions.definitions:
+            if name not in defs:
                 print(name)
 
 

@@ -1,12 +1,12 @@
 import types
 import multidict
 {% for import_line in imports %}{{ import_line }}
-{% endfor %}{% for model in models %}
+{% endfor %}{% for model in models|sort(attribute='classname') %}
 
 class {{model.classname}}({{model.baseclass}}):
 {% for key, value in model.extra_model_attrs.items() %}
     {{key}} = {{value}}{% endfor %}
-    swagger_types = types.MappingProxyType({{'{'}}{% for field in model.fields %}
+    swagger_types = types.MappingProxyType({{'{'}}{% for field in model.fields|sort(attribute='attribute') %}
         '{{field.attribute}}': '{{field.swagger_type}}',{% endfor %}
     })
     attribute_map = multidict.MultiDictProxy(multidict.MultiDict([{% for attr, key in model.attr_map %}
@@ -15,17 +15,22 @@ class {{model.classname}}({{model.baseclass}}):
 {% for field in model.fields %}
     {{field.attribute}} = {{field.django_type}}({% if field.args or field.kwargs %}
     {%- for arg in field.args %}
-        {{arg}},{% endfor %}{% for key, value in field.kwargs.items() %}
-        {{key}}={{value}},{% endfor %}
+        {{arg}},{% endfor %}{% for key, value in field.kwargs.items()|sort %}{% if key != 'help_text' %}
+        {{key}}={{value}},{% endif %}{% endfor %}{% if 'help_text' in field.kwargs %}
+        help_text={{field.kwargs['help_text']}}{% endif %}
     {% endif %}){% endfor %}
 
     class Meta:
 {% if model.uniqueness %}
         unique_together = ({% for uniqueness in model.uniqueness %}
-            ({% for field in uniqueness %}
+            ({% for field in uniqueness|sort %}
                 '{{field}}',{% endfor %}
             ),{% endfor %}
         )
 {% else %}
         pass
 {% endif %}{% endfor %}
+
+__all__ = ({% for model in models %}
+    '{{model.classname}}',{% endfor %}
+)
