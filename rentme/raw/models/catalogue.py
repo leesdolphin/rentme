@@ -5,9 +5,10 @@ import multidict
 from trademe.models.enums import AreaOfBusiness
 
 from rentme.data.models._utils import EnumIntegerField
+from .base import RawModel
 
 
-class Category(models.Model):
+class Category(RawModel):
 
     swagger_types = types.MappingProxyType({
         'area_of_business': 'int',
@@ -100,7 +101,7 @@ class Category(models.Model):
         ordering = ['number']
 
 
-class Locality(models.Model):
+class Locality(RawModel):
 
     swagger_types = types.MappingProxyType({
         'districts': 'list[District]',
@@ -131,7 +132,7 @@ class Locality(models.Model):
         ordering = ['name']
 
 
-class District(models.Model):
+class District(RawModel):
 
     swagger_types = types.MappingProxyType({
         'district_id': 'int',
@@ -162,7 +163,7 @@ class District(models.Model):
         ordering = ['name']
 
 
-class SuburbAdjacentSuburbs(models.Model):
+class SuburbAdjacentSuburbs(RawModel):
 
     expect_single_value = 'value'
     swagger_types = types.MappingProxyType({
@@ -185,7 +186,7 @@ class SuburbAdjacentSuburbs(models.Model):
         )
 
 
-class Suburb(models.Model):
+class Suburb(RawModel):
 
     swagger_types = types.MappingProxyType({
         'adjacent_suburbs': 'list[SuburbAdjacentSuburbs]',
@@ -218,7 +219,7 @@ class Suburb(models.Model):
         ordering = ['name']
 
 
-class MembershipLocality(models.Model):
+class MembershipLocality(RawModel):
 
     swagger_types = types.MappingProxyType({
         'districts': 'list[MembershipDistrict]',
@@ -249,7 +250,7 @@ class MembershipLocality(models.Model):
         ordering = ['name']
 
 
-class MembershipDistrict(models.Model):
+class MembershipDistrict(RawModel):
 
     swagger_types = types.MappingProxyType({
         'district_id': 'int',

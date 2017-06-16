@@ -49,7 +49,7 @@ class EnumIntegerField(models.IntegerField):
 
     def deconstruct(self):
         name, path, args, kwargs = super().deconstruct()
-        del kwargs["choices"]
+        del kwargs['choices']
         kwargs['enum'] = self.enum_class
         return name, path, args, kwargs
 

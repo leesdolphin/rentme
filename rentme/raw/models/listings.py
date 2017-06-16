@@ -3,8 +3,10 @@ import types
 from django.db import models
 import multidict
 
+from .base import RawModel
 
-class Address(models.Model):
+
+class Address(RawModel):
 
     swagger_types = types.MappingProxyType({
         'address1': 'str',
@@ -78,7 +80,7 @@ class Address(models.Model):
         )
 
 
-class Agency(models.Model):
+class Agency(RawModel):
 
     swagger_types = types.MappingProxyType({
         'address': 'str',
@@ -198,7 +200,7 @@ class Agency(models.Model):
         )
 
 
-class Agent(models.Model):
+class Agent(RawModel):
 
     swagger_types = types.MappingProxyType({
         'e_mail': 'str',
@@ -278,7 +280,7 @@ class Agent(models.Model):
         )
 
 
-class Attribute(models.Model):
+class Attribute(RawModel):
 
     swagger_types = types.MappingProxyType({
         'display_name': 'str',
@@ -373,7 +375,7 @@ class Attribute(models.Model):
         )
 
 
-class AttributeOption(models.Model):
+class AttributeOption(RawModel):
 
     swagger_types = types.MappingProxyType({
         'count': 'int',
@@ -410,7 +412,7 @@ class AttributeOption(models.Model):
         )
 
 
-class AttributeRange(models.Model):
+class AttributeRange(RawModel):
 
     swagger_types = types.MappingProxyType({
         'lower': 'str',
@@ -440,7 +442,7 @@ class AttributeRange(models.Model):
         )
 
 
-class Bid(models.Model):
+class Bid(RawModel):
 
     swagger_types = types.MappingProxyType({
         'account': 'str',
@@ -509,7 +511,7 @@ class Bid(models.Model):
         )
 
 
-class BidCollection(models.Model):
+class BidCollection(RawModel):
 
     swagger_types = types.MappingProxyType({
         'list': 'list[Bid]',
@@ -554,7 +556,7 @@ class BidCollection(models.Model):
         )
 
 
-class Branding(models.Model):
+class Branding(RawModel):
 
     swagger_types = types.MappingProxyType({
         'background_color': 'str',
@@ -631,7 +633,7 @@ class Branding(models.Model):
         )
 
 
-class BroadbandTechnology(models.Model):
+class BroadbandTechnology(RawModel):
 
     swagger_types = types.MappingProxyType({
         'availability': 'str',
@@ -697,7 +699,7 @@ class BroadbandTechnology(models.Model):
         )
 
 
-class Charity(models.Model):
+class Charity(RawModel):
 
     swagger_types = types.MappingProxyType({
         'charity_type': 'int',
@@ -745,7 +747,7 @@ class Charity(models.Model):
         )
 
 
-class ContactDetails(models.Model):
+class ContactDetails(RawModel):
 
     swagger_types = types.MappingProxyType({
         'best_contact_time': 'str',
@@ -796,7 +798,7 @@ class ContactDetails(models.Model):
         )
 
 
-class CurrentShippingPromotion(models.Model):
+class CurrentShippingPromotion(RawModel):
 
     swagger_types = types.MappingProxyType({
         'threshold': 'int',
@@ -831,7 +833,7 @@ class CurrentShippingPromotion(models.Model):
         )
 
 
-class Dealer(models.Model):
+class Dealer(RawModel):
 
     swagger_types = types.MappingProxyType({
         'e_mail': 'str',
@@ -896,7 +898,7 @@ class Dealer(models.Model):
         )
 
 
-class Dealership(models.Model):
+class Dealership(RawModel):
 
     swagger_types = types.MappingProxyType({
         'about_us': 'str',
@@ -1031,7 +1033,7 @@ class Dealership(models.Model):
         )
 
 
-class DealershipListingCounts(models.Model):
+class DealershipListingCounts(RawModel):
 
     swagger_types = types.MappingProxyType({
         'bikes': 'int',
@@ -1075,7 +1077,7 @@ class DealershipListingCounts(models.Model):
         )
 
 
-class DealershipPhoneNumbers(models.Model):
+class DealershipPhoneNumbers(RawModel):
 
     expect_single_value = 'value'
     swagger_types = types.MappingProxyType({
@@ -1098,7 +1100,7 @@ class DealershipPhoneNumbers(models.Model):
         )
 
 
-class DealerShowroom(models.Model):
+class DealerShowroom(RawModel):
 
     swagger_types = types.MappingProxyType({
         'background_colour': 'str',
@@ -1145,7 +1147,7 @@ class DealerShowroom(models.Model):
         )
 
 
-class EmbeddedContent(models.Model):
+class EmbeddedContent(RawModel):
 
     swagger_types = types.MappingProxyType({
         'matterport_key': 'str',
@@ -1176,7 +1178,7 @@ class EmbeddedContent(models.Model):
         )
 
 
-class FixedPriceOfferDetails(models.Model):
+class FixedPriceOfferDetails(RawModel):
 
     swagger_types = types.MappingProxyType({
         'offer_expiry_date': 'datetime',
@@ -1225,7 +1227,7 @@ class FixedPriceOfferDetails(models.Model):
         )
 
 
-class FixedPriceOfferRecipient(models.Model):
+class FixedPriceOfferRecipient(RawModel):
 
     swagger_types = types.MappingProxyType({
         'decision': 'int',
@@ -1264,7 +1266,7 @@ class FixedPriceOfferRecipient(models.Model):
         )
 
 
-class GeographicLocation(models.Model):
+class GeographicLocation(RawModel):
 
     swagger_types = types.MappingProxyType({
         'accuracy': 'int',
@@ -1322,7 +1324,7 @@ class GeographicLocation(models.Model):
         )
 
 
-class LargeBannerImage(models.Model):
+class LargeBannerImage(RawModel):
 
     swagger_types = types.MappingProxyType({
         'large': 'str',
@@ -1367,7 +1369,7 @@ class LargeBannerImage(models.Model):
         )
 
 
-class ListedItemDetail(models.Model):
+class ListedItemDetail(RawModel):
 
     swagger_types = types.MappingProxyType({
         'agency': 'Agency',
@@ -2268,7 +2270,7 @@ class ListedItemDetail(models.Model):
         )
 
 
-class Member(models.Model):
+class Member(RawModel):
 
     swagger_types = types.MappingProxyType({
         'date_address_verified': 'datetime',
@@ -2394,7 +2396,7 @@ class Member(models.Model):
         )
 
 
-class MemberRequestInformation(models.Model):
+class MemberRequestInformation(RawModel):
 
     swagger_types = types.MappingProxyType({
         'request_offer_status': 'int',
@@ -2444,7 +2446,7 @@ class MemberRequestInformation(models.Model):
         )
 
 
-class MotorWebBasicReport(models.Model):
+class MotorWebBasicReport(RawModel):
 
     swagger_types = types.MappingProxyType({
         'damaged': 'str',
@@ -2523,7 +2525,7 @@ class MotorWebBasicReport(models.Model):
         )
 
 
-class OpenHome(models.Model):
+class OpenHome(RawModel):
 
     swagger_types = types.MappingProxyType({
         'end': 'datetime',
@@ -2557,7 +2559,7 @@ class OpenHome(models.Model):
         )
 
 
-class Option(models.Model):
+class Option(RawModel):
 
     swagger_types = types.MappingProxyType({
         'name': 'str',
@@ -2591,7 +2593,7 @@ class Option(models.Model):
         )
 
 
-class OptionSet(models.Model):
+class OptionSet(RawModel):
 
     swagger_types = types.MappingProxyType({
         'name': 'str',
@@ -2625,7 +2627,7 @@ class OptionSet(models.Model):
         )
 
 
-class OptionSetValues(models.Model):
+class OptionSetValues(RawModel):
 
     expect_single_value = 'value'
     swagger_types = types.MappingProxyType({
@@ -2648,7 +2650,7 @@ class OptionSetValues(models.Model):
         )
 
 
-class Photo(models.Model):
+class Photo(RawModel):
 
     swagger_types = types.MappingProxyType({
         'photo_id': 'int',
@@ -2682,7 +2684,7 @@ class Photo(models.Model):
         )
 
 
-class PhotoUrl(models.Model):
+class PhotoUrl(RawModel):
 
     swagger_types = types.MappingProxyType({
         'full_size': 'str',
@@ -2765,7 +2767,7 @@ class PhotoUrl(models.Model):
         )
 
 
-class Question(models.Model):
+class Question(RawModel):
 
     swagger_types = types.MappingProxyType({
         'answer': 'str',
@@ -2843,7 +2845,7 @@ class Question(models.Model):
         )
 
 
-class Questions(models.Model):
+class Questions(RawModel):
 
     swagger_types = types.MappingProxyType({
         'list': 'list[Question]',
@@ -2888,7 +2890,7 @@ class Questions(models.Model):
         )
 
 
-class RefundDetails(models.Model):
+class RefundDetails(RawModel):
 
     swagger_types = types.MappingProxyType({
         'amount': 'float',
@@ -2918,7 +2920,7 @@ class RefundDetails(models.Model):
         )
 
 
-class Sale(models.Model):
+class Sale(RawModel):
 
     swagger_types = types.MappingProxyType({
         'buyer': 'Member',
@@ -3187,7 +3189,7 @@ class Sale(models.Model):
         )
 
 
-class ShippingOption(models.Model):
+class ShippingOption(RawModel):
 
     swagger_types = types.MappingProxyType({
         'method': 'str',
@@ -3243,7 +3245,7 @@ class ShippingOption(models.Model):
         )
 
 
-class SimpleMemberProfile(models.Model):
+class SimpleMemberProfile(RawModel):
 
     swagger_types = types.MappingProxyType({
         'biography': 'str',
@@ -3287,7 +3289,7 @@ class SimpleMemberProfile(models.Model):
         )
 
 
-class SponsorLink(models.Model):
+class SponsorLink(RawModel):
 
     swagger_types = types.MappingProxyType({
         'link': 'str',
@@ -3329,7 +3331,7 @@ class SponsorLink(models.Model):
         )
 
 
-class Store(models.Model):
+class Store(RawModel):
 
     swagger_types = types.MappingProxyType({
         'banner_image_uri': 'str',
@@ -3427,7 +3429,7 @@ class Store(models.Model):
         )
 
 
-class StorePromotion(models.Model):
+class StorePromotion(RawModel):
 
     swagger_types = types.MappingProxyType({
         'image_uri': 'str',
@@ -3450,7 +3452,7 @@ class StorePromotion(models.Model):
         )
 
 
-class Variant(models.Model):
+class Variant(RawModel):
 
     swagger_types = types.MappingProxyType({
         'attributes': 'list[Attribute]',
@@ -3542,7 +3544,7 @@ class Variant(models.Model):
         )
 
 
-class VariantDefinition(models.Model):
+class VariantDefinition(RawModel):
 
     swagger_types = types.MappingProxyType({
         'option_sets': 'list[OptionSet]',
@@ -3562,6 +3564,46 @@ class VariantDefinition(models.Model):
         'Variant',
         related_name='variant_definition_reverse_variants',
         help_text='A collection of variants.'
+    )
+
+    class Meta:
+
+        pass
+
+
+class ViewingTime(RawModel):
+
+    swagger_types = types.MappingProxyType({
+        'viewing_id': 'int',
+        'viewing_time': 'datetime',
+    })
+    attribute_map = multidict.MultiDictProxy(multidict.MultiDict([
+        ('viewing_id', 'ViewingId'),
+        ('viewing_time', 'ViewingTime'),
+    ]))
+
+    viewing_id = models.IntegerField()
+    viewing_time = models.DateTimeField()
+
+    class Meta:
+
+        unique_together = (
+            'viewing_id',
+            'viewing_time',
+        )
+
+
+class ViewingTimes(RawModel):
+
+    swagger_types = types.MappingProxyType({
+        'avaliable_viewing_times': 'list[ViewingTime]',
+    })
+    attribute_map = multidict.MultiDictProxy(multidict.MultiDict([
+        ('avaliable_viewing_times', 'AvailableViewingTimes'),
+    ]))
+
+    avaliable_viewing_times = models.ManyToManyField(
+        'ViewingTime',
     )
 
     class Meta:
@@ -3614,4 +3656,6 @@ __all__ = (
     'StorePromotion',
     'Variant',
     'VariantDefinition',
+    'ViewingTime',
+    'ViewingTimes'
 )

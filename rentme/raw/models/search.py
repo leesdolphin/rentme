@@ -3,8 +3,10 @@ import types
 from django.db import models
 import multidict
 
+from .base import RawModel
 
-class Flatmate(models.Model):
+
+class Flatmate(RawModel):
 
     swagger_types = types.MappingProxyType({
         'address': 'str',
@@ -581,7 +583,7 @@ class Flatmate(models.Model):
         )
 
 
-class FlatmateAdjacentSuburbIds(models.Model):
+class FlatmateAdjacentSuburbIds(RawModel):
 
     expect_single_value = 'value'
     swagger_types = types.MappingProxyType({
@@ -604,7 +606,7 @@ class FlatmateAdjacentSuburbIds(models.Model):
         )
 
 
-class FlatmateAdjacentSuburbNames(models.Model):
+class FlatmateAdjacentSuburbNames(RawModel):
 
     expect_single_value = 'value'
     swagger_types = types.MappingProxyType({
@@ -627,7 +629,7 @@ class FlatmateAdjacentSuburbNames(models.Model):
         )
 
 
-class FlatmatePhotoUrls(models.Model):
+class FlatmatePhotoUrls(RawModel):
 
     expect_single_value = 'value'
     swagger_types = types.MappingProxyType({
@@ -650,7 +652,7 @@ class FlatmatePhotoUrls(models.Model):
         )
 
 
-class Flatmates(models.Model):
+class Flatmates(RawModel):
 
     swagger_types = types.MappingProxyType({
         'did_you_mean': 'str',
@@ -776,7 +778,7 @@ class Flatmates(models.Model):
         )
 
 
-class FoundCategory(models.Model):
+class FoundCategory(RawModel):
 
     swagger_types = types.MappingProxyType({
         'category': 'str',
@@ -829,7 +831,7 @@ class FoundCategory(models.Model):
         )
 
 
-class MemberProfile(models.Model):
+class MemberProfile(RawModel):
 
     swagger_types = types.MappingProxyType({
         'biography': 'str',
@@ -927,7 +929,7 @@ class MemberProfile(models.Model):
         )
 
 
-class Properties(models.Model):
+class Properties(RawModel):
 
     swagger_types = types.MappingProxyType({
         'did_you_mean': 'str',
@@ -1053,7 +1055,7 @@ class Properties(models.Model):
         )
 
 
-class Property(models.Model):
+class Property(RawModel):
 
     swagger_types = types.MappingProxyType({
         'address': 'str',
@@ -1618,7 +1620,7 @@ class Property(models.Model):
         )
 
 
-class PropertyAdjacentSuburbIds(models.Model):
+class PropertyAdjacentSuburbIds(RawModel):
 
     expect_single_value = 'value'
     swagger_types = types.MappingProxyType({
@@ -1641,7 +1643,7 @@ class PropertyAdjacentSuburbIds(models.Model):
         )
 
 
-class PropertyAdjacentSuburbNames(models.Model):
+class PropertyAdjacentSuburbNames(RawModel):
 
     expect_single_value = 'value'
     swagger_types = types.MappingProxyType({
@@ -1664,7 +1666,7 @@ class PropertyAdjacentSuburbNames(models.Model):
         )
 
 
-class PropertyPhotoUrls(models.Model):
+class PropertyPhotoUrls(RawModel):
 
     expect_single_value = 'value'
     swagger_types = types.MappingProxyType({
@@ -1687,7 +1689,7 @@ class PropertyPhotoUrls(models.Model):
         )
 
 
-class SearchParameter(models.Model):
+class SearchParameter(RawModel):
 
     swagger_types = types.MappingProxyType({
         'allows_multiple_values': 'bool',
@@ -1810,7 +1812,7 @@ class SearchParameter(models.Model):
         )
 
 
-class VariantDefinitionSummary(models.Model):
+class VariantDefinitionSummary(RawModel):
 
     swagger_types = types.MappingProxyType({
         'all_discounted': 'bool',

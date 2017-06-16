@@ -43,9 +43,13 @@ async def main():
     from trademe2.api.catalouge import CategoriesEndpoint, LocalitiesEndpoint
     from trademe2.api.catalouge import MembershipLocalitiesEndpoint
 
-
     async with get_trademe_session() as session:
         deserializer = create_deserialiser()
+
+        with session.get('v1/property/viewingtracker/' +
+                         str(listing_id) + '/availableviewingtimes') as g:
+            print(await g.text())
+
 
         async def call_ep(endpoint, *args, **kwargs):
             built_endpoint = endpoint(session, deserializer)

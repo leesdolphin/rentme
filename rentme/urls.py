@@ -18,10 +18,11 @@ from django.conf.urls import include, url
 from django.conf.urls.static import static
 from django.contrib import admin
 
-urlpatterns = [
-    url(r'^rentme/', include('rentme.data.urls')),
+urlpatterns = static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) + [
+    url(r'^api/', include('rentme.api.urls')),
     url(r'^admin/', include(admin.site.urls)),
-] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    url(r'^', include('rentme.data.urls')),
+]
 
 if settings.DEBUG:
     import debug_toolbar

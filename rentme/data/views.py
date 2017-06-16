@@ -4,19 +4,19 @@ from django.views.generic import DetailView, ListView
 from django.db.models import Count, F
 from django.views.generic.list import BaseListView
 
-from rentme.data import api, models
+from rentme.data import api
 from rentme.data.importer import catalogue
 
 
 class LocalityView(ListView):
-    model = models.catalogue.Locality
+    # model = models.catalogue.Locality
     template_name = 'rentme/locality_list.html'
     context_object_name = 'localities'
 
 
 class LocalityDrilldownView(ListView):
 
-    model = models.listing.Listing
+    # model = models.listing.Listing
     template_name = 'rentme/listings_all.html'
     context_object_name = 'listing_list'
     paginate_by = 20
@@ -33,10 +33,10 @@ class LocalityDrilldownView(ListView):
 
 
 class LocalityGraphView(BaseListView):
-    model = models.catalogue.Suburb
-    queryset = model.objects\
-        .prefetch_related('adjacent_suburbs', 'listings')\
-        .annotate(locality_name=F('district__locality__name'))
+    # model = models.catalogue.Suburb
+    # queryset = model.objects\
+    #     .prefetch_related('adjacent_suburbs', 'listings')\
+    #     .annotate(locality_name=F('district__locality__name'))
     context_object_name = 'suburbs'
 
     def render_to_response(self, context):
@@ -67,7 +67,7 @@ class LocalityGraphView(BaseListView):
 
 
 class RentalListView(ListView):
-    model = models.listing.Listing
+    # model = models.listing.Listing
     template_name = 'rentme/listing_all.html'
     context_object_name = 'listing_list'
 
@@ -75,7 +75,7 @@ class RentalListView(ListView):
 class RentalView(DetailView):
 
     template_name = 'rentme/listing_single.html'
-    model = models.listing.Listing
+    # model = models.listing.Listing
 
 
 def load_all_base_data(request):

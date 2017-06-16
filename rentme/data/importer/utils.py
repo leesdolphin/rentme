@@ -6,8 +6,10 @@ import functools
 import http.cookies
 import json
 import uuid
+import logging
 
 from aioutils import asyncio_loop
+from celery import Celery
 from celery.local import PromiseProxy
 from celery.utils.log import get_task_logger
 from django.db import connections
@@ -17,7 +19,7 @@ from trademe.cache import CachedResponse, CachingClientSession, CachingStrategy
 from trademe.cache import RateLimitingCachingClientSession
 
 from rentme.data.importer.models import CachedResponse as CachedResponseModel
-from rentme.data.models.registry import model_registry
+# from rentme.data.models.registry import model_registry
 
 logger = get_task_logger(__name__)
 
@@ -44,6 +46,8 @@ def wrap_async_fn_in_new_event_loop(fn):
     @functools.wraps(fn)
     def wrapper(*args, **kwargs):
         new_loop = asyncio.new_event_loop()
+        new_loop.set_debug(True)
+        logging.getLogger('asyncio').setLevel(logging.DEBUG)
         with ThreadPoolExecutor(max_workers=2) as executor:
             new_loop.set_default_executor(executor)
             try:
@@ -59,6 +63,7 @@ def wrap_async_fn_in_new_event_loop(fn):
                 ex = None
                 if any(map(lambda task: not task.done(),
                            asyncio.Task.all_tasks(new_loop))):
+                    logger.error('Not Done Tasks %r', [task for task in asyncio.Task.all_tasks(new_loop) if not task.done()])
                     ex = TypeError('Function did not clean up tasks.')
                 new_loop.close()
                 del new_loop
@@ -69,6 +74,7 @@ def wrap_async_fn_in_new_event_loop(fn):
 
 
 def asyncio_task(app, **kwargs):
+    assert isinstance(app, Celery)
     kwargs.setdefault('track_started', True)
 
     def wrapper(fn):
@@ -79,7 +85,7 @@ def asyncio_task(app, **kwargs):
 
 
 @asyncio_loop
-def get_trademe_session(_loop=None, rate_limit=False):
+def get_trademe_session(loop=None, rate_limit=False):
     tm_uid = 'goldilocks-' + str(uuid.uuid4())
     cookies = {'x-trademe-uniqueclientid:': tm_uid}
 
@@ -96,12 +102,12 @@ def get_trademe_session(_loop=None, rate_limit=False):
             rate_limit = 5
         return RateLimitingCachingClientSession(
             max_inflight_requests=rate_limit, rate_limit_by_domain=True,
-            cache_strategy=DatabaseCachingStrategy(), loop=_loop,
+            cache_strategy=DatabaseCachingStrategy(), loop=loop,
             cookies=cookies, headers=headers
         )
     else:
         return CachingClientSession(
-            cache_strategy=DatabaseCachingStrategy(), loop=_loop,
+            cache_strategy=DatabaseCachingStrategy(), loop=loop,
             cookies=cookies, headers=headers)
 
 
@@ -109,7 +115,10 @@ def get_trademe_api(session=None, db_models=True, _loop=None):
     if session is None:
         session = get_trademe_session(_loop=_loop)
     if db_models:
-        return RootManager(session, model_registry=model_registry)
+        return RootManager(
+            session,
+            # model_registry=model_registry
+        )
     else:
         return RootManager(session)
 
@@ -146,10 +155,10 @@ class DatabaseCachingStrategy(CachingStrategy):
         return method, self.standardise_url(url), json.dumps(sorted(kwargs.items()))
 
     @asyncio_loop
-    async def get_cached_response(self, method, url, *, _loop, **kwargs):
-        return await _loop.run_in_executor(
+    async def get_cached_response(self, method, url, *, loop, **kwargs):
+        return await loop.run_in_executor(
             None, self.get_cached_response_sync,
-            _loop, method, url, kwargs)
+            loop, method, url, kwargs)
 
     def get_cached_response_sync(self, loop, method, url, kwargs):
         method, url, kwargs = self.get_cache_key(method, url, **kwargs)
@@ -168,9 +177,9 @@ class DatabaseCachingStrategy(CachingStrategy):
             return None
 
     @asyncio_loop
-    async def do_cache_response(self, response, method, url, *, _loop, **kwargs):
+    async def do_cache_response(self, response, method, url, *, loop, **kwargs):
         response = await CachedResponse.from_response(response)
-        return await _loop.run_in_executor(
+        return await loop.run_in_executor(
             None, self.do_cache_response_sync,
             response, method, url, kwargs)
 
