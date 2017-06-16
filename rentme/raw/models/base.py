@@ -1,10 +1,13 @@
 from django.db import models
 
 
-class RawModel():
+class RawModel(models.Model):
 
     last_updated = models.DateTimeField(auto_now=True)
 
     class Meta:
 
-        pass
+        abstract = True
+
+
+print("LOADED")

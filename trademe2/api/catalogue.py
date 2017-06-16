@@ -1,4 +1,4 @@
-from trademe2.api.base import TradeMeApiEndpoint
+from trademe2.api.base import TradeMeApiEndpoint, APIManagerBase
 from trademe2.api.validation import ParameterValidator
 
 
@@ -34,3 +34,11 @@ class MembershipLocalitiesEndpoint(TradeMeApiEndpoint):
 
     def build_url(self):
         return super().build_url(['v1/TmAreas'])
+
+
+class Manager(APIManagerBase):
+
+    class Endpoints:
+        membership_localities = MembershipLocalitiesEndpoint
+        localities = LocalitiesEndpoint
+        categories = CategoriesEndpoint

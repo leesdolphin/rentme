@@ -1,20 +1,7 @@
 from trademe.models.enums import PhotoSize, PropertyType, SearchSortOrder
-from trademe2.api.base import TradeMeApiEndpoint
+from trademe2.api.base import APIManagerBase, TradeMeApiEndpoint
 from trademe2.api.validation import build_enum_validator, build_list_validator
 from trademe2.api.validation import ParameterValidator, validate_int
-
-
-class ListingEndpoint(TradeMeApiEndpoint):
-
-    BASE_URL = 'https://touch.trademe.co.nz/api/'
-    SWAGGER_TYPE = 'ListedItemDetail'
-
-    def build_url(self, listing_id):
-        return super().build_url(['v1/Listings', str(listing_id)],
-                                 params=dict(
-                                     return_member_profile=True,
-                                     increment_view_count=False,
-        ))
 
 
 class RentalSearchEndpoint(TradeMeApiEndpoint):
@@ -46,3 +33,9 @@ class RentalSearchEndpoint(TradeMeApiEndpoint):
         kwargs.setdefault('rows', 25)
         return super().build_url(['v1/Search/Property/Rental'],
                                  params=kwargs)
+
+
+class Manager(APIManagerBase):
+
+    class Endpoints:
+        rental_search = RentalSearchEndpoint

@@ -5,8 +5,7 @@ from __future__ import unicode_literals
 from django.db import migrations, models
 import django.db.models.deletion
 import rentme.data.models._utils
-import rentme.data.models.listing
-
+import trademe.models.enums
 
 class Migration(migrations.Migration):
 
@@ -20,7 +19,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('dollars', models.IntegerField()),
-                ('period', rentme.data.models._utils.EnumIntegerField(enum=rentme.data.models.listing.PricePeriodEnum)),
+                ('period', models.IntegerField()),
             ],
         ),
         migrations.AddField(

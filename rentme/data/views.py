@@ -1,11 +1,10 @@
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import redirect
 from django.views.generic import DetailView, ListView
-from django.db.models import Count, F
 from django.views.generic.list import BaseListView
 
 from rentme.data import api
-from rentme.data.importer import catalogue
+# from rentme.data.importer import catalogue
 
 
 class LocalityView(ListView):

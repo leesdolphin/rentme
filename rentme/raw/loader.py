@@ -174,6 +174,7 @@ class Deserializer():
 
         if not instance.swagger_types:
             return data
+        print("SAVE NOT FOUND!!!", instance)
 
         if not isinstance(data, (dict, )):
             if hasattr(instance, 'expect_single_value'):
@@ -216,8 +217,6 @@ class Deserializer():
             for name, value in attrs.items():
                 setattr(instance, name, value)
             instance.save()
-
-
 
         for attr, val in m2m.items():
             getattr(instance, attr).set(val)
