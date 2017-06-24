@@ -1,8 +1,9 @@
-#!/bin/sh
+#!/bin/bash
 
-docker build --pull -f base.Dockerfile -t rentme-py-base .
+set -ex
 
-docker image pull postgres
-docker image pull rabbitmq:management
+docker build -f base.Dockerfile -t rentme-py-base .
 
-cd ..; docker-compose build
+# cd ..; docker-compose pull; docker-compose build
+
+cd ..; docker-compose build django-init; docker-compose up django-init

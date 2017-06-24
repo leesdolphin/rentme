@@ -10,9 +10,9 @@ import warnings
 from aioutils.aiohttp import RateLimitingSession
 from aioutils.task_queues import AsyncTaskTracker
 import django
-import trademe.api as a
-from trademe.cache import CachingClientSession, MigratingCachingStrategy, OnDiskCachingStrategy
-from trademe.errors import ClassifiedExpiredError
+# import trademe.api as a
+# from trademe.cache import CachingClientSession, MigratingCachingStrategy, OnDiskCachingStrategy
+# from trademe.errors import ClassifiedExpiredError
 
 
 if __name__ == '__main__':
@@ -32,34 +32,55 @@ async def main():
     # from rentme.data.models.listing import Listing, Agency
     # from rentme.data.importer.postprocessing import postprocess_listing, process_listing_price
     # from rentme.data.importer.utils import DatabaseCachingStrategy
-    from rentme.data.importer.utils import get_trademe_api, get_trademe_session
+    # from rentme.data.importer.utils import get_trademe_api, get_trademe_session
 
     warnings.simplefilter('error')
     asyncio.get_event_loop().set_debug(True)
     logging.getLogger('asyncio').setLevel(logging.DEBUG)
 
-    from rentme.raw.models import create_deserialiser
-    from trademe2.api.impl import RentalSearchEndpoint
-    from trademe2.api.catalouge import CategoriesEndpoint, LocalitiesEndpoint
-    from trademe2.api.catalouge import MembershipLocalitiesEndpoint
+    # import rentme.raw.importer.catalogue as catalogue
 
-    async with get_trademe_session() as session:
-        deserializer = create_deserialiser()
+    # import rentme.raw.importer.listing as listing
+    # import cProfile
+    # pr = cProfile.Profile()
+    # pr.enable()
+    # try:
+    #     await asyncio.gather(
+    #         listing.load_flatmate_listing_search_results(),
+    #         listing.load_rental_listing_search_results(),
+    #     )
+    # finally:
+    #     pr.create_stats()
+    #     pr.dump_stats('/code/test.profile')
+    #     # pr.print_stats()
 
-        with session.get('v1/property/viewingtracker/' +
-                         str(listing_id) + '/availableviewingtimes') as g:
-            print(await g.text())
+    from rentme.raw.models import listings, search
+    fm = dict(model_info(search.Flatmate))
+    pr = dict(model_info(search.Property))
+    lid = dict(model_info(listings.ListedItemDetail))
+
+    x = {
+        key: max(fm.get(key, 0), pr.get(key, 0), lid.get(key, 0))
+        for key in set(fm) | set(pr) | set(lid)
+    }
+    has = {k: v for k, v in x.items() if v < 100}
+
+    print('\n'.join(sorted(k for k, v in has.items() if v == 0)))
+    print()
+    print('\n'.join("%s %0.3f" % (k, has[k]) for k in sorted([k for k, v in has.items() if v > 0], key=lambda k:has[k])))
+    print()
+    print('\n'.join("%s 100" % (k) for k in sorted(set(x) - set(has))))
 
 
-        async def call_ep(endpoint, *args, **kwargs):
-            built_endpoint = endpoint(session, deserializer)
-            return await built_endpoint(*args, **kwargs)
-
-        print('CategoriesEndpoint: ', await call_ep(CategoriesEndpoint))
-        print('LocalitiesEndpoint: ', await call_ep(LocalitiesEndpoint))
-        print('MembershipLocalitiesEndpoint: ', await call_ep(MembershipLocalitiesEndpoint))
-        value = await RentalSearchEndpoint(session, deserializer)()
-        pprint(value)
+def model_info(model):
+    from django.db.models import Count
+    all_count = model.objects.count()
+    for key, t in model.swagger_types.items():
+        if not t.startswith('list['):
+            null_count = model.objects.filter(**{key: None}).count()
+        else:
+            null_count = model.objects.annotate(c=Count(key)).filter(c__gt=0).count()
+        yield key, null_count * 100 / all_count
 
 
 if __name__ == '__main__':

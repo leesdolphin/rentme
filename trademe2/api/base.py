@@ -1,11 +1,12 @@
 import asyncio
+import aiohttp
 import decimal
 import json
 import urllib.parse
 import warnings
 
 from aioutils import asyncio_loop
-from trademe.errors import raise_for_error_key
+from trademe.errors import TradeMeError, raise_for_error_key
 
 
 class TradeMeApiEndpoint:
@@ -26,7 +27,22 @@ class TradeMeApiEndpoint:
         url = self.build_url(*args, **kwargs)
         response = yield from self.http_requester.request(
             'GET', url, no_cache=not self.CACHE_RESPONSE)
-        return (yield from self.parse_response(response))
+        try:
+            return (yield from self.parse_response(response))
+        except TradeMeError as e:
+            raise e
+        except aiohttp.ClientError as e:
+            raise TradeMeError(
+                code='CLIENT_ERROR',
+                description='aiohttp raised an exception',
+                request=url
+            ) from e
+        except Exception as e:
+            raise TradeMeError(
+                code='UNKNOWN',
+                description='Exception raised during parsing',
+                request=url,
+            ) from e
 
     call = __call__
 

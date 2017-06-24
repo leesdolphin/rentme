@@ -27,7 +27,6 @@ def asyncio_loop(fn=None, *, loop_kwarg='loop', possible_loop_args=None):
 def asyncio_loop_method(fn=None, *, loop_kwarg='loop', loop_attr='loop',
                         possible_loop_args=None):
     def wrapper(fn):
-        print(fn)
         @functools.wraps(fn)
         def aiofn(self, *args, **kwargs):
             loop = getattr(self, loop_attr, None)

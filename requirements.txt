@@ -1,0 +1,12 @@
+aiodns
+aiohttp
+bitarray
+cchardet
+celery[tblib]
+coreapi
+django
+django-celery-beat
+django_celery_results
+django-debug-toolbar
+djangorestframework
+psycopg2

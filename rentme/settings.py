@@ -40,9 +40,9 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.staticfiles',
     'rentme.api',
-    'rentme.data.importer',
     'rentme.data',
     'rentme.raw',
+    'rentme.raw.importer',
     'rest_framework',
 )
 
@@ -125,6 +125,7 @@ STATICFILES_DIRS = []
 CELERY_TIMEZONE = 'UTC'
 CELERY_RESULT_BACKEND = 'django-db'
 CELERY_BROKER_URL = 'amqp://guest:guest@taskqueue:5672/'
+CELERY_TASK_ANNOTATIONS = {'*': {'rate_limit': '10/m'}}
 
 
 REST_FRAMEWORK = {

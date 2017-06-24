@@ -164,6 +164,25 @@ class CachingStrategy(object):
         raise NotImplementedError()
 
 
+class InMemoryCachingStrategy(CachingStrategy):
+
+    def __init__(self, *a, **k):
+        super().__init__(*a, **k)
+        self._cache = {}
+
+    def get_cache_key(self, method, url, **kwargs):
+        return method, self.standardise_url(url), frozenset(kwargs.items())
+
+    async def get_cached_response(self, method, url, **kwargs):
+        key = self.get_cache_key(method, url, **kwargs)
+        return self._cache.get(key, None)
+
+    async def do_cache_response(self, response, method, url, **kwargs):
+        key = self.get_cache_key(method, url, **kwargs)
+        response = await CachedResponse.from_response(response)
+        self._cache[key] = response
+
+
 class OnDiskCachingStrategy(CachingStrategy):
 
     def __init__(self, *a, cache_folder, **k):

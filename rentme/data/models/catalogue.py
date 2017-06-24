@@ -131,6 +131,8 @@ class District(models.Model):
     locality = models.ForeignKey(
         'Locality',
         related_name='districts',
+        on_delete=models.CASCADE,
+        null=True,
         help_text='The list of districts that belong to this region.',
     )
 
@@ -186,6 +188,8 @@ class Suburb(models.Model):
     district = models.ForeignKey(
         'District',
         related_name='suburbs',
+        on_delete=models.CASCADE,
+        null=True,
         help_text='The list of suburbs that belong to this district.',
     )
     adjacent_suburbs = models.ManyToManyField(
@@ -254,6 +258,8 @@ class MembershipDistrict(models.Model):
     locality = models.ForeignKey(
         'MembershipLocality',
         related_name='districts',
+        on_delete=models.CASCADE,
+        null=True,
         help_text='The list of districts that belong to this region.',
     )
 

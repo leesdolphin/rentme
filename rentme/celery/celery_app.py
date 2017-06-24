@@ -19,7 +19,6 @@ app.config_from_object('django.conf:settings', namespace='CELERY')
 app.conf.update(imports=(
     'rentme.raw.importer.catalogue',
     'rentme.raw.importer.listing',
-    'rentme.raw.importer.cleanup',
 ))
 
 # Load task modules from all registered Django app configs.

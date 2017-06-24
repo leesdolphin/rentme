@@ -3,7 +3,6 @@ from django.db import transaction
 from django.db.models import Count
 from django.utils import timezone
 
-from rentme.data.importer.celery import app
 from rentme.data.importer.models import CachedResponse
 from rentme.data.models import listing
 
@@ -38,7 +37,6 @@ def clean_related_tables():
             total_removed += count
             for model, rm_count in stats.items():
                 removal_stats[model] = removal_stats.get(model, 0) + rm_count
-        print(total_removed, removal_stats)
         if removal_stats.get('data.Listing', 0) > 0:
             raise Exception('*void screaming*')
 

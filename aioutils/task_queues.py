@@ -1,6 +1,6 @@
 import asyncio
 
-from aioutils import asyncio_loop
+from aioutils import asyncio_loop_method
 
 
 class NoOpSemaphore():
@@ -27,12 +27,14 @@ class TaskList():
     A list of tasks that were started. Their completion can be waited on.
     """
 
-    def __init__(self, *, raise_exceptions=True, squelch_cancels=True):
+    def __init__(self, *, raise_exceptions=True, squelch_cancels=True,
+                 loop=None):
         self.task_list = []
         self.completed_tasks = []
         self.errored_tasks = []
         self.raise_exceptions = raise_exceptions
         self.squelch_cancels = squelch_cancels
+        self.loop = loop
 
     @asyncio.coroutine
     def __aenter__(self):
@@ -57,7 +59,7 @@ class TaskList():
     def all_tasks(self):
         return tuple(self.task_list + self.completed_tasks + self.errored_tasks)
 
-    @asyncio_loop(loop_kwarg='loop')
+    @asyncio_loop_method
     async def wait(self, *, loop, **kwargs):
         if not self.task_list and not self.errored_tasks:
             return tuple(self.completed_tasks), ()
@@ -66,14 +68,14 @@ class TaskList():
         finally:
             self.check_tasks()
 
-    @asyncio_loop(loop_kwarg='loop')
+    @asyncio_loop_method
     async def gather(self, *, loop, **kwargs):
         try:
             return await asyncio.gather(self.all_tasks, loop=loop, **kwargs)
         finally:
             self.check_tasks()
 
-    @asyncio_loop(loop_kwarg='loop')
+    @asyncio_loop_method
     def as_completed(self, *, loop, **kwargs):
         try:
             # We are proxying the iterator that as_completed returns.
@@ -82,7 +84,7 @@ class TaskList():
         finally:
             self.check_tasks()
 
-    @asyncio_loop(loop_kwarg='loop')
+    @asyncio_loop_method
     async def add_task(self, coro_or_future, *, loop):
         return self._add_task(coro_or_future, loop=loop)
 
@@ -134,7 +136,7 @@ class SizeBoundedTaskList(TaskList):
         assert max_tasks > 0
         self.task_lock = asyncio.BoundedSemaphore(max_tasks)
 
-    @asyncio_loop(loop_kwarg='loop')
+    @asyncio_loop_method
     async def add_task(self, coro_or_future, *, loop):
         self.check_exceptions()
         await self.task_lock.acquire()

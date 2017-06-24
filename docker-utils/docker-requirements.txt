@@ -1,0 +1,12 @@
+aiodns
+aiohttp
+bitarray
+cchardet
+celery
+coreapi
+django
+django_celery_results
+django-debug-toolbar
+djangorestframework
+psycopg2
+https://github.com/celery/django-celery-beat/zipball/f014edcb954c707cb7628f4416257b6a58689523#egg=django-celery-beat

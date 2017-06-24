@@ -88,6 +88,7 @@ class ParameterValidator():
         _booleans=(),
         _exists_together=(),
         _required=(),
+        _passthrough=(),
         **param_validators
     ):
         exists_together = []
@@ -118,7 +119,8 @@ class ParameterValidator():
             **{key: validate_float for key in _floats},
             **{key: validate_datetime for key in _datetimes},
             **{key: validate_str for key in _strings},
-            **{key: validate_bool for key in _booleans}
+            **{key: validate_bool for key in _booleans},
+            **{key: lambda arg: arg for key in _passthrough}
         )
 
     def __call__(self, **kwargs):

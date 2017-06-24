@@ -10,7 +10,7 @@ from trademe2.api import RootManager
 from trademe.cache import CachedResponse, CachingClientSession, CachingStrategy
 from trademe.cache import RateLimitingCachingClientSession
 
-from rentme.data.importer.models import CachedResponse as CachedResponseModel
+from rentme.raw.importer.models import CachedResponse as CachedResponseModel
 from rentme.data.models import create_discoverer as create_data_discoverer
 from rentme.raw.models import create_discoverer as create_raw_discoverer
 from rentme.raw.loader import Deserializer, MutliDiscoverer

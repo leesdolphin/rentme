@@ -1,7 +1,6 @@
 from __future__ import absolute_import
 
 from datetime import date, datetime, timezone
-from pprint import pprint
 import re
 
 from django.db.utils import IntegrityError
@@ -76,12 +75,12 @@ class Deserializer():
 
         if type(klass) == str:
             if klass.startswith('list['):
-                sub_kls = re.match('list\[(.*)\]', klass).group(1)
+                sub_kls = re.match(r'list\[(.*)\]', klass).group(1)
                 return [self.deserialize(sub_data, sub_kls)
                         for sub_data in data]
 
             if klass.startswith('dict('):
-                sub_kls = re.match('dict\(([^,]*), (.*)\)', klass).group(2)
+                sub_kls = re.match(r'dict\(([^,]*), (.*)\)', klass).group(2)
                 return {k: self.deserialize(v, sub_kls)
                         for k, v in data.items()}
 
@@ -174,7 +173,6 @@ class Deserializer():
 
         if not instance.swagger_types:
             return data
-        print("SAVE NOT FOUND!!!", instance)
 
         if not isinstance(data, (dict, )):
             if hasattr(instance, 'expect_single_value'):
@@ -188,8 +186,6 @@ class Deserializer():
                     setattr(instance, key, value)
                     instance.save()
                 return instance
-            else:
-                pprint((klass.swagger_types, klass.attribute_map, data))
 
         if data is None or not isinstance(data, (dict, )):
             return instance
