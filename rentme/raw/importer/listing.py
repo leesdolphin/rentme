@@ -7,7 +7,7 @@ from trademe.errors import ClassifiedExpiredError
 
 from rentme.celery.celery_app import app
 from rentme.raw.api import get_trademe_api
-from rentme.raw.importer.migration import migrate_listing
+from rentme.raw.importer.data_migrations.listings import migrate_listing
 
 
 logger = get_task_logger(__name__)

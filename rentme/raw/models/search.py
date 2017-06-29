@@ -831,104 +831,6 @@ class FoundCategory(RawModel):
         )
 
 
-class MemberProfile(RawModel):
-
-    swagger_types = types.MappingProxyType({
-        'biography': 'str',
-        'date_removed': 'datetime',
-        'favourite_id': 'int',
-        'first_name': 'str',
-        'is_enabled': 'bool',
-        'member': 'Member',
-        'occupation': 'str',
-        'photo': 'str',
-        'quote': 'str',
-        'store': 'Store',
-    })
-    attribute_map = multidict.MultiDictProxy(multidict.MultiDict([
-        ('biography', 'Biography'),
-        ('date_removed', 'DateRemoved'),
-        ('favourite_id', 'FavouriteId'),
-        ('first_name', 'FirstName'),
-        ('is_enabled', 'IsEnabled'),
-        ('member', 'Member'),
-        ('occupation', 'Occupation'),
-        ('photo', 'Photo'),
-        ('quote', 'Quote'),
-        ('store', 'Store'),
-    ]))
-
-    biography = models.TextField(
-        null=True,
-        help_text='The member’s bio.'
-    )
-    date_removed = models.DateTimeField(
-        null=True,
-        help_text='The date the member was disabled (assuming it has been '
-                  'disabled).'
-    )
-    favourite_id = models.IntegerField(
-        null=True,
-        help_text='The ID of a favourite seller, if the call is authenticated'
-                  ' and this member is a favourite seller for the '
-                  'authenticated caller.'
-    )
-    first_name = models.TextField(
-        null=True,
-        help_text='The first name of the member.'
-    )
-    is_enabled = models.NullBooleanField(
-        null=True,
-        help_text='Indicates whether the member account is enabled.'
-    )
-    member = models.ForeignKey(
-        'Member',
-        blank=True,
-        null=True,
-        on_delete=models.CASCADE,
-        related_name='member_profile_reverse_member',
-        help_text='Basic information about the member.'
-    )
-    occupation = models.TextField(
-        null=True,
-        help_text='The occupation of the member.'
-    )
-    photo = models.TextField(
-        null=True,
-        help_text='A URL representing the member’s photo.'
-    )
-    quote = models.TextField(
-        null=True,
-        help_text='The member’s favourite quote.'
-    )
-    store = models.ForeignKey(
-        'Store',
-        blank=True,
-        null=True,
-        on_delete=models.CASCADE,
-        related_name='member_profile_reverse_store',
-        help_text='Store details, if the seller has been set up as a Trade Me'
-                  ' store.'
-    )
-
-    class Meta:
-
-        unique_together = (
-            (
-                'biography',
-                'date_removed',
-                'favourite_id',
-                'first_name',
-                'is_enabled',
-                'member',
-                'occupation',
-                'photo',
-                'quote',
-                'store',
-            ),
-        )
-
-
 class Properties(RawModel):
 
     swagger_types = types.MappingProxyType({
@@ -1912,7 +1814,6 @@ __all__ = (
     'Flatmate',
     'Flatmates',
     'FoundCategory',
-    'MemberProfile',
     'Properties',
     'PropertyAdjacentSuburbIds',
     'PropertyAdjacentSuburbNames',
