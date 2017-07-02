@@ -5,7 +5,7 @@ from __future__ import unicode_literals
 from django.db import migrations, models
 import django.db.models.deletion
 import rentme.data.models._utils
-import rentme.data.models.listing
+import rentme.data.models.listings
 
 
 class Migration(migrations.Migration):
@@ -115,7 +115,7 @@ class Migration(migrations.Migration):
             name='Listing',
             fields=[
                 ('listing_id', models.IntegerField(help_text='The ID of the listing.', primary_key=True, serialize=False)),
-                ('listing_type', rentme.data.models._utils.EnumIntegerField(enum=rentme.data.models.listing.ListingType, help_text='Type of listing(property, flatmate, etc.)')),
+                ('listing_type', rentme.data.models._utils.EnumIntegerField(enum=rentme.data.models.listings.ListingType, help_text='Type of listing(property, flatmate, etc.)')),
                 ('agency_reference', models.TextField(help_text='The reference to the agency.', null=True)),
                 ('amenities', models.TextField(help_text='A list of the amenities in the area.', null=True)),
                 ('as_at', models.DateTimeField(help_text='The date and time the response was generated on the server.')),

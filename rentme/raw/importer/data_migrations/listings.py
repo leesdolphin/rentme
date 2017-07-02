@@ -1,11 +1,12 @@
-from aioutils.celery import asyncio_task
+from aioutils.celery import asyncio_task, delay_or_call
 from celery.utils.log import get_task_logger
 from django.db import transaction
 
 from rentme.celery.celery_app import app
 from rentme.raw.models.search import Property, Flatmate
 from rentme.raw.models.listings import ListedItemDetail
-from rentme.raw.importer.data_migrations._utils import migrate_model, model_to_dict
+from ._utils import migrate_model, migrate_merge_model
+from .error import ModelDataMissing
 from rentme.data.models import listings, catalogue, members
 
 
@@ -21,8 +22,12 @@ async def migrate_listing(listing_id, *, loop):
         flatmate_info = None
         listing_type = listings.ListingType.PROPERTY
     except Property.DoesNotExist:
-        search_listing = Flatmate.objects.get(listing_id=listing_id)
-        flatmate_info = listings.FlatmateInformation.objects.get_or_create(
+        try:
+            search_listing = Flatmate.objects.get(listing_id=listing_id)
+        except Flatmate.DoesNotExist:
+            await delete_listing(listing_id)
+            return
+        flatmate_info, _ = listings.FlatmateInformation.objects.get_or_create(
             current_flatmates=search_listing.current_flatmates,
             flatmates=search_listing.flatmates,
         )
@@ -34,13 +39,13 @@ async def migrate_listing(listing_id, *, loop):
     agency = migrate_agency(old_listing.agency)
     geo = migrate_geolocation(old_listing.geographic_location)
     embedded_content = migrate_embedded_content(old_listing.embedded_content)
-    photo = listings.Photo.objects.get(photo_id=old_listing.photo_id)
-    category = catalogue.Category.objects.get(path=old_listing.category_path)
-    suburb = catalogue.Suburb.objects.get(suburb_id=old_listing.suburb_id)
-    member = members.Member.objects.get(member_id=old_listing.member.member_id)
+    photo = try_get(listings.Photo, photo_id=old_listing.photo_id)
+    category = try_get(catalogue.Category, path=old_listing.category_path)
+    suburb = try_get(catalogue.Suburb, suburb_id=old_listing.suburb_id)
+    member = try_get(members.Member, member_id=old_listing.member.member_id)
 
-    new_listing = migrate_listing(
-        search_listing,
+    new_listing = migrate_merge_model(
+        [search_listing, old_listing],
         listings.Listing,
         agency=agency,
         geographic_location=geo,
@@ -49,27 +54,23 @@ async def migrate_listing(listing_id, *, loop):
         listing_type=listing_type,
         photo=photo,
         category=category,
-        subrub=suburb,
+        suburb=suburb,
         member=member,
-        **model_to_dict(
-            old_listing,
-            filter=[
-                'agency',
-                'geographic_location',
-                'embedded_content',
-                'flatmate_information',
-                'listing_type',
-                'photo',
-                'category',
-                'subrub',
-                'member',
-            ])
     )
     new_listing.broadband_technologies.set(broadband_techs)
     new_listing.photos.set(photos)
     update_attributes(new_listing, old_listing.attributes.all())
     new_listing.save()
     return new_listing
+
+
+def try_get(model, **lookup):
+    if not lookup or all(v is None for v in lookup.values()):
+        return None
+    try:
+        return model.objects.get(**lookup)
+    except model.DoesNotExist:
+        return None
 
 
 def update_attributes(new_listing, old_attrs):
@@ -94,7 +95,7 @@ def update_attributes(new_listing, old_attrs):
     }
     renamed = {
         name: new_name
-        for name, new_name in attr_name_to_listing.items
+        for name, new_name in attr_name_to_listing.items()
         if new_name is not None
     }
     new_attrs = migrate_attrs(
@@ -201,3 +202,8 @@ def migrate_photos(old_photos):
         new_photo = migrate_photo(old_photo)
         new_photos.append(new_photo)
     return new_photos
+
+
+async def delete_listing(listing_id):
+    from ..listing import delete_listing
+    return await delay_or_call(delete_listing, listing_id)

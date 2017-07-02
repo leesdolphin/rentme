@@ -15,16 +15,27 @@ logger = get_task_logger(__name__)
 
 @asyncio_task(app, ignore_result=True, rate_limit='1/m')
 async def load_listings(listing_ids, *, loop):
+    listing_ids = set(listing_ids)
     async with SizeBoundedTaskList(10, loop=loop) as ltl, \
             get_trademe_api(loop=loop) as api:
         for listing_id in listing_ids:
             await ltl.add_task(api.detail.listing(listing_id))
-        async with SizeBoundedTaskList(10, loop=loop) as ptl:
+        async with SizeBoundedTaskList(5, loop=loop) as ptl:
+            found_listings = set()
             for listing_future in ltl.as_completed():
-                listing = await listing_future
+                try:
+                    listing = await listing_future
+                except ClassifiedExpiredError as c:
+                    continue
+                found_listings.add(listing.listing_id)
                 await ptl.add_task(
                     delay_or_call(migrate_listing, listing.listing_id)
                 )
+            if found_listings != listing_id:
+                for listing_id in (listing_ids - found_listings):
+                    await ptl.add_task(
+                        delay_or_call(delete_listing, listing_id)
+                    )
 
 
 @asyncio_task(app, ignore_result=True, rate_limit='1/h')
@@ -41,7 +52,7 @@ async def load_search_results(search_api_name, *, loop):
     search_kwargs = dict(return_metadata=True, return_ads=True,
                          return_super_features=True, sort_order='ExpiryDesc',
                          rows=25, loop=loop)
-    async with SizeBoundedTaskList(3, loop=loop) as stl, \
+    async with SizeBoundedTaskList(20, loop=loop) as stl, \
             get_trademe_api(loop=loop) as api:
         search_api = getattr(api.search, search_api_name)
         page_1_future = await stl.add_task(
@@ -51,7 +62,7 @@ async def load_search_results(search_api_name, *, loop):
         for page_no in range(2, pages + 1):
             await stl.add_task(
                 search_api(**search_kwargs, page=page_no))
-        async with SizeBoundedTaskList(3, loop=loop) as ltl:
+        async with SizeBoundedTaskList(10, loop=loop) as ltl:
             for page_future in stl.as_completed():
                 search_res = await page_future
                 await ltl.add_task(delay_or_call(load_listings, [
@@ -71,3 +82,15 @@ async def delete_if_missing(session, api, listing):
                 listing.delete()
         else:
             listing.delete()
+
+
+@asyncio_task(app, ignore_result=True)
+async def delete_listing(listing_id):
+    from rentme.raw.models.search import Flatmate, Property
+    from rentme.raw.models.listings import ListedItemDetail
+
+    for model in [Flatmate, Property, ListedItemDetail]:
+        try:
+            model.objects.delete(listing_id=listing_id)
+        except model.DoesNotExist:
+            pass

@@ -77,8 +77,9 @@ class Agency(models.Model):
 
 class Agent(models.Model):
 
-    agency = models.ManyToManyField(
+    agency = models.ForeignKey(
         'Agency',
+        on_delete=models.CASCADE,
         related_name='agents',
         help_text='The agency that this agent is contactable at.'
     )
@@ -507,7 +508,7 @@ class Listing(models.Model):
         help_text='The content keys that are embedded in the listing page '
                   '(e.g. YouTube Video Key).'
     )
-    flatmate_info = models.ForeignKey(
+    flatmate_information = models.ForeignKey(
         'FlatmateInformation',
         null=True,
         on_delete=models.CASCADE,
@@ -531,6 +532,7 @@ class Listing(models.Model):
     )
     photo = models.ForeignKey(
         'Photo',
+        null=True,
         related_name='+',
         on_delete=models.CASCADE,
         help_text='A collection of photos for the listing.'
@@ -540,8 +542,11 @@ class Listing(models.Model):
         related_name='listings',
         help_text='A collection of photos for the listing.'
     )
-    suburb = models.ManyToManyField(
+    suburb = models.ForeignKey(
         'Suburb',
+        blank=True,
+        null=True,
+        on_delete=models.DO_NOTHING,
         related_name='listings',
         help_text='The suburb where this item is located.'
     )

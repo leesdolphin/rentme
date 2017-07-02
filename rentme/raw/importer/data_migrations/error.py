@@ -1,0 +1,4 @@
+
+
+class ModelDataMissing(Exception):
+    pass

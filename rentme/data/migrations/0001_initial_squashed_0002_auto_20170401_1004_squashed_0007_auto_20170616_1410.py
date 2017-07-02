@@ -10,8 +10,6 @@ import trademe.models.enums
 
 class Migration(migrations.Migration):
 
-    replaces = [('data', '0001_initial'), ('data', '0003_auto_20170402_0047'), ('data', '0004_auto_20170402_0108'), ('data', '0005_auto_20170429_1001'), ('data', '0006_auto_20170518_0958'), ('data', '0007_auto_20170616_1410')]
-
     dependencies = [
     ]
 

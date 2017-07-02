@@ -25,8 +25,21 @@ class TradeMeApiEndpoint:
     @asyncio.coroutine
     def __call__(self, *args, **kwargs):
         url = self.build_url(*args, **kwargs)
-        response = yield from self.http_requester.request(
-            'GET', url, no_cache=not self.CACHE_RESPONSE)
+        retries = 3
+        while retries >= 0:
+            try:
+                response = yield from self.http_requester.request(
+                    'GET', url, no_cache=not self.CACHE_RESPONSE)
+                break
+            except aiohttp.ClientConnectorError as e:
+                if retries:
+                    retries -= 1
+                else:
+                    raise TradeMeError(
+                        code='CONNECTION_ERROR',
+                        description='aiohttp raised an exception',
+                        request=url
+                    ) from e
         try:
             return (yield from self.parse_response(response))
         except TradeMeError as e:
