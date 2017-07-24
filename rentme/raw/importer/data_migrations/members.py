@@ -11,7 +11,7 @@ from rentme.data.models import members
 logger = get_task_logger(__name__)
 
 
-@asyncio_task(app, ignore_result=True, rate_limit='1/s')
+@asyncio_task(app, ignore_result=True, rate_limit='5/s')
 async def migrate_member(member_id, *, loop):
     old_member = Member.objects.get(member_id=member_id)
     old_profile = old_member.member_profile.first()

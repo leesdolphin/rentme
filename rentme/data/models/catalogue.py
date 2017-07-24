@@ -96,6 +96,11 @@ class Category(models.Model):
         help_text='The list of subcategories belonging to this category.',
     )
 
+    def __repr__(self):
+        return ("Category(name={!r}, number={!r}, path={!r})").format(
+            self.name, self.number, self.path
+        )
+
     class Meta:
         ordering = ['number']
 
@@ -121,6 +126,11 @@ class Locality(models.Model):
         help_text='The name of the region.',
         null=True,
     )
+
+    def __repr__(self):
+        return ("Locality(locality_id={!r}, name={!r})").format(
+            self.locality_id, self.name
+        )
 
     class Meta:
         ordering = ['name']
@@ -155,6 +165,11 @@ class District(models.Model):
         help_text='The name of the district.',
         null=True,
     )
+
+    def __repr__(self):
+        return ("District(locality={!r}, district_id={!r}, name={!r})").format(
+            self.locality, self.district_id, self.name
+        )
 
     class Meta:
         ordering = ['name']
@@ -221,6 +236,11 @@ class Suburb(models.Model):
         help_text='The ID of the suburb.',
         primary_key=True,
     )
+
+    def __repr__(self):
+        return ("Suburb(district={!r}, name={!r}, suburb_id={!r})").format(
+            self.district, self.name, self.suburb_id
+        )
 
     class Meta:
 

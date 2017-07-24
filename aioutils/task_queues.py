@@ -29,12 +29,14 @@ class TaskList():
 
     def __init__(self, *, raise_exceptions=True, squelch_cancels=True,
                  loop=None):
+        self.pending_tasks = []
         self.task_list = []
         self.completed_tasks = []
         self.errored_tasks = []
         self.raise_exceptions = raise_exceptions
         self.squelch_cancels = squelch_cancels
         self.loop = loop
+        self.sleep_time = 0
 
     @asyncio.coroutine
     def __aenter__(self):
@@ -57,7 +59,12 @@ class TaskList():
 
     @property
     def all_tasks(self):
-        return tuple(self.task_list + self.completed_tasks + self.errored_tasks)
+        return tuple(
+            self.pending_tasks +
+            self.task_list +
+            self.completed_tasks +
+            self.errored_tasks
+        )
 
     @asyncio_loop_method
     async def wait(self, *, loop, **kwargs):
@@ -88,6 +95,21 @@ class TaskList():
     async def add_task(self, coro_or_future, *, loop):
         return self._add_task(coro_or_future, loop=loop)
 
+    @asyncio_loop_method
+    def add_coro(self, coro, *, loop):
+        async def waiter():
+            await self.add_task(waiter_future, loop=loop)
+            self.pending_tasks.remove(waiter_future)
+            try:
+                return await coro
+            finally:
+                await asyncio.sleep(self.sleep_time)
+
+        self.check_exceptions()
+        waiter_future = asyncio.ensure_future(waiter(), loop=loop)
+        self.pending_tasks.append(waiter_future)
+        return waiter_future
+
     def _add_task(self, coro_or_future, *, loop):
         self.check_exceptions()
         future = asyncio.ensure_future(coro_or_future, loop=loop)
@@ -103,6 +125,9 @@ class TaskList():
         while self.errored_tasks:
             err = self.errored_tasks.pop()
             self.completed_tasks.append(err)
+            if not err._log_traceback:
+                # Already handled
+                continue
             assert err.done()
             assert err.cancelled() or err.exception()
             if err.cancelled() and self.squelch_cancels:

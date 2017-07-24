@@ -23,6 +23,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = '#sm2%jb&%ywjetiz$#k=zi3*5vsebg8%bt-zc_e1mvl!8sot9y'
 
 # SECURITY WARNING: don't run with debug turned on in production!
+# DEBUG = False
 DEBUG = True
 
 ALLOWED_HOSTS = []
@@ -125,7 +126,8 @@ STATICFILES_DIRS = []
 CELERY_TIMEZONE = 'UTC'
 CELERY_RESULT_BACKEND = 'django-db'
 CELERY_BROKER_URL = 'amqp://guest:guest@taskqueue:5672/'
-CELERY_TASK_ANNOTATIONS = {'*': {'rate_limit': '10/m'}}
+CELERYD_HIJACK_ROOT_LOGGER = False
+# CELERY_TASK_ANNOTATIONS = {'*': {'rate_limit': '10/m'}}
 
 
 REST_FRAMEWORK = {

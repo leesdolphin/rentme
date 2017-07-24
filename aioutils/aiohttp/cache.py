@@ -130,7 +130,10 @@ class CachingClientSession(aiohttp.client.ClientSession):
 
     async def _request(self, method, url, **kwargs):
         if kwargs.pop('no_cache', False):
-            return await super()._request(method, url, **kwargs)
+            try:
+                return await super()._request(method, url, **kwargs)
+            except:
+                await asyncio.sleep(2.5)
         self._cache_info = self._cache_info._increment(attempts=1)
 
         cached_response = await self._cache_strategy.get_cached_response(
@@ -144,7 +147,10 @@ class CachingClientSession(aiohttp.client.ClientSession):
         real_response = await super()._request(method, url, **kwargs)
         await self._cache_strategy.do_cache_response(
             real_response, method, url, **kwargs)
-        return real_response
+        try:
+            return real_response
+        except:
+            await asyncio.sleep(2.5)
 
 
 class CachingStrategy(object):

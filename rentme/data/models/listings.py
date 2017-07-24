@@ -263,6 +263,12 @@ class BroadbandTechnology(models.Model):
         help_text='The technology name.'
     )
 
+    def __repr__(self):
+        return ("BroadbandTechnology({!r}, down={:.3f}-{:.3f},"
+                " up={:.3f}-{:.3f}").format(
+            self.name, self.min_down, self.max_down, self.min_up, self.max_up
+        )
+
     class Meta:
 
         unique_together = (
@@ -341,6 +347,12 @@ class GeographicLocation(models.Model):
         null=True,
         help_text='The longitude of the location, in degrees (WGS84).'
     )
+
+    def __repr__(self):
+        return ("GeographicLocation(longitude={:0.7f},"
+                " latitude={:0.7f}, accuracy={!r})").format(
+            self.longitude, self.latitude, self.accuracy
+        )
 
     class Meta:
 
@@ -479,7 +491,7 @@ class Listing(models.Model):
         'Agency',
         blank=True,
         null=True,
-        on_delete=models.CASCADE,
+        on_delete=models.DO_NOTHING,
         related_name='listed_item_detail_reverse_agency',
         help_text='The agency details if this is a job or property listing.'
     )
@@ -497,14 +509,13 @@ class Listing(models.Model):
     )
     category = models.ForeignKey(
         'Category',
-        on_delete=models.CASCADE,
+        on_delete=models.DO_NOTHING,
     )
     embedded_content = models.ForeignKey(
         'EmbeddedContent',
         blank=True,
         null=True,
         on_delete=models.CASCADE,
-        related_name='listed_item_detail_reverse_embedded_content',
         help_text='The content keys that are embedded in the listing page '
                   '(e.g. YouTube Video Key).'
     )
@@ -517,8 +528,7 @@ class Listing(models.Model):
         'GeographicLocation',
         blank=True,
         null=True,
-        on_delete=models.CASCADE,
-        related_name='listed_item_detail_reverse_geographic_location',
+        on_delete=models.DO_NOTHING,
         help_text='The geographic location (latitude and longitude) of a '
                   'property.'
     )
@@ -526,15 +536,14 @@ class Listing(models.Model):
         'Member',
         blank=True,
         null=True,
-        on_delete=models.CASCADE,
-        related_name='listed_item_detail_reverse_member',
+        on_delete=models.DO_NOTHING,
         help_text='The seller of the listing.'
     )
     photo = models.ForeignKey(
         'Photo',
         null=True,
         related_name='+',
-        on_delete=models.CASCADE,
+        on_delete=models.DO_NOTHING,
         help_text='A collection of photos for the listing.'
     )
     photos = models.ManyToManyField(
@@ -550,6 +559,62 @@ class Listing(models.Model):
         related_name='listings',
         help_text='The suburb where this item is located.'
     )
+
+    def __repr__(self):
+        return (
+            'Listing('
+            '\n    listing_id={:d},'
+            '\n    listing_type={:d},'
+            '\n    address={!r},'
+            '\n    agency_reference={!r},'
+            '\n    available_from={!r},'
+            '\n    bathrooms={!r},'
+            '\n    bedrooms={!r},'
+            '\n    end_date={!r},'
+            '\n    max_tenants={!r},'
+            '\n    pets_okay={!r},'
+            '\n    property_id={!r},'
+            '\n    property_type={!r},'
+            '\n    rent_per_week={!r},'
+            '\n    smokers_okay={!r},'
+            '\n    start_date={!r},'
+            '\n    title={!r},'
+            '\n    agency={!r},'
+            '\n    attributes={!r},'
+            '\n    broadband_technologies={!r},'
+            '\n    category={!r},'
+            '\n    geographic_location={!r},'
+            '\n    member={!r},'
+            '\n    photo={!r},'
+            '\n    photos={!r},'
+            '\n    suburb={!r},'
+            '\n)').format(
+                self.listing_id,
+                self.listing_type,
+                self.address,
+                self.agency_reference,
+                self.available_from,
+                self.bathrooms,
+                self.bedrooms,
+                self.end_date,
+                self.max_tenants,
+                self.pets_okay,
+                self.property_id,
+                self.property_type,
+                self.rent_per_week,
+                self.smokers_okay,
+                self.start_date,
+                self.title,
+                self.agency,
+                self.attributes,
+                self.broadband_technologies,
+                self.category,
+                self.geographic_location,
+                self.member,
+                self.photo,
+                self.photos,
+                self.suburb,
+            )
 
 
 class Photo(models.Model):

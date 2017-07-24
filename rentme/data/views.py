@@ -3,19 +3,19 @@ from django.shortcuts import redirect
 from django.views.generic import DetailView, ListView
 from django.views.generic.list import BaseListView
 
-from rentme.data import api
+from rentme.data import api, models
 # from rentme.data.importer import catalogue
 
 
 class LocalityView(ListView):
-    # model = models.catalogue.Locality
+    model = models.catalogue.Locality
     template_name = 'rentme/locality_list.html'
     context_object_name = 'localities'
 
 
 class LocalityDrilldownView(ListView):
 
-    # model = models.listing.Listing
+    model = models.catalogue.Locality
     template_name = 'rentme/listings_all.html'
     context_object_name = 'listing_list'
     paginate_by = 20
@@ -31,48 +31,27 @@ class LocalityDrilldownView(ListView):
         return qs
 
 
-class LocalityGraphView(BaseListView):
-    # model = models.catalogue.Suburb
-    # queryset = model.objects\
-    #     .prefetch_related('adjacent_suburbs', 'listings')\
-    #     .annotate(locality_name=F('district__locality__name'))
-    context_object_name = 'suburbs'
-
-    def render_to_response(self, context):
-        suburbs = {}
-        adjacency = set()
-        for suburb in context['suburbs']:
-            listings_count = suburb.listings.count()
-            if listings_count == 0:
-                continue
-            suburbs[suburb.suburb_id] = {
-                'id': suburb.suburb_id,
-                'name': suburb.name,
-                'locality': suburb.locality_name,
-                'listings': listings_count,
-            }
-            for adj in suburb.adjacent_suburbs.all():
-                if (adj.suburb_id, suburb.suburb_id) not in adjacency:
-                    adjacency.add((suburb.suburb_id, adj.suburb_id))
-        adj_lists = [
-            dict(source=src_id, target=dst_id)
-            for src_id, dst_id in adjacency
-            if src_id in suburbs and dst_id in suburbs
-        ]
-        return JsonResponse(dict(
-            nodes=list(suburbs.values()),
-            links=adj_lists,
-        ))
-
-
 class RentalListView(ListView):
-    # model = models.listing.Listing
-    template_name = 'rentme/listing_all.html'
+    model = models.listings.Listing
+    template_name = 'rentme/listings_all.html'
     context_object_name = 'listing_list'
+
+    def get_queryset(self):
+        suburbs = models.catalogue.Suburb.objects.filter(district_id__in=(47, 46, 45, 44))
+        from pprint import pprint
+        pprint(list(suburbs))
+
+        qs = super().get_queryset()
+        # pprint(list(qs))
+        qs = qs.filter(rent_per_week__lt=500, rent_per_week__gt=200)
+        pprint(list(qs))
+        qs = qs.filter(suburb__in=suburbs)
+        pprint(list(qs))
+        return qs
+
 
 
 class RentalView(DetailView):
-
     template_name = 'rentme/listing_single.html'
     # model = models.listing.Listing
 

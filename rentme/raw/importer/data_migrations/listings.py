@@ -13,7 +13,7 @@ from rentme.data.models import listings, catalogue, members
 logger = get_task_logger(__name__)
 
 
-@asyncio_task(app, ignore_result=True, rate_limit='1/s')
+@asyncio_task(app, ignore_result=True, rate_limit='5/s')
 @transaction.atomic
 async def migrate_listing(listing_id, *, loop):
     old_listing = ListedItemDetail.objects.get(listing_id=listing_id)

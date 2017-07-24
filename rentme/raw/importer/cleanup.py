@@ -10,7 +10,7 @@ from rentme.data.models import listing
 logger = get_task_logger(__name__)
 
 
-@app.task(ignore_result=True)
+@app.task(ignore_result=True, rate_limit='5/s')
 def clean_related_tables():
     with transaction.atomic():
         to_remove = [
@@ -41,6 +41,6 @@ def clean_related_tables():
             raise Exception('*void screaming*')
 
 
-@app.task(ignore_result=True)
+@app.task(ignore_result=True, rate_limit='5/s')
 def clean_cache_tables():
     CachedResponse.objects.filter(expiry__gte=timezone.now()).delete()

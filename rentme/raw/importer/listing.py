@@ -19,7 +19,7 @@ async def load_listings(listing_ids, *, loop):
     async with SizeBoundedTaskList(10, loop=loop) as ltl, \
             get_trademe_api(loop=loop) as api:
         for listing_id in listing_ids:
-            await ltl.add_task(api.detail.listing(listing_id))
+            ltl.add_coro(api.detail.listing(listing_id))
         async with SizeBoundedTaskList(5, loop=loop) as ptl:
             found_listings = set()
             for listing_future in ltl.as_completed():
@@ -28,22 +28,22 @@ async def load_listings(listing_ids, *, loop):
                 except ClassifiedExpiredError as c:
                     continue
                 found_listings.add(listing.listing_id)
-                await ptl.add_task(
+                ptl.add_coro(
                     delay_or_call(migrate_listing, listing.listing_id)
                 )
             if found_listings != listing_id:
                 for listing_id in (listing_ids - found_listings):
-                    await ptl.add_task(
+                    ptl.add_coro(
                         delay_or_call(delete_listing, listing_id)
                     )
 
 
-@asyncio_task(app, ignore_result=True, rate_limit='1/h')
+@asyncio_task(app, ignore_result=True, rate_limit='1/m')
 async def load_rental_listing_search_results(*, loop):
     return await load_search_results('rental', loop=loop)
 
 
-@asyncio_task(app, ignore_result=True, rate_limit='1/h')
+@asyncio_task(app, ignore_result=True, rate_limit='1/m')
 async def load_flatmate_listing_search_results(*, loop):
     return await load_search_results('flatmate', loop=loop)
 
@@ -52,22 +52,28 @@ async def load_search_results(search_api_name, *, loop):
     search_kwargs = dict(return_metadata=True, return_ads=True,
                          return_super_features=True, sort_order='ExpiryDesc',
                          rows=25, loop=loop)
-    async with SizeBoundedTaskList(20, loop=loop) as stl, \
+    print("SSDFKSDFSKDFSD")
+    async with SizeBoundedTaskList(5, loop=loop) as stl, \
             get_trademe_api(loop=loop) as api:
+        print("SSDFKSDFSKDFSD")
         search_api = getattr(api.search, search_api_name)
+        logger.info("Getting page %d of %s for %s",
+                    1, '?', search_api_name)
         page_1_future = await stl.add_task(
             search_api(**search_kwargs, page=1))
         search_res = await page_1_future
         pages = math.ceil(search_res.total_count / search_res.page_size)
         for page_no in range(2, pages + 1):
-            await stl.add_task(
+            logger.info("Getting page %d of %d for %s",
+                        page_no, pages, search_api_name)
+            stl.add_coro(
                 search_api(**search_kwargs, page=page_no))
-        async with SizeBoundedTaskList(10, loop=loop) as ltl:
+        async with SizeBoundedTaskList(5, loop=loop) as ltl:
             for page_future in stl.as_completed():
                 search_res = await page_future
-                await ltl.add_task(delay_or_call(load_listings, [
+                ltl.add_coro(delay_or_call(load_listings, [
                     listing.listing_id for listing in search_res.list.all()
-                ]))
+                ], loop=loop))
 
 
 async def delete_if_missing(session, api, listing):
@@ -84,13 +90,13 @@ async def delete_if_missing(session, api, listing):
             listing.delete()
 
 
-@asyncio_task(app, ignore_result=True)
-async def delete_listing(listing_id):
+@asyncio_task(app, ignore_result=True, rate_limit='5/s')
+async def delete_listing(listing_id, *, loop):
     from rentme.raw.models.search import Flatmate, Property
     from rentme.raw.models.listings import ListedItemDetail
 
     for model in [Flatmate, Property, ListedItemDetail]:
         try:
-            model.objects.delete(listing_id=listing_id)
+            model.objects.get(listing_id=listing_id).delete()
         except model.DoesNotExist:
             pass

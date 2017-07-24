@@ -36,8 +36,11 @@ async def main():
 
     warnings.simplefilter('error')
     asyncio.get_event_loop().set_debug(True)
-    logging.getLogger('asyncio').setLevel(logging.DEBUG)
-
+    for l in [logging.getLogger('celery'),
+              logging.getLogger('kombu'), logging.getLogger('rentme'),
+              ]:
+        l.addHandler(logging.StreamHandler())
+        l.setLevel(logging.DEBUG)
     # import rentme.raw.importer.catalogue as catalogue
 
     # import rentme.raw.importer.listing as listing
@@ -55,6 +58,63 @@ async def main():
     #     # pr.print_stats()
 
     from rentme.raw.models import listings, search
+    from rentme.raw.importer.listing import load_listings
+    from rentme.raw.importer.listing import load_rental_listing_search_results
+    from rentme.raw.importer.listing import load_flatmate_listing_search_results
+    from rentme.raw.importer.data_migrations.listings import migrate_listing
+    from rentme.raw.importer.data_migrations.members import migrate_member
+    from rentme.raw.importer.data_migrations.error import ModelDataMissing
+
+
+    from aioutils.celery import asyncio_task, delay_or_call
+    from aioutils.task_queues import SizeBoundedTaskList
+    from celery.utils.log import get_task_logger
+    from trademe.errors import ClassifiedExpiredError
+
+    from rentme.raw.api import get_trademe_api
+
+
+    # await load_rental_listing_search_results()
+    # await load_flatmate_listing_search_results()
+    async with SizeBoundedTaskList(2, loop=loop) as ltl, \
+            get_trademe_api(loop=loop) as api:
+        for listing in search.Flatmate.objects.all():
+            ltl.add_coro(api.detail.listing(listing.listing_id))
+        for listing in search.Property.objects.all():
+            ltl.add_coro(api.detail.listing(listing.listing_id))
+        for listing in listings.ListedItemDetail.objects.all():
+            ltl.add_coro(api.detail.listing(listing.listing_id))
+        for i in ltl.as_completed():
+            try:
+                await i
+            except:
+                pass
+    i = 0
+    for listing in listings.ListedItemDetail.objects.all():
+        try:
+            await migrate_listing(listing.listing_id)
+        except ModelDataMissing:
+            print("Model data missing for listing", listing.listing_id)
+            print('\t\t\t\t\tProcessed Items: ', i)
+            load_listings.delay([listing.listing_id])
+            i = 0
+            continue
+        else:
+            i += 1
+
+
+    for listing in listings.ListedItemDetail.objects.all():
+        try:
+            await migrate_member(listing.member.member_id)
+            await migrate_listing(listing.listing_id)
+        except ModelDataMissing:
+            print("Model data missing for listing", listing.listing_id)
+            print('\t\t\t\t\tProcessed Items: ', i)
+            load_listings.delay([listing.listing_id])
+            i = 0
+            continue
+        else:
+            i += 1
     fm = dict(model_info(search.Flatmate))
     pr = dict(model_info(search.Property))
     lid = dict(model_info(listings.ListedItemDetail))
@@ -64,12 +124,6 @@ async def main():
         for key in set(fm) | set(pr) | set(lid)
     }
     has = {k: v for k, v in x.items() if v < 100}
-
-    print('\n'.join(sorted(k for k, v in has.items() if v == 0)))
-    print()
-    print('\n'.join("%s %0.3f" % (k, has[k]) for k in sorted([k for k, v in has.items() if v > 0], key=lambda k:has[k])))
-    print()
-    print('\n'.join("%s 100" % (k) for k in sorted(set(x) - set(has))))
 
 
 def model_info(model):

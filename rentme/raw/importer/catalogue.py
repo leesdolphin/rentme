@@ -11,7 +11,7 @@ from rentme.data.models import catalogue
 logger = get_task_logger(__name__)
 
 
-@asyncio_task(app, ignore_result=True)
+@asyncio_task(app, ignore_result=True, rate_limit='1/h')
 @transaction.atomic
 async def reload_categories(*, loop):
     async with get_trademe_api(loop=loop) as api:
@@ -20,7 +20,7 @@ async def reload_categories(*, loop):
     count, deleted = catalogue.Category.objects.filter(query).delete()
 
 
-@asyncio_task(app, ignore_result=True)
+@asyncio_task(app, ignore_result=True, rate_limit='1/h')
 @transaction.atomic
 async def reload_localities(*, loop):
     async with get_trademe_api(loop=loop) as api:
@@ -40,7 +40,7 @@ async def reload_localities(*, loop):
         suburb.adjacent_suburbs.set(adj_suburbs)
 
 
-@asyncio_task(app, ignore_result=True)
+@asyncio_task(app, ignore_result=True, rate_limit='1/h')
 @transaction.atomic
 async def reload_membership_localities(*, loop):
     async with get_trademe_api(loop=loop) as api:

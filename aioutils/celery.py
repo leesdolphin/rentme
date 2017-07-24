@@ -24,19 +24,22 @@ def asyncio_task(app, **kwargs):
 def wrap_async_fn_in_new_event_loop(fn):
     @functools.wraps(fn)
     def wrapper(*args, **kwargs):
+        logger.info("Running {} in new event loop".format(fn.__qualname__))
+        if not current_task or not current_task.request.id:
+            # Not running in Celery
+            loop = kwargs.pop('loop', None) or asyncio.get_event_loop()
+            return fn(*args, loop=loop, **kwargs)
+        # Running in Celery
         new_loop = asyncio.new_event_loop()
-        with ThreadPoolExecutor(max_workers=2) as executor:
+        with ThreadPoolExecutor(max_workers=4) as executor:
             new_loop.set_default_executor(executor)
             try:
-                # asyncio.set_event_loop(new_loop)
+                asyncio.set_event_loop(new_loop)
                 result = fn(*args, loop=new_loop, **kwargs)
                 return new_loop.run_until_complete(result)
             finally:
                 # Try and force all connections to close themselves.
-                # connections.close_all()
-                # for _ in range(executor._max_workers * 2):
-                #     executor.submit(connections.close_all)
-                # asyncio.set_event_loop(old_loop)
+                asyncio.set_event_loop(None)
                 ex = None
                 if any(map(lambda task: not task.done(),
                            asyncio.Task.all_tasks(new_loop))):
@@ -63,9 +66,16 @@ class AsyncioPromiseProxy(PromiseProxy):
         return self.__original_fn(*a, **k)
 
 
-async def delay_or_call(fn, *a, **k):
-    if current_task and current_task.request.id:
-        # Dispatched onto a worker. Call delay
-        fn.delay(*a, **k)
-    else:
-        return await fn(*a, **k)
+async def delay_or_call(fn, *args, **kwargs):
+    logger.info("Delaying %s(%s)",
+                fn.__qualname__,
+                ', '.join(
+                    [repr(arg) for arg in args] +
+                    ['%s=%r' % (k, v) for k, v in kwargs.items()]))
+    logger.info("Current Task: %r", current_task)
+    if current_task:
+        if current_task.request.id:
+            logger.info("Current Task ID: %r", current_task.request.id)
+            # Dispatched onto a worker. Call delay
+            return fn.apply_async(args, kwargs, expires=600)
+    return await fn(*args, **kwargs)
