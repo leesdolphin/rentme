@@ -1,4 +1,18 @@
+from pprint import pprint
+
 from django.core.exceptions import ObjectDoesNotExist
+
+
+def debug_model(model):
+    if not model:
+        return repr(model)
+    name = model.__class__.__qualname__
+    args = ',\n'.join("{}={!r}".format(k, v)
+                      for k, v in model_to_dict(model).items())
+    if args:
+        return "{}(\n{}\n)".format(name, args)
+    else:
+        return "{}()".format(name)
 
 
 def migrate_model(old_model, new_model_cls, **extras):
@@ -12,6 +26,7 @@ def migrate_merge_model(old_models, new_model_cls, **extras):
         return None
     lookup_names = model_uniqueness(new_model_cls)
     new_field_names = model_single_field_names(new_model_cls)
+    # pprint((new_model_cls, lookup_names))
     data = {}
     for old_model in old_models:
         if old_model is not None:
@@ -21,10 +36,12 @@ def migrate_merge_model(old_models, new_model_cls, **extras):
         name + '__exact': data[name] for name in lookup_names if name in data
     }
     kwargs['defaults'] = data
+    # pprint(kwargs)
     new_model, _ = new_model_cls.objects.update_or_create(**kwargs)
     new_model.save()
+    # pprint(new_model)
     return new_model
-    
+
 
 def model_to_dict(model, only=None, exclude=None):
     if not model:

@@ -3,12 +3,14 @@ from datetime import timedelta
 import json
 import uuid
 
-from aioutils import asyncio_loop
 from celery.utils.log import get_task_logger
 from django.utils import timezone
-from trademe2.api import RootManager
-from trademe.cache import CachedResponse, CachingClientSession, CachingStrategy
-from trademe.cache import RateLimitingCachingClientSession
+
+from aioutils import asyncio_loop
+from aioutils.aiohttp.cache import CachingClientSession, CachingStrategy
+from aioutils.aiohttp.cache import RateLimitingCachingClientSession
+from aioutils.aiohttp.cache.session import CachedResponse
+from api.trademe import RootManager
 
 from rentme.raw.importer.models import CachedResponse as CachedResponseModel
 from rentme.data.models import create_discoverer as create_data_discoverer
@@ -23,30 +25,31 @@ def b64encode(byte_str):
 
 
 @asyncio_loop
-def get_trademe_session(loop=None, rate_limit=False):
-    tm_uid = 'goldilocks-' + str(uuid.uuid4())
-    cookies = {'x-trademe-uniqueclientid:': tm_uid}
-
-    headers = {
-        'user-agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:50.0)'
-                      ' Gecko/20100101 Firefox/50.0',
-        'Referer': 'https://preview.trademe.co.nz/property/trade-me-property'
-                   '/residential-to-rent/123456789',
-        'Cache-Control': 'no-cache',
-        'x-trademe-uniqueclientid': tm_uid,
-    }
+def get_trademe_session(loop=None, rate_limit=True):
+    # tm_uid = 'goldilocks-' + str(uuid.uuid4())
+    # cookies = {'x-trademe-uniqueclientid:': tm_uid}
+    #
+    # headers = {
+    #     'user-agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:50.0)'
+    #                   ' Gecko/20100101 Firefox/50.0',
+    #     'Referer': 'https://preview.trademe.co.nz/property/trade-me-property'
+    #                '/residential-to-rent/123456789',
+    #     'Cache-Control': 'no-cache',
+    #     'x-trademe-uniqueclientid': tm_uid,
+    # }
     if rate_limit:
         if rate_limit is True:
             rate_limit = 5
         return RateLimitingCachingClientSession(
             max_inflight_requests=rate_limit, rate_limit_by_domain=True,
             cache_strategy=DatabaseCachingStrategy(), loop=loop,
-            cookies=cookies, headers=headers
+            # cookies=cookies, headers=headers
         )
     else:
         return CachingClientSession(
             cache_strategy=DatabaseCachingStrategy(), loop=loop,
-            cookies=cookies, headers=headers)
+            # cookies=cookies, headers=headers
+        )
 
 
 def get_trademe_api(session=None, loop=None):
@@ -69,8 +72,8 @@ class DatabaseCachingStrategy(CachingStrategy):
             self._expiry_time = timedelta(seconds=expiry_time)
 
     def get_cache_key(self, method, url, **kwargs):
-        return (method, self.standardise_url(url),
-                json.dumps(sorted(kwargs.items())))
+        method, url, kwargs = self.sanitise_arguments(method, url, **kwargs)
+        return (method, url, json.dumps(list(kwargs.items())))
 
     @asyncio_loop
     async def get_cached_response(self, method, url, *, loop, **kwargs):

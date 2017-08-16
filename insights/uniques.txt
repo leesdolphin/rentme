@@ -1,0 +1,552 @@
+{
+}
+  ".AutomatedValuationModelPredictions[]?.ConfidenceLevel": 2
+  ".AutomatedValuationModelPredictions[]?.ConfidenceLevel": 3
+  ".AutomatedValuationModelPredictions[]?.ConfidenceLevel": 4
+  ".Bathrooms": 1
+  ".Bathrooms": 2
+  ".Bathrooms": 3
+  ".Bathrooms": 4
+  ".Bathrooms": 5
+  ".Bathrooms": 6
+  ".Bathrooms": null
+  ".Bedrooms": 0
+  ".Bedrooms": 1
+  ".Bedrooms": 13
+  ".Bedrooms": 2
+  ".Bedrooms": 23
+  ".Bedrooms": 3
+  ".Bedrooms": 4
+  ".Bedrooms": 5
+  ".Bedrooms": 6
+  ".Bedrooms": 7
+  ".Bedrooms": null
+  ".Contour": 0
+  ".Contour": 1
+  ".Contour": 2
+  ".Contour": 3
+  ".Contour": 4
+  ".Contour": 5
+  ".DecadeBuilt": 0
+  ".DecadeBuilt": 10
+  ".DecadeBuilt": 11
+  ".DecadeBuilt": 12
+  ".DecadeBuilt": 13
+  ".DecadeBuilt": 14
+  ".DecadeBuilt": 15
+  ".DecadeBuilt": 16
+  ".DecadeBuilt": 3
+  ".DecadeBuilt": 4
+  ".DecadeBuilt": 5
+  ".DecadeBuilt": 6
+  ".DecadeBuilt": 7
+  ".DecadeBuilt": 8
+  ".DecadeBuilt": 9
+  ".GarageFreeStandingCount": 0
+  ".GarageFreeStandingCount": 1
+  ".GarageFreeStandingCount": 10
+  ".GarageFreeStandingCount": 2
+  ".GarageFreeStandingCount": 3
+  ".GarageFreeStandingCount": 4
+  ".GarageFreeStandingCount": 5
+  ".GarageFreeStandingCount": 7
+  ".GarageFreeStandingCount": 91
+  ".GarageFreeStandingCount": null
+  ".GarageUnderMainRoofCount": 0
+  ".GarageUnderMainRoofCount": 1
+  ".GarageUnderMainRoofCount": 2
+  ".GarageUnderMainRoofCount": 3
+  ".GarageUnderMainRoofCount": 4
+  ".GarageUnderMainRoofCount": 5
+  ".GarageUnderMainRoofCount": 6
+  ".GarageUnderMainRoofCount": null
+  ".HasDeck": false
+  ".HasDeck": null
+  ".HasDeck": true
+  ".HasLaundryOrWorkshop": false
+  ".HasLaundryOrWorkshop": null
+  ".HasLaundryOrWorkshop": true
+  ".HasOtherImprovements": false
+  ".HasOtherImprovements": null
+  ".HasOtherImprovements": true
+  ".OtherImprovementsDescription": "10 FLAT OB OI"
+  ".OtherImprovementsDescription": "10 FLAT OBS OI"
+  ".OtherImprovementsDescription": "11 FLAT OI "
+  ".OtherImprovementsDescription": "12 FLAT OI"
+  ".OtherImprovementsDescription": "12 FLATS"
+  ".OtherImprovementsDescription": "15 FLAT OI"
+  ".OtherImprovementsDescription": "15 UNITS OI"
+  ".OtherImprovementsDescription": "2 BLDG"
+  ".OtherImprovementsDescription": "2 BLDG OI"
+  ".OtherImprovementsDescription": "2 DWG"
+  ".OtherImprovementsDescription": "2 DWG FG FLAT OB OI"
+  ".OtherImprovementsDescription": "2 DWG FG OB OI"
+  ".OtherImprovementsDescription": "2 DWG FG OBS OI"
+  ".OtherImprovementsDescription": "2 DWG FLAT OI"
+  ".OtherImprovementsDescription": "2 DWG GARAGE OI"
+  ".OtherImprovementsDescription": "2 DWG GGE OI"
+  ".OtherImprovementsDescription": "2 DWG OB OI"
+  ".OtherImprovementsDescription": "2 DWG OBS "
+  ".OtherImprovementsDescription": "2 DWG OBS OI "
+  ".OtherImprovementsDescription": "2 DWG OBS OI"
+  ".OtherImprovementsDescription": "2 DWG OBS OI POOL"
+  ".OtherImprovementsDescription": "2 DWG OBS OI SHOP"
+  ".OtherImprovementsDescription": "2 DWG OI "
+  ".OtherImprovementsDescription": "2 DWG OI"
+  ".OtherImprovementsDescription": "2 DWG OI SLEEP OUT"
+  ".OtherImprovementsDescription": "2 DWG SLEEP OUT"
+  ".OtherImprovementsDescription": "2 DWGS OB OI"
+  ".OtherImprovementsDescription": "2 DWGS OBS OI FG"
+  ".OtherImprovementsDescription": "2 DWGS OI"
+  ".OtherImprovementsDescription": "2 FLAT "
+  ".OtherImprovementsDescription": "2 FLAT"
+  ".OtherImprovementsDescription": "2 FLAT OB OI"
+  ".OtherImprovementsDescription": "2 FLAT OBS OI "
+  ".OtherImprovementsDescription": "2 FLAT OBS OI"
+  ".OtherImprovementsDescription": "2 FLAT OI "
+  ".OtherImprovementsDescription": "2 FLAT OI"
+  ".OtherImprovementsDescription": "2 FLATS"
+  ".OtherImprovementsDescription": "2 FLATS, GARAGES & POOL"
+  ".OtherImprovementsDescription": "2 FLATS OB OI"
+  ".OtherImprovementsDescription": "2 FLATS OI"
+  ".OtherImprovementsDescription": "2 HOUSES"
+  ".OtherImprovementsDescription": "2 HOUSES AND GARAGES"
+  ".OtherImprovementsDescription": "2 HOUSES & GARAGE"
+  ".OtherImprovementsDescription": "2 UNIT"
+  ".OtherImprovementsDescription": "3 DWG OBS OI"
+  ".OtherImprovementsDescription": "3 DWG OI"
+  ".OtherImprovementsDescription": "3 FLAT"
+  ".OtherImprovementsDescription": "3 FLAT OBS OI "
+  ".OtherImprovementsDescription": "3 FLAT OBS OI"
+  ".OtherImprovementsDescription": "3 FLAT OBS OI SLEEP OUT"
+  ".OtherImprovementsDescription": "3 FLAT OI"
+  ".OtherImprovementsDescription": "3 FLATS"
+  ".OtherImprovementsDescription": "3 FLATS & CARPORT"
+  ".OtherImprovementsDescription": "3 FLATS & CARPORTS"
+  ".OtherImprovementsDescription": "3 FLATS OB OI"
+  ".OtherImprovementsDescription": "4 APARTMENT OI"
+  ".OtherImprovementsDescription": "4 DWG OI"
+  ".OtherImprovementsDescription": "4 FLAT"
+  ".OtherImprovementsDescription": "4 FLAT OBS OI "
+  ".OtherImprovementsDescription": "4 FLAT OBS OI"
+  ".OtherImprovementsDescription": "4 FLAT OI "
+  ".OtherImprovementsDescription": "4 FLAT OI"
+  ".OtherImprovementsDescription": "4 FLATS"
+  ".OtherImprovementsDescription": "4 FLATS OI"
+  ".OtherImprovementsDescription": "4 UNITS OI"
+  ".OtherImprovementsDescription": "5 APARTMENT 8 UNIT"
+  ".OtherImprovementsDescription": "5 FLAT OBS OI "
+  ".OtherImprovementsDescription": "5 FLAT OBS OI"
+  ".OtherImprovementsDescription": "5 FLAT OI"
+  ".OtherImprovementsDescription": "5 UNITS OBS OI"
+  ".OtherImprovementsDescription": "6 FLAT OBS OI "
+  ".OtherImprovementsDescription": "6 FLAT OBS OI"
+  ".OtherImprovementsDescription": "7 FLAT OBS OI"
+  ".OtherImprovementsDescription": "7 FLAT OI "
+  ".OtherImprovementsDescription": "8 APARTMENT OI"
+  ".OtherImprovementsDescription": "8 FLAT OB OI"
+  ".OtherImprovementsDescription": "8 FLAT OBS OI"
+  ".OtherImprovementsDescription": "APARTMENT "
+  ".OtherImprovementsDescription": "APARTMENT"
+  ".OtherImprovementsDescription": "APARTMENT 12G"
+  ".OtherImprovementsDescription": "APARTMENT 13G & CARPARK"
+  ".OtherImprovementsDescription": "APARTMENT 15C"
+  ".OtherImprovementsDescription": "APARTMENT 2B"
+  ".OtherImprovementsDescription": "APARTMENT & 2 CARPARK"
+  ".OtherImprovementsDescription": "APARTMENT & 2 CARPARKS"
+  ".OtherImprovementsDescription": "APARTMENT (3C)"
+  ".OtherImprovementsDescription": "APARTMENT 3E"
+  ".OtherImprovementsDescription": "APARTMENT 5A & CARPARK"
+  ".OtherImprovementsDescription": "APARTMENT & CARPARK"
+  ".OtherImprovementsDescription": "APARTMENT CAR PARK "
+  ".OtherImprovementsDescription": "APARTMENT CAR PARK OI"
+  ".OtherImprovementsDescription": "APARTMENT & CARPARKS"
+  ".OtherImprovementsDescription": "APARTMENT & CARPORT & PO"
+  ".OtherImprovementsDescription": "APARTMENT & CARPPARKS"
+  ".OtherImprovementsDescription": "APARTMENT & DOUBLE CARPA"
+  ".OtherImprovementsDescription": "APARTMENT F"
+  ".OtherImprovementsDescription": "APARTMENT & FLAT"
+  ".OtherImprovementsDescription": "APARTMENT & GARAGE"
+  ".OtherImprovementsDescription": "APARTMENT, GARAGE"
+  ".OtherImprovementsDescription": "APARTMENT (I) & CARPORT"
+  ".OtherImprovementsDescription": "APARTMENT (J2)"
+  ".OtherImprovementsDescription": "APARTMENT OBS OI"
+  ".OtherImprovementsDescription": "APARTMENT OI "
+  ".OtherImprovementsDescription": "APARTMENT OI"
+  ".OtherImprovementsDescription": "APARTMENT / PARKING"
+  ".OtherImprovementsDescription": "APARTMENT & PARKING"
+  ".OtherImprovementsDescription": "APARTMENT, PARKING"
+  ".OtherImprovementsDescription": "APARTMENT (UNIT 4C)"
+  ".OtherImprovementsDescription": "APARTMENT (UNIT A) & AU"
+  ".OtherImprovementsDescription": "APARTMENT (UNIT N)"
+  ".OtherImprovementsDescription": "APARTMENT (UNIT PU14) &"
+  ".OtherImprovementsDescription": "APMT"
+  ".OtherImprovementsDescription": "APMT OBS OI"
+  ".OtherImprovementsDescription": "APMT OI"
+  ".OtherImprovementsDescription": "APTMNT"
+  ".OtherImprovementsDescription": "BACH"
+  ".OtherImprovementsDescription": "BACH DWG FG OI"
+  ".OtherImprovementsDescription": "BACH DWG OBS OI"
+  ".OtherImprovementsDescription": "BACH OB OI "
+  ".OtherImprovementsDescription": "BACH OBS"
+  ".OtherImprovementsDescription": "BACH OBS OI "
+  ".OtherImprovementsDescription": "BACH OBS OI"
+  ".OtherImprovementsDescription": "BARN DWG FG FLAT OBS OI P"
+  ".OtherImprovementsDescription": "BASEMENT DWG OI"
+  ".OtherImprovementsDescription": "BLDG"
+  ".OtherImprovementsDescription": "BLDG 2 DWG OBS OI"
+  ".OtherImprovementsDescription": "BLDG COTTAGE DWG OBS OI"
+  ".OtherImprovementsDescription": "BLDG DWG OI"
+  ".OtherImprovementsDescription": "BLDG OI "
+  ".OtherImprovementsDescription": "BLDG OI"
+  ".OtherImprovementsDescription": "BLDG OI SPA POOL"
+  ".OtherImprovementsDescription": "BRD HSE OB OI"
+  ".OtherImprovementsDescription": "BRD HSE OFFICE"
+  ".OtherImprovementsDescription": "BUILDING UNDER ALTERATIO"
+  ".OtherImprovementsDescription": "CABLE CAR 2 FLAT OI"
+  ".OtherImprovementsDescription": "CAFE DWG FACTORY OB OI"
+  ".OtherImprovementsDescription": "CARPORT DWG GGE OI"
+  ".OtherImprovementsDescription": "CARPORT DWG OBS OI"
+  ".OtherImprovementsDescription": "CARPORT DWG OBS OI STUDIO"
+  ".OtherImprovementsDescription": "CARPORT DWG OI"
+  ".OtherImprovementsDescription": "CARPORT DWG OI POOL SPA P"
+  ".OtherImprovementsDescription": "CARPORT FLAT OI"
+  ".OtherImprovementsDescription": "CARPORT OI UNIT"
+  ".OtherImprovementsDescription": "CHAPEL DWG FG OB OI"
+  ".OtherImprovementsDescription": "CONSRVTRY DWG OBS OI"
+  ".OtherImprovementsDescription": "CONSRVTRY DWG OBS OI POOL SPA "
+  ".OtherImprovementsDescription": "CONSRVTRY DWG OI"
+  ".OtherImprovementsDescription": "CONSRVTRY FLAT OI"
+  ".OtherImprovementsDescription": "COTTAGE DWG OB OI"
+  ".OtherImprovementsDescription": "COTTAGE OB OI"
+  ".OtherImprovementsDescription": "CRIB OBS OI "
+  ".OtherImprovementsDescription": "DBLEGGE DECK DWG FG OI"
+  ".OtherImprovementsDescription": "DBLEGGE DWG OI"
+  ".OtherImprovementsDescription": "DBLEGGE DWG OI SLEEP OUT"
+  ".OtherImprovementsDescription": "DECK DWG OI"
+  ".OtherImprovementsDescription": "DWELLING"
+  ".OtherImprovementsDescription": "DWELLING & CARPORT"
+  ".OtherImprovementsDescription": "DWELLING & GARAGE"
+  ".OtherImprovementsDescription": "DWELLING OB OI"
+  ".OtherImprovementsDescription": "DWELLING OBS OI"
+  ".OtherImprovementsDescription": "DWELLING O/I O/BS"
+  ".OtherImprovementsDescription": "DWG "
+  ".OtherImprovementsDescription": "DWG"
+  ".OtherImprovementsDescription": "DWG 2 FLAT OB OI"
+  ".OtherImprovementsDescription": "DWG 2 FLAT OBS OI"
+  ".OtherImprovementsDescription": "DWG 2 FLAT OI"
+  ".OtherImprovementsDescription": "DWG 2 OB OI"
+  ".OtherImprovementsDescription": "DWG 2X UNITS FG OB OI"
+  ".OtherImprovementsDescription": "DWG 4 FLAT OB OI "
+  ".OtherImprovementsDescription": "DWG 4 FLAT OI"
+  ".OtherImprovementsDescription": "DWG 6 UNITS OI"
+  ".OtherImprovementsDescription": "DWG COTTAGE OB OI"
+  ".OtherImprovementsDescription": "DWG FG FLAT OI"
+  ".OtherImprovementsDescription": "DWG FG OB"
+  ".OtherImprovementsDescription": "DWG FG OB OI"
+  ".OtherImprovementsDescription": "DWG FG OB OI POOL"
+  ".OtherImprovementsDescription": "DWG FG OB OI POOL STABLE"
+  ".OtherImprovementsDescription": "DWG FG OBS OI "
+  ".OtherImprovementsDescription": "DWG FG OBS OI"
+  ".OtherImprovementsDescription": "DWG FG OBS OI POOL"
+  ".OtherImprovementsDescription": "DWG FG OI"
+  ".OtherImprovementsDescription": "DWG FG OI SHED"
+  ".OtherImprovementsDescription": "DWG FG OI UNIT"
+  ".OtherImprovementsDescription": "DWG FLAT GGE OI"
+  ".OtherImprovementsDescription": "DWG FLAT OB OI"
+  ".OtherImprovementsDescription": "DWG FLAT OBS"
+  ".OtherImprovementsDescription": "DWG FLAT OBS OI "
+  ".OtherImprovementsDescription": "DWG FLAT OBS OI"
+  ".OtherImprovementsDescription": "DWG FLAT OBS OI POOL"
+  ".OtherImprovementsDescription": "DWG FLAT OI "
+  ".OtherImprovementsDescription": "DWG FLAT OI"
+  ".OtherImprovementsDescription": "DWG FLAT OI POOL"
+  ".OtherImprovementsDescription": "DWG GARAGE OI"
+  ".OtherImprovementsDescription": "DWG GGE"
+  ".OtherImprovementsDescription": "DWG GGE OBS OI"
+  ".OtherImprovementsDescription": "DWG GGE OI "
+  ".OtherImprovementsDescription": "DWG GGE OI"
+  ".OtherImprovementsDescription": "DWG GGE OI SLEEP OUT"
+  ".OtherImprovementsDescription": "DWG GGE OI SLEEP OUT UNIT"
+  ".OtherImprovementsDescription": "DWG GGE OI STUDIO"
+  ".OtherImprovementsDescription": "DWG GLASS HSE OBS OI"
+  ".OtherImprovementsDescription": "DWG GRANNYFLAT OBS OI"
+  ".OtherImprovementsDescription": "DWG GRANNYFLAT OI"
+  ".OtherImprovementsDescription": "DWG GRNNY GGE"
+  ".OtherImprovementsDescription": "DWG OB "
+  ".OtherImprovementsDescription": "DWG OB"
+  ".OtherImprovementsDescription": "DWG OB 2 OI S/POOL"
+  ".OtherImprovementsDescription": "DWG O/B O/I"
+  ".OtherImprovementsDescription": "DWG OB OI "
+  ".OtherImprovementsDescription": "DWG OB OI"
+  ".OtherImprovementsDescription": "DWG OB OI FG"
+  ".OtherImprovementsDescription": "DWG OB OI POOL"
+  ".OtherImprovementsDescription": "DWG OB OI SLEEP OUT"
+  ".OtherImprovementsDescription": "DWG OB OI UNIT"
+  ".OtherImprovementsDescription": "DWG OBS "
+  ".OtherImprovementsDescription": "DWG O/BS O/I"
+  ".OtherImprovementsDescription": "DWG OBS OI "
+  ".OtherImprovementsDescription": "DWG OBS OI"
+  ".OtherImprovementsDescription": "DWG OBS OI POOL "
+  ".OtherImprovementsDescription": "DWG OBS OI POOL"
+  ".OtherImprovementsDescription": "DWG OBS OI POOL SLEEP OUT"
+  ".OtherImprovementsDescription": "DWG OBS OI POOL SPA POOL"
+  ".OtherImprovementsDescription": "DWG OBS OI POOL SPA POOL STUDI"
+  ".OtherImprovementsDescription": "DWG OBS OI PUMP HSE"
+  ".OtherImprovementsDescription": "DWG OBS OI SLEEP OUT"
+  ".OtherImprovementsDescription": "DWG OBS OI SPA POOL"
+  ".OtherImprovementsDescription": "DWG OBS OI UNIT"
+  ".OtherImprovementsDescription": "DWG OBS OI WORKSHOP"
+  ".OtherImprovementsDescription": "Dwg OI"
+  ".OtherImprovementsDescription": " DWG OI"
+  ".OtherImprovementsDescription": "DWG OI "
+  ".OtherImprovementsDescription": "DWG OI"
+  ".OtherImprovementsDescription": "DWG OI FG"
+  ".OtherImprovementsDescription": "DWG OI FLAT"
+  ".OtherImprovementsDescription": "DWG OI OB"
+  ".OtherImprovementsDescription": "DWG OI OB FG POOL"
+  ".OtherImprovementsDescription": "DWG OI OBS"
+  ".OtherImprovementsDescription": "DWG OI OBS SLEEPOUT"
+  ".OtherImprovementsDescription": "DWG OI POOL"
+  ".OtherImprovementsDescription": "DWG OI POOL SPA POOL"
+  ".OtherImprovementsDescription": "DWG OI SHED"
+  ".OtherImprovementsDescription": "DWG OI SLEEP OUT "
+  ".OtherImprovementsDescription": "DWG OI SLEEP OUT"
+  ".OtherImprovementsDescription": "DWG OI SLEEP OUT UNIT"
+  ".OtherImprovementsDescription": "DWG OI SPA POOL"
+  ".OtherImprovementsDescription": "DWG OI STUDIO"
+  ".OtherImprovementsDescription": "DWG OI UNIT"
+  ".OtherImprovementsDescription": "DWG POOL OBS OI"
+  ".OtherImprovementsDescription": "DWG POOL OI"
+  ".OtherImprovementsDescription": "DWGS"
+  ".OtherImprovementsDescription": "DWG SALON"
+  ".OtherImprovementsDescription": "DWG SHED"
+  ".OtherImprovementsDescription": "DWG SHOP"
+  ".OtherImprovementsDescription": "DWG SLEEP"
+  ".OtherImprovementsDescription": "DWG SLEEP CRPRT GGE OBS"
+  ".OtherImprovementsDescription": "DWG SLEEP GGE"
+  ".OtherImprovementsDescription": "DWGS SLEEP"
+  ".OtherImprovementsDescription": "DWG UNIT OB OI"
+  ".OtherImprovementsDescription": "FG"
+  ".OtherImprovementsDescription": "FG OI"
+  ".OtherImprovementsDescription": "FLAT"
+  ".OtherImprovementsDescription": "FLAT 1"
+  ".OtherImprovementsDescription": "FLAT 2"
+  ".OtherImprovementsDescription": "FLAT 2 & CARPORT"
+  ".OtherImprovementsDescription": "FLAT 2 & GARAGE"
+  ".OtherImprovementsDescription": "FLAT 3"
+  ".OtherImprovementsDescription": "FLAT 3 & CARPORT 5"
+  ".OtherImprovementsDescription": "FLAT 3 & GARAGE 6"
+  ".OtherImprovementsDescription": "FLAT 4 & CARPORT"
+  ".OtherImprovementsDescription": "FLAT 6"
+  ".OtherImprovementsDescription": "FLAT 6 CARSPACE 5 STORE"
+  ".OtherImprovementsDescription": "FLAT 7"
+  ".OtherImprovementsDescription": "FLAT & CARPARK"
+  ".OtherImprovementsDescription": "FLAT & CARPORT"
+  ".OtherImprovementsDescription": "FLAT, CARPORT"
+  ".OtherImprovementsDescription": "FLAT CARPORT & GARAGE"
+  ".OtherImprovementsDescription": "FLAT (FLAT 2)"
+  ".OtherImprovementsDescription": "FLAT & GARAGE"
+  ".OtherImprovementsDescription": "FLAT, GARAGE"
+  ".OtherImprovementsDescription": "FLAT GGE"
+  ".OtherImprovementsDescription": "FLAT GGE OI"
+  ".OtherImprovementsDescription": "FLAT OB OI "
+  ".OtherImprovementsDescription": "FLAT OB OI"
+  ".OtherImprovementsDescription": "FLAT OBS "
+  ".OtherImprovementsDescription": "FLAT OBS"
+  ".OtherImprovementsDescription": "FLAT OBS OI "
+  ".OtherImprovementsDescription": "FLAT OBS OI"
+  ".OtherImprovementsDescription": "FLAT OI "
+  ".OtherImprovementsDescription": "FLAT OI"
+  ".OtherImprovementsDescription": "FLAT OI SPA POOL"
+  ".OtherImprovementsDescription": "FLAT, RETAIL SHOP"
+  ".OtherImprovementsDescription": "FLATS"
+  ".OtherImprovementsDescription": "FLAT SLEEP OI"
+  ".OtherImprovementsDescription": "FLATS OI"
+  ".OtherImprovementsDescription": "GRNNY GGE"
+  ".OtherImprovementsDescription": "HOME UNIT OI"
+  ".OtherImprovementsDescription": "HOSTEL OI"
+  ".OtherImprovementsDescription": "HOUSE"
+  ".OtherImprovementsDescription": "HOUSE (2 FLATS)"
+  ".OtherImprovementsDescription": "HOUSE & 2 FLATS"
+  ".OtherImprovementsDescription": "HOUSE & 2 GARAGES"
+  ".OtherImprovementsDescription": "HOUSE & 2 SLEEPOUT"
+  ".OtherImprovementsDescription": "HOUSE & ANNEXE BUILDING"
+  ".OtherImprovementsDescription": "HOUSE & BASEMENT FLAT &"
+  ".OtherImprovementsDescription": "HOUSE & CARPORT"
+  ".OtherImprovementsDescription": "HOUSE, CARPORT"
+  ".OtherImprovementsDescription": "HOUSE & CARPORT (FLAT 1)"
+  ".OtherImprovementsDescription": "HOUSE & CARPORT & GARAGE"
+  ".OtherImprovementsDescription": "HOUSE, CARPORT, GARAGE"
+  ".OtherImprovementsDescription": "HOUSE & CARPORT & GRANNY"
+  ".OtherImprovementsDescription": "HOUSE & CARPORT & SHED"
+  ".OtherImprovementsDescription": "HOUSE & CARPORT & SLEEPO"
+  ".OtherImprovementsDescription": "HOUSE & DOUBLE GARAGE"
+  ".OtherImprovementsDescription": "HOUSE &  FLAT"
+  ".OtherImprovementsDescription": "HOUSE & FLAT"
+  ".OtherImprovementsDescription": "HOUSE - FLAT 1"
+  ".OtherImprovementsDescription": "HOUSE (FLAT 1)"
+  ".OtherImprovementsDescription": "HOUSE (FLAT 1) & CARPORT"
+  ".OtherImprovementsDescription": "HOUSE (FLAT 1) & GARAGE"
+  ".OtherImprovementsDescription": "HOUSE (FLAT 2)"
+  ".OtherImprovementsDescription": "HOUSE (FLAT 2) & CARPORT"
+  ".OtherImprovementsDescription": "HOUSE (FLAT 3)"
+  ".OtherImprovementsDescription": "HOUSE (FLAT 4)"
+  ".OtherImprovementsDescription": "HOUSE, FLAT & CARPORT"
+  ".OtherImprovementsDescription": "HOUSE (FLAT) & GARAGE"
+  ".OtherImprovementsDescription": "HOUSE, FLAT & GARAGE"
+  ".OtherImprovementsDescription": "HOUSE, FLAT, GARAGE"
+  ".OtherImprovementsDescription": "HOUSE FLAT GARAGE & CARP"
+  ".OtherImprovementsDescription": "HOUSE & GARAGE"
+  ".OtherImprovementsDescription": "HOUSE, GARAGE"
+  ".OtherImprovementsDescription": "HOUSE & GARAGE & CARPORT"
+  ".OtherImprovementsDescription": "HOUSE, GARAGE, CARPORT"
+  ".OtherImprovementsDescription": "HOUSE & GARAGE & FLAT"
+  ".OtherImprovementsDescription": "HOUSE & GARAGE (FLAT 1)"
+  ".OtherImprovementsDescription": "HOUSE & GARAGE & POOL"
+  ".OtherImprovementsDescription": "HOUSE, GARAGE, POOL, SLE"
+  ".OtherImprovementsDescription": "HOUSE, GARAGE, POOLS, TE"
+  ".OtherImprovementsDescription": "HOUSE & GARAGES"
+  ".OtherImprovementsDescription": "HOUSE & GARAGE & SHED"
+  ".OtherImprovementsDescription": "HOUSE & GARAGE SHED & FL"
+  ".OtherImprovementsDescription": "HOUSE & GARAGE & SLEEPOU"
+  ".OtherImprovementsDescription": "HOUSE, PARKING"
+  ".OtherImprovementsDescription": "HOUSE & POOL"
+  ".OtherImprovementsDescription": "HOUSE, POOL, GARAGE"
+  ".OtherImprovementsDescription": "HOUSE, POOL, GARAGE & CA"
+  ".OtherImprovementsDescription": "HOUSE, POOLS, GARAGES &"
+  ".OtherImprovementsDescription": "HOUSES (2)"
+  ".OtherImprovementsDescription": "HOUSE & SHED"
+  ".OtherImprovementsDescription": "HOUSE & SHED GARAGE"
+  ".OtherImprovementsDescription": "HOUSE & SLEEPOUT"
+  ".OtherImprovementsDescription": "HOUSE, SLEEPOUT"
+  ".OtherImprovementsDescription": "HOUSE, SLEEPOUT, GARAGE"
+  ".OtherImprovementsDescription": "HOUSE & SPA"
+  ".OtherImprovementsDescription": "HOUSE & TENNIS COURT"
+  ".OtherImprovementsDescription": "HOUSE & TWO BASE FLATS"
+  ".OtherImprovementsDescription": "HOUSE U/C"
+  ".OtherImprovementsDescription": "HOUSE & WORKSHOP"
+  ".OtherImprovementsDescription": "HS"
+  ".OtherImprovementsDescription": "HSE"
+  ".OtherImprovementsDescription": "LAND"
+  ".OtherImprovementsDescription": "MAAGERS FLAT & CARPARK &"
+  ".OtherImprovementsDescription": null
+  ".OtherImprovementsDescription": "OB"
+  ".OtherImprovementsDescription": "OB OI"
+  ".OtherImprovementsDescription": "OB OI 2 UNIT"
+  ".OtherImprovementsDescription": "OB OI DWG"
+  ".OtherImprovementsDescription": "OB OI STUDIO TCE HSE"
+  ".OtherImprovementsDescription": "OB OI TERRACE"
+  ".OtherImprovementsDescription": "OB OI TOWN HOUSE"
+  ".OtherImprovementsDescription": "OB OI UNIT"
+  ".OtherImprovementsDescription": "OBS"
+  ".OtherImprovementsDescription": "OBS OI UNIT "
+  ".OtherImprovementsDescription": "OBS OI UNIT"
+  ".OtherImprovementsDescription": "OBS OI UNITS"
+  ".OtherImprovementsDescription": "OBS UNIT"
+  ".OtherImprovementsDescription": "OI"
+  ".OtherImprovementsDescription": "OI 11 UNIT"
+  ".OtherImprovementsDescription": "OI 2 UNIT"
+  ".OtherImprovementsDescription": "OI 3 UNIT"
+  ".OtherImprovementsDescription": "OI 42 UNIT"
+  ".OtherImprovementsDescription": "OI 4 UNIT"
+  ".OtherImprovementsDescription": "OI 5 UNIT"
+  ".OtherImprovementsDescription": "OI 7 UNIT"
+  ".OtherImprovementsDescription": "OI DWG"
+  ".OtherImprovementsDescription": "OI RES ACCOM"
+  ".OtherImprovementsDescription": "OI TOWN HOUSE "
+  ".OtherImprovementsDescription": "OI TOWN HOUSE"
+  ".OtherImprovementsDescription": "OI UNIT "
+  ".OtherImprovementsDescription": "OI UNIT"
+  ".OtherImprovementsDescription": "SHOP & FLAT"
+  ".OtherImprovementsDescription": "SIX FLATS & SIX GARAGES"
+  ".OtherImprovementsDescription": "TERRACE HOUSE"
+  ".OtherImprovementsDescription": "TERRACE HOUSE & GARAGE"
+  ".OtherImprovementsDescription": "TERRACE HOUSE, GARAGE"
+  ".OtherImprovementsDescription": "TERRACE HOUSE (UNIT UU)"
+  ".OtherImprovementsDescription": "TERRACE HOUSE (UNIT VV)"
+  ".OtherImprovementsDescription": "T/HOUSE"
+  ".OtherImprovementsDescription": "T/HOUSE & CARPORT"
+  ".OtherImprovementsDescription": "T/HOUSE (FLAT 1)"
+  ".OtherImprovementsDescription": "T/HOUSE (FLAT 2)"
+  ".OtherImprovementsDescription": "T/HOUSE & GARAGE"
+  ".OtherImprovementsDescription": "THSE"
+  ".OtherImprovementsDescription": "THSE OI"
+  ".OtherImprovementsDescription": "TOWN HOUSE"
+  ".OtherImprovementsDescription": "TOWNHOUSE"
+  ".OtherImprovementsDescription": "TOWNHOUSE (FLAT 1)"
+  ".OtherImprovementsDescription": "TOWNHOUSE (FLAT 3) & GAR"
+  ".OtherImprovementsDescription": "TOWN HOUSE, GARAGE"
+  ".OtherImprovementsDescription": "TOWNHOUSE OI"
+  ".OtherImprovementsDescription": "TOWNHOUSE OIS"
+  ".OtherImprovementsDescription": "UNIT "
+  ".OtherImprovementsDescription": "UNIT"
+  ".OtherImprovementsDescription": "UNIT A & GARAGE"
+  ".OtherImprovementsDescription": "UNIT & CARPARK"
+  ".OtherImprovementsDescription": "UNIT (FLAT 2)"
+  ".OtherImprovementsDescription": "UNIT K"
+  ".OtherImprovementsDescription": "UNIT OB OI"
+  ".OtherImprovementsDescription": "UNIT OBS OI"
+  ".OtherImprovementsDescription": "UNIT OI"
+  ".OtherImprovementsDescription": "UNIT OI GGE"
+  ".OtherImprovementsDescription": "UNIT (UNIT C)"
+  ".PropertyType": "Apartments"
+  ".PropertyType": "Bare Block"
+  ".PropertyType": "Converted to flats"
+  ".PropertyType": "Dwelling"
+  ".PropertyTypeGroup": "Apartment"
+  ".PropertyTypeGroup": "House"
+  ".PropertyTypeGroup": "Section"
+  ".PropertyType": "Home and Income"
+  ".PropertyType": "Improved"
+  ".PropertyType": "More than 1 dwelling"
+  ".PropertyType": "Ownership Home units"
+  ".PropertyType": "Rental Flats"
+  ".PropertyType": "Vacant"
+  ".PropertyType": "Vacant (single res.)"
+  ".RoofCondition": 0
+  ".RoofCondition": 1
+  ".RoofCondition": 2
+  ".RoofCondition": 3
+  ".RoofCondition": 4
+  ".RoofCondition": 5
+  ".RoofMaterial": 0
+  ".RoofMaterial": 1
+  ".RoofMaterial": 10
+  ".RoofMaterial": 11
+  ".RoofMaterial": 12
+  ".RoofMaterial": 13
+  ".RoofMaterial": 2
+  ".RoofMaterial": 3
+  ".RoofMaterial": 5
+  ".RoofMaterial": 6
+  ".RoofMaterial": 9
+  ".ViewScope": 0
+  ".ViewScope": 1
+  ".ViewScope": 2
+  ".ViewScope": 3
+  ".ViewScope": 4
+  ".ViewType": 0
+  ".ViewType": 1
+  ".ViewType": 2
+  ".ViewType": 3
+  ".WallCondition": 0
+  ".WallCondition": 1
+  ".WallCondition": 2
+  ".WallCondition": 3
+  ".WallCondition": 4
+  ".WallCondition": 5
+  ".WallMaterial": 0
+  ".WallMaterial": 1
+  ".WallMaterial": 10
+  ".WallMaterial": 11
+  ".WallMaterial": 12
+  ".WallMaterial": 13
+  ".WallMaterial": 2
+  ".WallMaterial": 3
+  ".WallMaterial": 4
+  ".WallMaterial": 5
+  ".WallMaterial": 6
+  ".WallMaterial": 7
+  ".WallMaterial": 8
+  ".WallMaterial": 9

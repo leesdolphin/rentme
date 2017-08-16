@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 
 from django.db import migrations
 import rentme.web.models._utils
-import trademe.models.enums
+import api.trademe.enums
 
 
 class Migration(migrations.Migration):
@@ -17,6 +17,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='listing',
             name='allows_pickups',
-            field=rentme.web.models._utils.EnumIntegerField(enum=trademe.models.enums.AllowsPickups),
+            field=rentme.web.models._utils.EnumIntegerField(enum=api.trademe.enums.AllowsPickups),
         ),
     ]

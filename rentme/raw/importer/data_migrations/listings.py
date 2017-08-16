@@ -1,3 +1,5 @@
+from pprint import pprint
+
 from aioutils.celery import asyncio_task, delay_or_call
 from celery.utils.log import get_task_logger
 from django.db import transaction
@@ -5,8 +7,7 @@ from django.db import transaction
 from rentme.celery.celery_app import app
 from rentme.raw.models.search import Property, Flatmate
 from rentme.raw.models.listings import ListedItemDetail
-from ._utils import migrate_model, migrate_merge_model
-from .error import ModelDataMissing
+from ._utils import migrate_model, migrate_merge_model, model_to_dict
 from rentme.data.models import listings, catalogue, members
 
 
@@ -33,16 +34,46 @@ async def migrate_listing(listing_id, *, loop):
         )
         listing_type = listings.ListingType.FLATMATE
 
-    broadband_techs = migrate_broadband_technologies(
+    broadband_techs = await migrate_broadband_technologies(
         old_listing.broadband_technologies.all())
-    photos = migrate_photos(old_listing.photos.all())
-    agency = migrate_agency(old_listing.agency)
-    geo = migrate_geolocation(old_listing.geographic_location)
-    embedded_content = migrate_embedded_content(old_listing.embedded_content)
-    photo = try_get(listings.Photo, photo_id=old_listing.photo_id)
-    category = try_get(catalogue.Category, path=old_listing.category_path)
-    suburb = try_get(catalogue.Suburb, suburb_id=old_listing.suburb_id)
-    member = try_get(members.Member, member_id=old_listing.member.member_id)
+    photos = await migrate_photos(old_listing.photos.all())
+    agency = await migrate_agency(old_listing.agency)
+    geo = await migrate_geolocation(old_listing.geographic_location)
+    embedded_content = await migrate_embedded_content(
+        old_listing.embedded_content
+    )
+    photo = await try_get(listings.Photo, photo_id=old_listing.photo_id)
+    category = await try_get(
+        catalogue.Category,
+        path=old_listing.category_path
+    )
+    suburb_by_id = await try_get(
+        catalogue.Suburb,
+        suburb_id=old_listing.suburb_id,
+        district__district_id=old_listing.region_id
+    )
+    suburb_by_name = await try_get(
+        catalogue.Suburb,
+        name=old_listing.suburb,
+        district__name=old_listing.region
+    )
+    member = await try_get(
+        members.Member,
+        member_id=old_listing.member.member_id
+    )
+
+    if suburb_by_name is None and suburb_by_id is None:
+        print("Cannot find suburb: ", dict(
+            suburb_id=old_listing.suburb_id,
+            suburb_name=old_listing.suburb,
+            district_id=old_listing.region_id,
+            district_name=old_listing.region
+        ))
+        suburb = None
+    elif suburb_by_name is not None:
+        suburb = suburb_by_name
+    else:
+        suburb = suburb_by_id
 
     new_listing = migrate_merge_model(
         [search_listing, old_listing],
@@ -64,7 +95,7 @@ async def migrate_listing(listing_id, *, loop):
     return new_listing
 
 
-def try_get(model, **lookup):
+async def try_get(model, **lookup):
     if not lookup or all(v is None for v in lookup.values()):
         return None
     try:
@@ -109,21 +140,21 @@ def update_attributes(new_listing, old_attrs):
     return new_attrs
 
 
-def migrate_agency(old_agency):
+async def migrate_agency(old_agency):
     if not old_agency:
         return None
-    new_branding = migrate_branding(old_agency.branding)
+    new_branding = await migrate_branding(old_agency.branding)
     new_agency = migrate_model(
         old_agency,
         listings.Agency,
         branding=new_branding,
     )
     for old_agent in old_agency.agents.all():
-        migrate_agent(old_agent, new_agency=new_agency)
+        await migrate_agent(old_agent, new_agency=new_agency)
     return new_agency
 
 
-def migrate_agent(old_agent, *, new_agency):
+async def migrate_agent(old_agent, *, new_agency):
     new_agent = migrate_model(
         old_agent,
         listings.Agent,
@@ -132,7 +163,7 @@ def migrate_agent(old_agent, *, new_agency):
     return new_agent
 
 
-def migrate_attrs(old_attrs, *, exclude=()):
+async def migrate_attrs(old_attrs, *, exclude=()):
     new_attrs = []
     for old_attr in old_attrs:
         if old_attr.name in exclude:
@@ -145,7 +176,7 @@ def migrate_attrs(old_attrs, *, exclude=()):
     return new_attrs
 
 
-def migrate_branding(old_branding):
+async def migrate_branding(old_branding):
     new_branding = migrate_model(
         old_branding,
         listings.Branding,
@@ -153,7 +184,7 @@ def migrate_branding(old_branding):
     return new_branding
 
 
-def migrate_broadband_technologies(old_broadband_techs):
+async def migrate_broadband_technologies(old_broadband_techs):
     new_techs = []
     for old_broadband in old_broadband_techs:
         new_broadband = migrate_model(
@@ -164,7 +195,7 @@ def migrate_broadband_technologies(old_broadband_techs):
     return new_techs
 
 
-def migrate_embedded_content(old_embedded_content):
+async def migrate_embedded_content(old_embedded_content):
     new_embedded_content = migrate_model(
         old_embedded_content,
         listings.EmbeddedContent,
@@ -172,7 +203,7 @@ def migrate_embedded_content(old_embedded_content):
     return new_embedded_content
 
 
-def migrate_geolocation(old_geolocation):
+async def migrate_geolocation(old_geolocation):
     new_geo = migrate_model(
         old_geolocation,
         listings.GeographicLocation,
@@ -180,7 +211,7 @@ def migrate_geolocation(old_geolocation):
     return new_geo
 
 
-def migrate_member(old_member):
+async def migrate_member(old_member):
     new_member = migrate_model(
         old_member,
         members.Member,
@@ -189,18 +220,26 @@ def migrate_member(old_member):
 
 
 def migrate_photo(old_photo):
-    new_photo = migrate_model(
-        old_photo,
+    if old_photo.photo_id == 0:
+        return None
+    new_photo = migrate_merge_model(
+        [old_photo.value, old_photo],
         listings.Photo,
     )
+    if new_photo.full_size is None:
+        print("Old Value, Old, New")
+        pprint(model_to_dict(old_photo.value))
+        pprint(model_to_dict(old_photo))
+        pprint(model_to_dict(new_photo))
     return new_photo
 
 
-def migrate_photos(old_photos):
+async def migrate_photos(old_photos):
     new_photos = []
     for old_photo in old_photos:
         new_photo = migrate_photo(old_photo)
-        new_photos.append(new_photo)
+        if new_photo:
+            new_photos.append(new_photo)
     return new_photos
 
 

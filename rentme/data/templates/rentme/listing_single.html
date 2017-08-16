@@ -10,13 +10,14 @@
 {% block title %}TradeMe Listing -- {{listing.title}}{% endblock %}
 
 {% block content %}
+{% debug %}
 <div class="page-header">
   <h1>{{listing.title}} <small>${{ listing.rent_per_week }}/week &mdash; {{listing.address|default:""}}</small></h1>
   <h2>{{ listing.suburb.district.locality.name }} &rarr; {{ listing.suburb.district.name }} &rarr; {{ listing.suburb.name }}</h2>
 </div>
 <div class="row">
     <div class="col-sm-12 col-md-6">
-{% include 'rentme/incl/listing_gallery.html' with photos=listing.all_photos carousel=1 only %}
+{% include 'rentme/incl/listing_gallery.html' with photos=listing.photos.all carousel=1 only %}
     </div>
     <div class="col-sm-12 col-md-6">
         <div>

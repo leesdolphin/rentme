@@ -5,7 +5,7 @@ from __future__ import unicode_literals
 from django.db import migrations, models
 import django.db.models.deletion
 import rentme.data.models._utils
-import trademe.models.enums
+import api.trademe.enums
 
 
 class Migration(migrations.Migration):
@@ -145,7 +145,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Category',
             fields=[
-                ('area_of_business', rentme.data.models._utils.EnumIntegerField(enum=trademe.models.enums.AreaOfBusiness, help_text='Area of business this category is related to', null=True)),
+                ('area_of_business', rentme.data.models._utils.EnumIntegerField(enum=api.trademe.enums.AreaOfBusiness, help_text='Area of business this category is related to', null=True)),
                 ('can_be_second_category', models.NullBooleanField(help_text='Indicates whether this category can be selected as a second category.')),
                 ('can_have_second_category', models.NullBooleanField(help_text='Indicates whether this category can be paired with a second category.')),
                 ('count', models.IntegerField(help_text='The number of items for sale in this category.', null=True)),

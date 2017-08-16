@@ -1,5 +1,6 @@
-from trademe2.api.base import TradeMeApiEndpoint, APIManagerBase
-from trademe2.api.validation import ParameterValidator
+from api.trademe.base import TradeMeApiEndpoint
+from api.base.validation import ParameterValidator
+from api.base.manager import APIManagerBase
 
 
 class CategoriesEndpoint(TradeMeApiEndpoint):

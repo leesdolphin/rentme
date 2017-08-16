@@ -42,33 +42,12 @@ class RentalListView(ListView):
         pprint(list(suburbs))
 
         qs = super().get_queryset()
-        # pprint(list(qs))
         qs = qs.filter(rent_per_week__lt=500, rent_per_week__gt=200)
-        pprint(list(qs))
         qs = qs.filter(suburb__in=suburbs)
         pprint(list(qs))
         return qs
 
 
-
 class RentalView(DetailView):
     template_name = 'rentme/listing_single.html'
-    # model = models.listing.Listing
-
-
-def load_all_base_data(request):
-    catalogue.reload_localities.apply_async()
-    catalogue.reload_categories.apply_async()
-    catalogue.reload_membership_localities.apply_async()
-    return redirect('home')
-
-
-def load_search_rentals(request):
-    kwargs = {key: val for key, val in request.GET.items()}
-    x = api.search_rentals(**kwargs)
-    return HttpResponse('Loaded ' + str(len(x)) + ' properties')
-
-
-def load_rental(request, id):
-    x = api.load_rental(id)
-    return HttpResponse('Loaded property')
+    model = models.listings.Listing

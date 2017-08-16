@@ -1,17 +1,14 @@
 import asyncio
 import base64
 import collections
-import hashlib
 import http.cookies
-import pathlib
-import pickle
-import urllib.parse
 
 import aiohttp
 import aiohttp.http_writer
-import aioutils.aiohttp
 import multidict
 import yarl
+
+from ..rate_limit import RateLimitingSession
 
 
 class CacheInfo(collections.namedtuple('CacheInfo', 'hits misses attempts')):
@@ -45,7 +42,8 @@ class CachedResponse(aiohttp.client.ClientResponse):
             for key, value in data['raw_headers']
         )
         data['cookies'] = http.cookies.SimpleCookie(
-            '\r\n'.join(data['cookies']))
+            '\r\n'.join(data['cookies'])
+        )
 
         return cls(**data)
 
@@ -128,16 +126,13 @@ class CachingClientSession(aiohttp.client.ClientSession):
     def cache_info(self):
         return self._cache_info
 
-    async def _request(self, method, url, **kwargs):
-        if kwargs.pop('no_cache', False):
-            try:
-                return await super()._request(method, url, **kwargs)
-            except:
-                await asyncio.sleep(2.5)
+    async def _request(self, method, url, *,
+                       cache_filter=None, no_cache=False, **kwargs):
+        if no_cache:
+            return await super()._request(method, url, **kwargs)
         self._cache_info = self._cache_info._increment(attempts=1)
-
         cached_response = await self._cache_strategy.get_cached_response(
-            method, url, **kwargs)
+            method, url, cache_filter=cache_filter, **kwargs)
         if cached_response is not None:
             self._cache_info = self._cache_info._increment(hits=1)
             return cached_response
@@ -146,112 +141,25 @@ class CachingClientSession(aiohttp.client.ClientSession):
         print('Cache miss for', method, url)
         real_response = await super()._request(method, url, **kwargs)
         await self._cache_strategy.do_cache_response(
-            real_response, method, url, **kwargs)
-        try:
-            return real_response
-        except:
-            await asyncio.sleep(2.5)
+            real_response, method, url, cache_filter=cache_filter, **kwargs
+        )
+        return real_response
 
 
-class CachingStrategy(object):
+class RateLimitingCachingClientSession(
+        RateLimitingSession,
+        CachingClientSession):
 
-    @staticmethod
-    def standardise_url(url):
-        parsed = urllib.parse.urlsplit(url)
-        parsed_qs = urllib.parse.urlencode(sorted(
-            urllib.parse.parse_qsl(parsed.query)))
-        parsed = parsed._replace(query=parsed_qs)
-        return urllib.parse.urlunsplit(parsed)
-
-    async def get_cached_response(self, method, url, **kwargs):
-        raise NotImplementedError()
-
-    async def do_cache_response(self, response, method, url, **kwargs):
-        raise NotImplementedError()
-
-
-class InMemoryCachingStrategy(CachingStrategy):
-
-    def __init__(self, *a, **k):
+    def __init__(self, *a, cache_miss_delay=10, **k):
         super().__init__(*a, **k)
-        self._cache = {}
+        self.cache_miss_delay = float(cache_miss_delay)
+        assert self.cache_miss_delay > 0
 
-    def get_cache_key(self, method, url, **kwargs):
-        return method, self.standardise_url(url), frozenset(kwargs.items())
-
-    async def get_cached_response(self, method, url, **kwargs):
-        key = self.get_cache_key(method, url, **kwargs)
-        return self._cache.get(key, None)
-
-    async def do_cache_response(self, response, method, url, **kwargs):
-        key = self.get_cache_key(method, url, **kwargs)
-        response = await CachedResponse.from_response(response)
-        self._cache[key] = response
-
-
-class OnDiskCachingStrategy(CachingStrategy):
-
-    def __init__(self, *a, cache_folder, **k):
-        self.cache_folder = pathlib.Path(cache_folder).resolve()
-        self.cache_folder.mkdir(exist_ok=True)
-        super().__init__(*a, **k)
-
-    def _get_filename(self, method, url, **kwargs):
-        key = hashlib.sha512()
-        key.update(method.encode())
-        key.update(self.standardise_url(url).encode())
-        key.update(repr(sorted(kwargs.items())).encode())
-        file = self.cache_folder / (key.hexdigest() + '.pickle')
-        return file
-
-    async def get_cached_response(self, method, url, **kwargs):
-        filename = self._get_filename(method, url, **kwargs)
+    async def _locked_request(self, *a, **k):
+        response = None
         try:
-            with filename.open('rb') as f:
-                unpickled = pickle.load(f)
-            try:
-                await unpickled.text()
-                return unpickled
-            except:
-                filename.unlink()
-                raise
-        except (IOError, EOFError, ImportError):
-            return None
-
-    async def do_cache_response(self, response, method, url, **kwargs):
-        filename = self._get_filename(method, url, **kwargs)
-        response = await CachedResponse.from_response(response)
-        with filename.open('wb') as f:
-            pickle.dump(response, f)
-        try:
-            loaded_resp = await self.get_cached_response(method, url, **kwargs)
-            await loaded_resp.read()
-        except:
-            filename.unlink()
-            raise
-
-
-class MigratingCachingStrategy(CachingStrategy):
-
-    def __init__(self, *a, primary_cache, old_caches=(), **k):
-        super().__init__(*a, **k)
-        self.primary_cache = primary_cache
-        self.old_caches = tuple(old_caches)
-
-    async def get_cached_response(self, method, url, **kwargs):
-        primary_response = await self.primary_cache.get_cached_response(
-            method, url, **kwargs)
-        if primary_response is not None:
-            return primary_response
-        for cache in self.old_caches:
-            cache_response = await cache.get_cached_response(
-                method, url, **kwargs)
-            if cache_response is not None:
-                await self.do_cache_response(
-                    cache_response, method, url, **kwargs)
-                return cache_response
-        return None
-
-    async def do_cache_response(self, response, method, url, **kwargs):
-        await self.primary_cache.do_cache_response(
-            response, method, url, **kwargs)
+            response = await super()._locked_request(*a, **k)
+            return response
+        finally:
+            if not isinstance(response, CachedResponse):
+                await asyncio.sleep(self.cache_miss_delay)

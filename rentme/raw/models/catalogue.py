@@ -2,7 +2,7 @@ import types
 
 from django.db import models
 import multidict
-from trademe.models.enums import AreaOfBusiness
+from api.trademe.enums import AreaOfBusiness
 
 from rentme.data.models._utils import EnumIntegerField
 from .base import RawModel

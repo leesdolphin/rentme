@@ -264,8 +264,8 @@ class BroadbandTechnology(models.Model):
     )
 
     def __repr__(self):
-        return ("BroadbandTechnology({!r}, down={:.3f}-{:.3f},"
-                " up={:.3f}-{:.3f}").format(
+        return ("BroadbandTechnology({!r}, down={}-{},"
+                " up={}-{}").format(
             self.name, self.min_down, self.max_down, self.min_up, self.max_up
         )
 
@@ -562,9 +562,9 @@ class Listing(models.Model):
 
     def __repr__(self):
         return (
-            'Listing('
+            '{}('
             '\n    listing_id={:d},'
-            '\n    listing_type={:d},'
+            '\n    listing_type={!r},'
             '\n    address={!r},'
             '\n    agency_reference={!r},'
             '\n    available_from={!r},'
@@ -589,6 +589,7 @@ class Listing(models.Model):
             '\n    photos={!r},'
             '\n    suburb={!r},'
             '\n)').format(
+                self.__class__.__qualname__,
                 self.listing_id,
                 self.listing_type,
                 self.address,
@@ -614,7 +615,7 @@ class Listing(models.Model):
                 self.photo,
                 self.photos,
                 self.suburb,
-            )
+        )
 
 
 class Photo(models.Model):
@@ -665,3 +666,18 @@ class Photo(models.Model):
         help_text='The URL for the thumbnail sized photo (always 85×64, with '
                   'white borders).'
     )
+
+    def __repr__(self):
+        return (
+            '{}('
+            '\n    photo_id={:d},'
+            '\n    original_height={!r},'
+            '\n    original_width={!r},'
+            '\n    full_size={!r},'
+            '\n)').format(
+                self.__class__.__qualname__,
+                self.photo_id,
+                self.original_height,
+                self.original_width,
+                self.full_size,
+        )

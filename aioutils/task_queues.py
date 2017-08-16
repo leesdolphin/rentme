@@ -68,8 +68,6 @@ class TaskList():
 
     @asyncio_loop_method
     async def wait(self, *, loop, **kwargs):
-        if not self.task_list and not self.errored_tasks:
-            return tuple(self.completed_tasks), ()
         try:
             return await asyncio.wait(self.all_tasks, loop=loop, **kwargs)
         finally:

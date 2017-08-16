@@ -67,15 +67,8 @@ class AsyncioPromiseProxy(PromiseProxy):
 
 
 async def delay_or_call(fn, *args, **kwargs):
-    logger.info("Delaying %s(%s)",
-                fn.__qualname__,
-                ', '.join(
-                    [repr(arg) for arg in args] +
-                    ['%s=%r' % (k, v) for k, v in kwargs.items()]))
-    logger.info("Current Task: %r", current_task)
     if current_task:
         if current_task.request.id:
-            logger.info("Current Task ID: %r", current_task.request.id)
             # Dispatched onto a worker. Call delay
             return fn.apply_async(args, kwargs, expires=600)
     return await fn(*args, **kwargs)

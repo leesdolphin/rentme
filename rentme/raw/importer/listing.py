@@ -3,7 +3,7 @@ import math
 from aioutils.celery import asyncio_task, delay_or_call
 from aioutils.task_queues import SizeBoundedTaskList
 from celery.utils.log import get_task_logger
-from trademe.errors import ClassifiedExpiredError
+from api.trademe.errors import ClassifiedExpiredError
 
 from rentme.celery.celery_app import app
 from rentme.raw.api import get_trademe_api

@@ -5,7 +5,7 @@ from __future__ import unicode_literals
 from django.db import migrations, models
 import django.db.models.deletion
 import rentme.web.models._utils
-import trademe.models.enums
+import api.trademe.enums
 
 
 class Migration(migrations.Migration):
@@ -70,7 +70,7 @@ class Migration(migrations.Migration):
             name='GeographicLocation',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('accuracy', rentme.web.models._utils.EnumIntegerField(enum=trademe.models.enums.GeographicLocationAccuracy)),
+                ('accuracy', rentme.web.models._utils.EnumIntegerField(enum=api.trademe.enums.GeographicLocationAccuracy)),
                 ('easting', models.IntegerField()),
                 ('northing', models.IntegerField()),
                 ('latitude', models.DecimalField(decimal_places=7, max_digits=10)),

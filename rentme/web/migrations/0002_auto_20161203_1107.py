@@ -5,7 +5,7 @@ from __future__ import unicode_literals
 from django.db import migrations, models
 import django.db.models.deletion
 import rentme.web.models._utils
-import trademe.models.enums
+import api.trademe.enums
 
 
 class Migration(migrations.Migration):
@@ -24,7 +24,7 @@ class Migration(migrations.Migration):
                 ('is_restricted', models.BooleanField()),
                 ('has_legal_notice', models.BooleanField()),
                 ('has_classifieds', models.BooleanField()),
-                ('area_of_business', rentme.web.models._utils.EnumIntegerField(enum=trademe.models.enums.AreaOfBusiness)),
+                ('area_of_business', rentme.web.models._utils.EnumIntegerField(enum=api.trademe.enums.AreaOfBusiness)),
                 ('parent', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='subcategories', to='web.Category')),
             ],
         ),

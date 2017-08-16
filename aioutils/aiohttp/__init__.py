@@ -1,6 +1,7 @@
 from .rate_limit import RateLimitingSession
-from .cache import CachingClientSession, CachingStrategy, OnDiskCachingStrategy
-from .cache import MigratingCachingStrategy
+from .cache.session import CachingClientSession
+from .cache.strategy import CachingStrategy, OnDiskCachingStrategy
+from .cache.strategy import MigratingCachingStrategy
 
 
 class RateLimitingCachingClientSession(

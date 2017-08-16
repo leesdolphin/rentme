@@ -5,7 +5,7 @@ from __future__ import unicode_literals
 from django.db import migrations, models
 import django.db.models.deletion
 import rentme.data.models._utils
-import trademe.models.enums
+import api.trademe.enums
 
 
 class Migration(migrations.Migration):
@@ -23,7 +23,7 @@ class Migration(migrations.Migration):
                 ('is_restricted', models.NullBooleanField(help_text='Indicates whether the category is restricted to adults only (i.e. the category is R18).')),
                 ('has_legal_notice', models.NullBooleanField(help_text='Indicates whether the category has legal requirements. You should ask the user to accept the legal notice before listing in this category. There is an API to get the text of the legal notice.')),
                 ('has_classifieds', models.NullBooleanField(help_text='Indicates whether classifieds are allowed in this category.')),
-                ('area_of_business', rentme.data.models._utils.EnumIntegerField(enum=trademe.models.enums.AreaOfBusiness, help_text='Area of business this category is related to', null=True)),
+                ('area_of_business', rentme.data.models._utils.EnumIntegerField(enum=api.trademe.enums.AreaOfBusiness, help_text='Area of business this category is related to', null=True)),
                 ('parent', models.ForeignKey(help_text='The list of subcategories belonging to this category.', null=True, on_delete=django.db.models.deletion.CASCADE, related_name='subcategories', to='data.Category')),
                 ('can_be_second_category', models.NullBooleanField(help_text='Indicates whether this category can be selected as a second category.')),
                 ('can_have_second_category', models.NullBooleanField(help_text='Indicates whether this category can be paired with a second category.')),

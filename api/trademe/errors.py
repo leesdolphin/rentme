@@ -1,14 +1,14 @@
+from api.error import ApiError
 
 
-class TradeMeError(Exception):
+class TradeMeError(ApiError):
 
-    def __init__(self, code, description, data=None, request=None):
+    def __init__(self, code, description, data=None, url=None):
         # Make the exception picklable by calling super.
-        super().__init__(code, description, data, request)
+        super().__init__(code, description, data, url=url)
         self.code = code
         self.description = description
         self.data = data
-        self.request = request
 
 
 class ClassifiedExpiredError(TradeMeError):
@@ -26,7 +26,11 @@ def raise_for_error_key(api_response):
     if 'Error' not in api_response and 'ErrorDescription' not in api_response:
         return
     elif 'Error' not in api_response:
-        raise TradeMeError(code='Unknown', description=err_desc, request=err_requ)
+        raise TradeMeError(
+            code='Unknown',
+            description=err_desc,
+            url=err_requ
+        )
     error_dict = api_response['Error']
     if 'DeveloperDescription' in error_dict:
         err_desc['DeveloperDescription'] = error_dict['DeveloperDescription']

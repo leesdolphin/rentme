@@ -16,9 +16,12 @@ class RateLimitingSession(aiohttp.client.ClientSession):
 
     async def _request(self, method, url, **kwargs):
         if self._max_inflight_requests is None:
-            return await super()._request(method, url, **kwargs)
+            return await self._locked_request(method, url, **kwargs)
         async with self.request_lock(url):
-            return await super()._request(method, url, **kwargs)
+            return await self._locked_request(method, url, **kwargs)
+
+    async def _locked_request(self, method, url, **kwargs):
+        return await super()._request(method, url, **kwargs)
 
     def request_lock(self, url):
         if self._max_inflight_requests is None:

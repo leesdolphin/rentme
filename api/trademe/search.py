@@ -1,8 +1,8 @@
-from trademe.models.enums import PhotoSize, PropertyType, SearchSortOrder
-from trademe2.api.base import APIManagerBase, TradeMeApiEndpoint
-from trademe2.api.validation import build_enum_validator, build_list_validator
-from trademe2.api.validation import ParameterValidator, validate_int
-
+from api.base.manager import APIManagerBase
+from api.base.validation import build_enum_validator, build_list_validator
+from api.base.validation import ParameterValidator, validate_int
+from api.trademe.base import TradeMeApiEndpoint
+from api.trademe.enums import PhotoSize, PropertyType, SearchSortOrder
 
 SearchParameterValidator = ParameterValidator.decorator(
     _booleans=('adjacent_suburbs', 'available_now', 'pets_ok',

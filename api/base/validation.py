@@ -3,7 +3,31 @@ import functools
 import math
 
 
-ValidationErrors = (ValueError, )
+class InvalidParameter(ValueError):
+
+    def __init__(self, parameter, reason):
+        super().__init__(
+            parameter,
+            reason
+        )
+        self.parameter = parameter
+        self.reason = reason
+
+
+class InvalidParameterGroup(ValueError):
+
+    def __init__(self, missing_parameters, present_parameters, reason):
+        super().__init__(
+            missing_parameters,
+            present_parameters,
+            reason
+        )
+        self.missing_parameters = missing_parameters
+        self.present_parameters = present_parameters
+        self.reason = reason
+
+
+ValidationErrors = (InvalidParameter, InvalidParameterGroup, ValueError, )
 
 
 def validate_int(param):
@@ -126,26 +150,34 @@ class ParameterValidator():
     def __call__(self, **kwargs):
         for req_kwarg in self.required:
             if req_kwarg not in kwargs:
-                raise ValueError('Required keyword argument {!r} was not given'
-                                 .format(req_kwarg))
+                raise InvalidParameter(
+                    req_kwarg,
+                    'Required keyword argument was not given'
+                )
         for kwarg_group in self.exists_together_checks:
             existing = tuple(kw for kw in kwarg_group if kw in kwargs)
             missing = tuple(kw for kw in kwarg_group if kw not in kwargs)
             if len(existing) != 0 and len(missing) != 0:
                 # Not a complete group set.
-                raise ValueError('Incomplete group. '
-                                 'Expecting {!r}. Found {!r}.'
-                                 .format(kwarg_group, existing))
+                raise InvalidParameter(
+                    missing,
+                    existing,
+                    'Required keyword argument was not given'
+                )
         cleaned_kwargs = {}
         for key, value in kwargs.items():
             if key not in self.param_validators:
-                raise ValueError('Unknown parameter {!r}.'.format(key))
+                raise InvalidParameter(
+                    key,
+                    'Unknown parameter'
+                )
             validator = self.param_validators[key]
             try:
                 cleaned_val = validator(value)
             except ValidationErrors as e:
-                raise ValueError('Parameter {!r} failed validation with '
-                                 'message {!r}'
-                                 .format(key, str(e)))
+                raise InvalidParameter(
+                    key,
+                    'Parameter failed validation: {!r}'.format(str(e))
+                )
             cleaned_kwargs[key] = cleaned_val
         return cleaned_kwargs

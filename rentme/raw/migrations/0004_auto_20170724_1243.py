@@ -13,9 +13,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.DeleteModel(
-            name='SimpleMemberProfile',
-        ),
         migrations.RemoveField(
             model_name='store',
             name='last_updated',
@@ -29,5 +26,8 @@ class Migration(migrations.Migration):
             model_name='memberprofile',
             name='member',
             field=models.ForeignKey(blank=True, help_text='Basic information about the member.', null=True, on_delete=django.db.models.deletion.CASCADE, related_name='member_profile', to='raw.Member'),
+        ),
+        migrations.DeleteModel(
+            name='SimpleMemberProfile',
         ),
     ]

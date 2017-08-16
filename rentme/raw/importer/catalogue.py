@@ -30,10 +30,18 @@ async def reload_localities(*, loop):
     ).delete()
     catalogue.District.objects.filter(locality=None).delete()
     catalogue.Suburb.objects.filter(district=None).delete()
+    for locality in localities:
+        locality.name = locality.name.strip()
+        for district in locality.districts.all():
+            district.name = district.name.strip()
+            district.save()
+        locality.save()
     suburbs_by_id = catalogue.Suburb.objects.all().prefetch_related(
         'adjacent_suburbs_ids'
     ).in_bulk()
     for suburb in suburbs_by_id.values():
+        suburb.name = suburb.name.strip()
+        suburb.save()
         adj_suburbs = []
         for asid in suburb.adjacent_suburbs_ids.all():
             adj_suburbs.append(suburbs_by_id[asid.value])
